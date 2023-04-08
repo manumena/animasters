@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Guess the anime",
+  "name": "Guess the anime",
   "icons": [
     {
       "src": "favicon.ico",
