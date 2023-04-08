@@ -1,5 +1,5 @@
 import React from 'react';
-import logo from './logo.svg';
+import logo from './pocha.png';
 import './App.css';
 
 function App() {
@@ -7,16 +7,14 @@ function App() {
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
+        <p>Pochita appreciation page</p>
         <a
           className="App-link"
-          href="https://reactjs.org"
+          href="https://chainsaw-man.fandom.com/wiki/Pochita"
           target="_blank"
           rel="noopener noreferrer"
         >
-          Learn React
+          Learn more
         </a>
       </header>
     </div>
