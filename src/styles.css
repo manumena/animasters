@@ -1,14 +1,52 @@
 body{
-  background-image: url('./assets/lofi-cafe.gif');
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('./assets/lofi-cafe.gif');
   background-size: cover; 
-  
   height: 100vh;
   padding:0;
   margin:0;
 }
 
-.App {
+.main-container {
   text-align: center;
+  color: aliceblue;
+}
+
+.home-container {
+  position: absolute;
+  width: 600px;
+  top: 33%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.players-form input {
+  background-color: transparent;
+  width: 260px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 5px;
+  color: aliceblue;
+}
+
+.players-form input:focus {
+  background-color: transparent;
+  caret-color: aliceblue;
+  outline-color: aliceblue;
+  color: aliceblue;
+}
+
+.players-form input::placeholder {
+  color: aliceblue;
+}
+
+.players-form input:last-of-type {
+  display: inline-block;
+}
+
+.players-form .plus-button {
+  padding: 6px 10px 6px 10px;
+  position: absolute;
+  margin-left: 5px;
 }
 
 .App-logo {

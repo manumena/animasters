@@ -1,25 +1,11 @@
-import logo from '../assets/pocha.png'
+import PlayersNamesForm from "../components/PlayersNamesForm";
 
 export default function Home() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <audio 
-          controls={true}
-          loop={true}
-          src="https://firebasestorage.googleapis.com/v0/b/guess-the-anime-a6470.appspot.com/o/kick_back.mp3?alt=media&token=2b9963d9-a151-429e-aad7-217f860ef5e1"
-        />
-        <p>Pochita appreciation page</p>
-        <a
-          className="App-link"
-          href="https://chainsaw-man.fandom.com/wiki/Pochita"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn more
-        </a>
-      </header>
+    <div className="home-container">
+      <h1>Otaku challenge</h1>
+      <p>Immerse yourself in the captivating world of anime and test your knowledge by trying to guess the anime series from its opening theme</p>
+      <PlayersNamesForm/> 
     </div>
   );
 }
