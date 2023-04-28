@@ -7,7 +7,7 @@ interface PlayersNamesFormProps {
   startCallback: (playerNames: string[]) => void
 }
 
-export default function PlayersNamesForm({ startCallback }: PlayersNamesFormProps) {
+export default function MainScreen({ startCallback }: PlayersNamesFormProps) {
 
   const [ playerNames, setNames] = useState<string[]>([''])
   const [ disabled, setDisabled ] = useState<boolean>(true)
@@ -30,16 +30,16 @@ export default function PlayersNamesForm({ startCallback }: PlayersNamesFormProp
   }
   
   return (
-    <>
+    <div className='main-screen-container'>
       <h1>AniMasters</h1>
       <p>Immerse yourself in the captivating world of anime and test your knowledge by trying to guess the anime series from its opening theme</p>
       <div>
-        <Form className='players-form'>
+        <div className='players-form'>
           { playerNames.map((name, id) => <Form.Control key={id} type="text" placeholder="Enter player name..." onChange={(e: ChangeEvent<HTMLInputElement>) => handleNameChange(e, id)} />)}
           <Button variant="outline-light" className='plus-button' onClick={handleClickPlus}><HiOutlinePlus/></Button>
-        </Form>
+        </div>
       </div>
       <Button variant="outline-light" disabled={disabled} className='start-button' onClick={() => {startCallback(playerNames)}}>Start</Button>
-    </>
+    </div>
   )
 }

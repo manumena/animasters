@@ -7,11 +7,11 @@ body{
 }
 
 .main-container {
-  text-align: center;
   color: aliceblue;
 }
 
-.home-container {
+.main-screen-container {
+  text-align: center;
   position: absolute;
   width: 600px;
   top: 33%;
@@ -47,6 +47,16 @@ body{
   padding: 6px 10px 6px 10px;
   position: absolute;
   margin-left: 5px;
+}
+
+.song-counter-container {
+  float: left;
+  margin: 10px;
+}
+
+.players-score-container {
+  float: right;
+  margin: 10px;
 }
 
 .players-form .start-button
