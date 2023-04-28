@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useLayoutEffect, useState } from "react"
 import { Song } from "../types"
 import PlayerScore from "./PlayerScore"
 import { Button } from "react-bootstrap"
@@ -12,8 +12,10 @@ interface MatchScreenProps {
 
 const FIREBASE_DOMAIN = "https://firebasestorage.googleapis.com/v0/b/guess-the-anime-a6470.appspot.com/o/"
 
-export default function MatchScreen({ players, songs }: MatchScreenProps) {   
+export default function MatchScreen({ players, songs }: MatchScreenProps) {
   const [ currentSong, setCurrentSong ] = useState<number>(0)
+  const [ revealedSongs, setRevealedSongs ] = useState<boolean[]>(Array.from(Array(songs.length).keys()).map(() => false))
+  const [ revealButtonLabel, setRevealButtonLabel ] = useState<string>('Reveal')
 
   function goToPreviousSong() {
     if (currentSong > 0)
@@ -24,6 +26,17 @@ export default function MatchScreen({ players, songs }: MatchScreenProps) {
     if (currentSong < songs.length - 1)
       setCurrentSong(currentSong + 1)
   }
+
+  function revealCurrentSong() {
+    const revealed = revealedSongs
+    revealed[currentSong] = true
+    setRevealedSongs(revealed)
+    setRevealButtonLabel(`${songs[currentSong].anime} - ${songs[currentSong].name}`)
+  }
+  
+  useLayoutEffect(() => {
+    setRevealButtonLabel(revealedSongs[currentSong] ? `${songs[currentSong].anime} - ${songs[currentSong].name}` : 'Reveal')
+  }, [revealedSongs, currentSong, songs])
 
   return (
     <>
@@ -43,7 +56,7 @@ export default function MatchScreen({ players, songs }: MatchScreenProps) {
         </div>
         <div className="song-navigation-container">
           <Button variant="outline-light" onClick={goToPreviousSong}><BsArrowLeft/></Button>
-          <Button variant="outline-light">Reveal</Button>
+          <Button variant="outline-light" onClick={revealCurrentSong}>{revealButtonLabel}</Button>
           <Button variant="outline-light" onClick={goToNextSong}><BsArrowRight/></Button>
         </div>
       </div>
