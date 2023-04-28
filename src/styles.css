@@ -57,6 +57,21 @@ body{
 .players-score-container {
   float: right;
   margin: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.player-score-container {
+  display: flex
+}
+
+.player-name {
+  margin: 10px;
+}
+
+.player-score {
+  margin: 10px;
 }
 
 .players-form .start-button
