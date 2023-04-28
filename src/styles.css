@@ -21,7 +21,7 @@ body{
 
 .players-form input {
   background-color: transparent;
-  width: 260px;
+  width: 200px;
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 5px;
@@ -49,6 +49,11 @@ body{
   margin-left: 5px;
 }
 
+
+.start-button {
+  width: 200px; 
+}
+
 .song-counter-container {
   float: left;
   margin: 10px;
@@ -74,7 +79,15 @@ body{
   margin: 10px;
 }
 
-.players-form .start-button
+.audio-player-container {
+  text-align: center;
+  position: absolute;
+  width: 600px;
+  top: 33%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .App-logo {
   height: 25vmin;
   pointer-events: none;

@@ -7,6 +7,8 @@ interface MatchScreenProps {
   songs: Song[]
 }
 
+const FIREBASE_DOMAIN = "https://firebasestorage.googleapis.com/v0/b/guess-the-anime-a6470.appspot.com/o/"
+
 export default function MatchScreen({ players, songs }: MatchScreenProps) {
 
   const [ currentSong, setCurrentSong ] = useState<number>(1)
@@ -18,6 +20,13 @@ export default function MatchScreen({ players, songs }: MatchScreenProps) {
       </div>
       <div className="players-score-container">
         { players.map((name, id) => <PlayerScore key={id} name={name} />) }
+      </div>
+      <div className="audio-player-container">
+        <audio 
+          controls={true}
+          loop={true}
+          src={FIREBASE_DOMAIN + songs[currentSong].path}
+        />
       </div>
     </>
   )
