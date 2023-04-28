@@ -1,9 +1,8 @@
-import { useEffect, useLayoutEffect, useState } from "react"
+import { useLayoutEffect, useState } from "react"
 import { Song } from "../types"
 import PlayerScore from "./PlayerScore"
 import { Button } from "react-bootstrap"
 import { BsArrowRight, BsArrowLeft } from "react-icons/bs"
-import { HiOutlineMinus, HiOutlinePlus } from "react-icons/hi"
 
 interface MatchScreenProps {
   players: string[]
