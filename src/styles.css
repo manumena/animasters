@@ -79,13 +79,20 @@ body{
   margin: 10px;
 }
 
-.audio-player-container {
+.song-controls-container {
   text-align: center;
   position: absolute;
   width: 600px;
   top: 33%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.song-navigation-container {
+  display: flex;
+  justify-content: space-evenly;
+  flex-direction: row;
+  margin-top: 10px;
 }
 
 .App-logo {
