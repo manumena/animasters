@@ -14,3 +14,6 @@ command = "npm run build"
 
 [build.upload]
 format = "service-worker"
+
+[site]
+name = "animasters"
