@@ -14,9 +14,9 @@ body{
   text-align: center;
   position: absolute;
   width: 600px;
-  top: 33%;
+  top: 20%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%);
 }
 
 .players-form input {
