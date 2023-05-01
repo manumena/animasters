@@ -49,6 +49,11 @@ body{
   margin-left: 5px;
 }
 
+.players-form .minus-button {
+  padding: 6px 10px 6px 10px;
+  position: absolute;
+  margin-left: 5px;
+}
 
 .start-button {
   width: 200px; 
