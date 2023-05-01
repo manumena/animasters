@@ -1,8 +1,8 @@
-name = "match-generator"
+name = "animasters"
 type = "webpack"
 route = ''
 zone_id = ''
-account_id = '8a93337e5cf183625e3ce2b4ffe43284'
+account_id = ''
 usage_model = ''
 compatibility_flags = []
 workers_dev = true
