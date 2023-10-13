@@ -1,20 +1,24 @@
 import { useLayoutEffect, useState } from "react"
-import { Song } from "../types"
+import { Match, Song } from "../types"
 import PlayerScore from "./PlayerScore"
 import { Button } from "react-bootstrap"
 import { BsArrowRight, BsArrowLeft } from "react-icons/bs"
+import { fetchSongs } from "../api/fetch"
 
 interface MatchScreenProps {
   players: string[]
-  songs: Song[]
+  matchSongs: Song[]
 }
 
 const FIREBASE_DOMAIN = "https://firebasestorage.googleapis.com/v0/b/guess-the-anime-a6470.appspot.com/o/"
+const REVEAL_BUTTON_LABEL = 'Reveal'
+const NEW_ROUND = 'New Round'
 
-export default function MatchScreen({ players, songs }: MatchScreenProps) {
+export default function MatchScreen({ players, matchSongs }: MatchScreenProps) {
+  const [ songs, setSongs] = useState<Song[]>(matchSongs)
   const [ currentSong, setCurrentSong ] = useState<number>(0)
   const [ revealedSongs, setRevealedSongs ] = useState<boolean[]>(Array.from(Array(songs.length).keys()).map(() => false))
-  const [ revealButtonLabel, setRevealButtonLabel ] = useState<string>('Reveal')
+  const [ revealButtonLabel, setRevealButtonLabel ] = useState<string>(REVEAL_BUTTON_LABEL)
 
   function goToPreviousSong() {
     if (currentSong > 0)
@@ -32,9 +36,23 @@ export default function MatchScreen({ players, songs }: MatchScreenProps) {
     setRevealedSongs(revealed)
     setRevealButtonLabel(`${songs[currentSong].anime} - ${songs[currentSong].name}`)
   }
+
+  function startNextRound() {
+    fetchSongs((data: Match) => {
+      // Override songs
+      setSongs(data.match)
+
+      // Set current song to the first one
+      setCurrentSong(0)
+
+      // Restart reveal button
+      setRevealButtonLabel(REVEAL_BUTTON_LABEL)
+      setRevealedSongs(Array.from(Array(data.match.length).keys()).map(() => false))
+    })
+  }
   
   useLayoutEffect(() => {
-    setRevealButtonLabel(revealedSongs[currentSong] ? `${songs[currentSong].anime} - ${songs[currentSong].name}` : 'Reveal')
+    setRevealButtonLabel(revealedSongs[currentSong] ? `${songs[currentSong].anime} - ${songs[currentSong].name}` : REVEAL_BUTTON_LABEL)
   }, [revealedSongs, currentSong, songs])
 
   return (
@@ -57,6 +75,9 @@ export default function MatchScreen({ players, songs }: MatchScreenProps) {
           <Button variant="outline-light" onClick={goToPreviousSong}><BsArrowLeft/></Button>
           <Button variant="outline-light" onClick={revealCurrentSong}>{revealButtonLabel}</Button>
           <Button variant="outline-light" onClick={goToNextSong}><BsArrowRight/></Button>
+        </div>
+        <div className="new-round-container">
+          <Button variant="outline-light" onClick={startNextRound}>{NEW_ROUND}</Button>
         </div>
       </div>
     </>

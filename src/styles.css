@@ -100,6 +100,10 @@ body{
   margin-top: 10px;
 }
 
+.new-round-container {
+  margin-top: 10px;
+}
+
 .App-logo {
   height: 25vmin;
   pointer-events: none;
