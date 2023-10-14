@@ -5,6 +5,7 @@ import { Match, Song } from "../types";
 import { fetchSongs } from "../api/fetch";
 
 enum State { HOME, PLAYING, RESULTS }
+export const SONGS_PER_ROUND = 40
 
 export default function Home() {
 
@@ -23,7 +24,9 @@ export default function Home() {
 
       // Change the game state
       setState(State.PLAYING)
-    })
+    },
+    SONGS_PER_ROUND
+    )
   }
 
   return (

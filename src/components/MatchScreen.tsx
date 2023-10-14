@@ -4,6 +4,7 @@ import PlayerScore from "./PlayerScore"
 import { Button } from "react-bootstrap"
 import { BsArrowRight, BsArrowLeft } from "react-icons/bs"
 import { fetchSongs } from "../api/fetch"
+import { SONGS_PER_ROUND } from "../pages/Home"
 
 interface MatchScreenProps {
   players: string[]
@@ -48,7 +49,8 @@ export default function MatchScreen({ players, matchSongs }: MatchScreenProps) {
       // Restart reveal button
       setRevealButtonLabel(REVEAL_BUTTON_LABEL)
       setRevealedSongs(Array.from(Array(data.match.length).keys()).map(() => false))
-    })
+    },
+    SONGS_PER_ROUND)
   }
   
   useLayoutEffect(() => {
