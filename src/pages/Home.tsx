@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MainScreen from "../components/MainScreen";
 import MatchScreen from "../components/MatchScreen";
 import { Match, Song } from "../types";
@@ -13,6 +13,13 @@ export default function Home() {
   const [ songs, setSongs ] = useState<Song[]>([])
   const [ state, setState ] = useState<State>(State.HOME)
 
+  useEffect(() => {
+    console.log('songs changed', songs)
+    // Change the game state if songs are retrieved
+    if (songs && songs.length > 0)
+        setState(State.PLAYING)
+  }, [songs])
+
   function handleClickStart(playerNames: string[]) {
     //Set players names
     setPlayers(playerNames)
@@ -21,9 +28,6 @@ export default function Home() {
     fetchSongs((data: Match) => {
       // Set the response
       setSongs(data.match)
-
-      // Change the game state
-      setState(State.PLAYING)
     },
     SONGS_PER_ROUND
     )
