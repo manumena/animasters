@@ -8,7 +8,9 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#f8f9fa'
+      main: '#f8f9fa',
+      dark: '#f8f9fa',
+      light: '#f8f9fa'
     },
     secondary: {
       main: '#86b7fe'
@@ -34,6 +36,21 @@ const theme = createTheme({
             borderColor: theme.palette.secondary.main,
             boxShadow: '0 0 0 .25rem #0d6efd40',
             outline: 0
+          }
+        })
+      }
+    },
+    MuiInputBase: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          input: {
+            color: theme.palette.primary.main,
+          },
+          fieldset: {
+            borderColor: theme.palette.primary.main
+          },
+          legend: {
+            color: theme.palette.primary.main,
           }
         })
       }

@@ -12,6 +12,7 @@ export function fetchSongs(callbackOnFetch: (data: Match) => any, amount?: numbe
 
 function buildUrl(amount?: number) {
   let url = 'https://match-generator.manuelmena19938676.workers.dev/generate-match'
+  // let url = 'http://127.0.0.1:8787/generate-match'
   if (amount)
     url += '?amount=' + amount
   return url

@@ -1,7 +1,5 @@
 import { ChangeEvent, useEffect, useState } from 'react';
-
 import PlayersFormRow from './PlayersFormRow';
-
 import { IoSettingsSharp } from "react-icons/io5"
 import { Button } from '@mui/material';
 import styled from '@emotion/styled';
@@ -45,7 +43,6 @@ export default function MainScreen({ startCallback, settingsCallback }: PlayersN
   return (
     <MainScreenContainer>
       <h1>AniMasters</h1>
-      <p>Immerse yourself in the captivating world of anime and test your knowledge by trying to guess the anime series from its opening theme</p>
       <div>
         <div className='players-form'>
           { playerNames.map((name, id) =>
@@ -54,7 +51,7 @@ export default function MainScreen({ startCallback, settingsCallback }: PlayersN
         </div>
       </div>
       <StartButton variant="outlined" disabled={disabled} onClick={() => {startCallback(playerNames)}}>Start</StartButton>
-      <SideButton variant="outlined"><IoSettingsSharp onClick={() => settingsCallback()} /></SideButton>
+      <SideButton variant="outlined" onClick={() => settingsCallback()}><IoSettingsSharp /></SideButton>
     </MainScreenContainer>
   )
 }

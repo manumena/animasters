@@ -4,9 +4,10 @@ import PlayerScore from "./PlayerScore"
 import { Button } from "react-bootstrap"
 import { BsArrowRight, BsArrowLeft } from "react-icons/bs"
 import { fetchSongs } from "../api/fetch"
-import { SONGS_PER_ROUND } from "../pages/Home"
+import { Settings } from "../pages/Home"
 
-interface MatchScreenProps {
+
+type MatchScreenProps = Settings & {
   players: string[]
   matchSongs: Song[]
 }
@@ -15,7 +16,7 @@ const FIREBASE_DOMAIN = "https://firebasestorage.googleapis.com/v0/b/guess-the-a
 const REVEAL_BUTTON_LABEL = 'Reveal'
 const NEW_ROUND = 'New Round'
 
-export default function MatchScreen({ players, matchSongs }: MatchScreenProps) {
+export default function MatchScreen({ players, matchSongs, songsPerRound }: MatchScreenProps) {
   const [ songs, setSongs] = useState<Song[]>(matchSongs)
   const [ currentSong, setCurrentSong ] = useState<number>(0)
   const [ revealedSongs, setRevealedSongs ] = useState<boolean[]>(Array.from(Array(songs.length).keys()).map(() => false))
@@ -50,7 +51,7 @@ export default function MatchScreen({ players, matchSongs }: MatchScreenProps) {
       setRevealButtonLabel(REVEAL_BUTTON_LABEL)
       setRevealedSongs(Array.from(Array(data.match.length).keys()).map(() => false))
     },
-    SONGS_PER_ROUND)
+    songsPerRound)
   }
   
   useLayoutEffect(() => {
