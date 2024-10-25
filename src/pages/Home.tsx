@@ -3,6 +3,7 @@ import MainScreen from "../components/MainScreen";
 import MatchScreen from "../components/MatchScreen";
 import { Match, Song } from "../types";
 import { fetchSongs } from "../api/fetch";
+import SettingsScreen from "../components/SettingsScreen";
 
 enum State { HOME, PLAYING, RESULTS, SETTINGS }
 export const SONGS_PER_ROUND = 40
@@ -33,10 +34,21 @@ export default function Home() {
     )
   }
 
+  function handleClickSettings() {
+    // Change the game state to settings
+    setState(State.SETTINGS)
+  }
+
+  function handleClickBackFromSettings() {
+    // Change the game state to settings
+    setState(State.HOME)
+  }
+
   return (
     <>
-      { state === State.HOME ? <MainScreen startCallback={handleClickStart} /> : <></> }
+      { state === State.HOME ? <MainScreen startCallback={handleClickStart} settingsCallback={handleClickSettings} /> : <></> }
       { state === State.PLAYING ? <MatchScreen players={players} matchSongs={songs} /> : <></> }
+      { state === State.SETTINGS ? <SettingsScreen backCallback={handleClickBackFromSettings} /> : <></>}
     </>
   );
 }

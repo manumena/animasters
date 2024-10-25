@@ -1,21 +1,33 @@
-import { ChangeEvent, useState } from 'react';
-import { Button } from 'react-bootstrap';
+import { ChangeEvent, useEffect, useState } from 'react';
+
 import PlayersFormRow from './PlayersFormRow';
+
+import { IoSettingsSharp } from "react-icons/io5"
+import { Button } from '@mui/material';
+import styled from '@emotion/styled';
 
 interface PlayersNamesFormProps {
   startCallback: (playerNames: string[]) => void
+  settingsCallback: () => void
 }
 
-export default function MainScreen({ startCallback }: PlayersNamesFormProps) {
+export default function MainScreen({ startCallback, settingsCallback }: PlayersNamesFormProps) {
 
   const [ playerNames, setPlayerNames] = useState<string[]>([''])
   const [ disabled, setDisabled ] = useState<boolean>(true)
+
+  useEffect(() => {
+    function everyNameIsFilled() {
+      return playerNames.every((name) => name.length > 0)
+    }
+
+    setDisabled(!everyNameIsFilled())
+  }, [playerNames])
 
   function handleNameChange(e: ChangeEvent<HTMLInputElement>, id: number) {
     const updatedNames = [...playerNames]
     updatedNames[id] = e.currentTarget.value
     setPlayerNames(updatedNames)
-    setDisabled(!everyNameIsFilled())
   }
 
   function handleClickPlus() {
@@ -29,13 +41,9 @@ export default function MainScreen({ startCallback }: PlayersNamesFormProps) {
     updatedNames.splice(id, 1)
     setPlayerNames(updatedNames)
   }
-
-  function everyNameIsFilled() {
-    return playerNames.every((name) => name.length > 0)
-  }
   
   return (
-    <div className='main-screen-container'>
+    <MainScreenContainer>
       <h1>AniMasters</h1>
       <p>Immerse yourself in the captivating world of anime and test your knowledge by trying to guess the anime series from its opening theme</p>
       <div>
@@ -45,7 +53,31 @@ export default function MainScreen({ startCallback }: PlayersNamesFormProps) {
           )}
         </div>
       </div>
-      <Button variant="outline-light" disabled={disabled} className='start-button' onClick={() => {startCallback(playerNames)}}>Start</Button>
-    </div>
+      <StartButton variant="outlined" disabled={disabled} onClick={() => {startCallback(playerNames)}}>Start</StartButton>
+      <SideButton variant="outlined"><IoSettingsSharp onClick={() => settingsCallback()} /></SideButton>
+    </MainScreenContainer>
   )
 }
+
+const MainScreenContainer = styled.div`
+  text-align: center;
+  position: absolute;
+  width: 600px;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%);
+`
+
+const StartButton = styled(Button)`
+  height: 38px;
+  width: 200px;
+`
+
+export const SideButton = styled(Button)`
+  margin-left: 5px;
+  position: absolute;
+  padding: 6px 10px 6px 10px
+  width: 38px;
+  height: 38px;
+  min-width: 0px;
+`
