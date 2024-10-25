@@ -1,6 +1,5 @@
-import { List, ListItem, TextField } from "@mui/material"
+import { List, ListItem, TextField, Button, Container } from "@mui/material"
 import { useState } from "react"
-import { Button } from "react-bootstrap"
 import { BsArrowLeft } from "react-icons/bs"
 import styled from "styled-components"
 import { Settings } from "../pages/Home"
@@ -20,8 +19,16 @@ export default function SettingsScreen({ songsPerRound, backCallback}: SettingsS
 
     return (
         <SettingsScreenContainer>
-            <Button variant="outline-light" onClick={() => backCallback({songsPerRound: newSongsPerRound})}><BsArrowLeft/></Button>
-            <h1>Settings</h1>
+            <Container>
+                <Button 
+                    style={{float: 'left', height: '60px'}}
+                    variant="outlined"
+                    onClick={() => backCallback({songsPerRound: newSongsPerRound})}
+                    startIcon={<BsArrowLeft/>}>
+                    Back
+                </Button>
+                <h1>Settings</h1>
+            </Container>
             <List>
                 <FlexListItem>
                     <span>Songs per round</span>
