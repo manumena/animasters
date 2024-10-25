@@ -51,6 +51,11 @@ const theme = createTheme({
           },
           legend: {
             color: theme.palette.primary.main,
+          },
+          "&.MuiInputBase-root:hover": {
+            fieldset: {
+              borderColor: theme.palette.primary.main
+            }
           }
         })
       }
