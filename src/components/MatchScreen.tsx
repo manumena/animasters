@@ -4,7 +4,7 @@ import PlayerScore from "./PlayerScore"
 import { Button } from "react-bootstrap"
 import { BsArrowRight, BsArrowLeft } from "react-icons/bs"
 import { fetchSongs } from "../api/fetch"
-import { Settings } from "../pages/Home"
+import { Settings } from "../stores/useGameStore"
 
 
 type MatchScreenProps = Settings & {

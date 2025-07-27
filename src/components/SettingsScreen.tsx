@@ -2,7 +2,7 @@ import { List, ListItem, TextField, Button, Container } from "@mui/material"
 import { useState } from "react"
 import { BsArrowLeft } from "react-icons/bs"
 import styled from "styled-components"
-import { Settings } from "../pages/Home"
+import { Settings } from "../stores/useGameStore"
 
 interface SettingsScreenProps {
     songsPerRound: number
