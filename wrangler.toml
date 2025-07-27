@@ -1,16 +1,7 @@
 name = "animasters"
-type = "webpack"
-route = ''
-zone_id = ''
-account_id = ''
-usage_model = ''
-compatibility_flags = []
-workers_dev = true
+main = "src/index.tsx"
 compatibility_date = "2023-04-08"
-webpack_config = "webpack.config.js"
+workers_dev = true
 
 [build]
 command = "npm run build"
-
-[build.upload]
-format = "service-worker"

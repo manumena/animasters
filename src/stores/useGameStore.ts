@@ -47,7 +47,7 @@ export const useGameStore = create<GameState>()(
 
     openSettings: () => set({ view: ViewState.SETTINGS }),
 
-    saveSettings: (newSettings) => {
+  saveSettings: (newSettings) => {
       set({ settings: newSettings });
       set({ view: ViewState.MAIN });
     }
