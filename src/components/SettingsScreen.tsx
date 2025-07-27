@@ -5,9 +5,9 @@ import styled from "styled-components"
 import { useGameStore } from "../stores/useGameStore"
 
 export default function SettingsScreen() {
-    const { saveSettings, songsPerRound } = useGameStore()
+    const { saveSettings, settings } = useGameStore()
 
-    const [ newSongsPerRound, setNewSongsPerRound ] = useState<number>(songsPerRound)
+    const [ newSongsPerRound, setNewSongsPerRound ] = useState<number>(settings.songsPerRound)
 
     function onChangeSongsPerRound(value: string) {
         const newValue = Number(value)

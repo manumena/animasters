@@ -16,8 +16,9 @@ interface GameState {
   // Game data
   players: string[];
   songs: Song[];
-  songsPerRound: number;
-  setSongsPerRound: (n: number) => void;
+  
+  // Game settings
+  settings: Settings;
 
   // Actions
   startGame: (playerNames: string[]) => void;
@@ -32,24 +33,22 @@ export const useGameStore = create<GameState>()(
     view: ViewState.MAIN,
     players: [],
     songs: [],
-    songsPerRound: DEFAULT_SONGS_PER_ROUND,
-
-    setSongsPerRound: (n) => set({ songsPerRound: n }),
+    settings: {
+      songsPerRound: DEFAULT_SONGS_PER_ROUND,
+    },
 
     startGame: (playerNames) => {
       set({ players: playerNames });
       // Fetch songs async
       fetchSongs((data: Match) => {
         set({ songs: data.match, view: ViewState.PLAYING });
-      }, get().songsPerRound);
+      }, get().settings.songsPerRound);
     },
 
     openSettings: () => set({ view: ViewState.SETTINGS }),
 
     saveSettings: (newSettings) => {
-      if (newSettings.songsPerRound !== get().songsPerRound) {
-        set({ songsPerRound: newSettings.songsPerRound });
-      }
+      set({ settings: newSettings });
       set({ view: ViewState.MAIN });
     }
   }))

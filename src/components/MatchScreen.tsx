@@ -13,7 +13,7 @@ const NEW_ROUND = 'New Round'
 
 export default function MatchScreen() {
 
-  const { players, songs: matchSongs, songsPerRound } = useGameStore()
+  const { players, songs: matchSongs, settings } = useGameStore()
 
   const [ songs, setSongs] = useState<Song[]>(matchSongs) // TODO: Remove this state. Let useGameStore handle the songs state. Let useGameStore handle the next round logic too
   const [ currentSong, setCurrentSong ] = useState<number>(0)
@@ -49,7 +49,7 @@ export default function MatchScreen() {
       setRevealButtonLabel(REVEAL_BUTTON_LABEL)
       setRevealedSongs(Array.from(Array(data.match.length).keys()).map(() => false))
     },
-    songsPerRound)
+    settings.songsPerRound)
   }
   
   useLayoutEffect(() => {
