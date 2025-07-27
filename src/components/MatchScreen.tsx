@@ -4,20 +4,18 @@ import PlayerScore from "./PlayerScore"
 import { Button } from "react-bootstrap"
 import { BsArrowRight, BsArrowLeft } from "react-icons/bs"
 import { fetchSongs } from "../api/fetch"
-import { Settings } from "../stores/useGameStore"
+import { useGameStore } from "../stores/useGameStore"
 
-
-type MatchScreenProps = Settings & {
-  players: string[]
-  matchSongs: Song[]
-}
 
 const FIREBASE_DOMAIN = "https://firebasestorage.googleapis.com/v0/b/guess-the-anime-a6470.appspot.com/o/"
 const REVEAL_BUTTON_LABEL = 'Reveal'
 const NEW_ROUND = 'New Round'
 
-export default function MatchScreen({ players, matchSongs, songsPerRound }: MatchScreenProps) {
-  const [ songs, setSongs] = useState<Song[]>(matchSongs)
+export default function MatchScreen() {
+
+  const { players, songs: matchSongs, songsPerRound } = useGameStore()
+
+  const [ songs, setSongs] = useState<Song[]>(matchSongs) // TODO: Remove this state. Let useGameStore handle the songs state. Let useGameStore handle the next round logic too
   const [ currentSong, setCurrentSong ] = useState<number>(0)
   const [ revealedSongs, setRevealedSongs ] = useState<boolean[]>(Array.from(Array(songs.length).keys()).map(() => false))
   const [ revealButtonLabel, setRevealButtonLabel ] = useState<string>(REVEAL_BUTTON_LABEL)

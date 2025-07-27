@@ -2,13 +2,11 @@ import { List, ListItem, TextField, Button, Container } from "@mui/material"
 import { useState } from "react"
 import { BsArrowLeft } from "react-icons/bs"
 import styled from "styled-components"
-import { Settings } from "../stores/useGameStore"
+import { useGameStore } from "../stores/useGameStore"
 
-interface SettingsScreenProps {
-    songsPerRound: number
-    backCallback: (newSettings: Settings) => void
-}
-export default function SettingsScreen({ songsPerRound, backCallback}: SettingsScreenProps) {
+export default function SettingsScreen() {
+    const { saveSettings, songsPerRound } = useGameStore()
+
     const [ newSongsPerRound, setNewSongsPerRound ] = useState<number>(songsPerRound)
 
     function onChangeSongsPerRound(value: string) {
@@ -23,7 +21,7 @@ export default function SettingsScreen({ songsPerRound, backCallback}: SettingsS
                 <Button 
                     style={{float: 'left', height: '60px'}}
                     variant="outlined"
-                    onClick={() => backCallback({songsPerRound: newSongsPerRound})}
+                    onClick={() => saveSettings({songsPerRound: newSongsPerRound})}
                     startIcon={<BsArrowLeft/>}>
                     Back
                 </Button>

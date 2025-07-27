@@ -1,7 +1,6 @@
-import React from 'react';
 import { Route, Routes } from "react-router-dom"
-import Home from './pages/Home';
 import "./styles.css"
+import ScreenManager from './pages/ScreenManager';
 import Pochita from './pages/Pochita';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
@@ -69,7 +68,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <div className='main-container'>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<ScreenManager />} />
           <Route path="/pochita" element={<Pochita />} />
         </Routes>
       </div>

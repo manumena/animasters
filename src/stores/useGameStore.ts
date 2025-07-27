@@ -12,7 +12,6 @@ export interface Settings {
 interface GameState {
   // UI screen state
   view: ViewState;
-  setView: (v: ViewState) => void;
 
   // Game data
   players: string[];
@@ -22,7 +21,8 @@ interface GameState {
 
   // Actions
   startGame: (playerNames: string[]) => void;
-  backFromSettings: (newSettings: Settings) => void;
+  openSettings: () => void;
+  saveSettings: (newSettings: Settings) => void;
 }
 
 const DEFAULT_SONGS_PER_ROUND = 40;
@@ -34,8 +34,6 @@ export const useGameStore = create<GameState>()(
     songs: [],
     songsPerRound: DEFAULT_SONGS_PER_ROUND,
 
-    setView: (v) => set({ view: v }),
-
     setSongsPerRound: (n) => set({ songsPerRound: n }),
 
     startGame: (playerNames) => {
@@ -46,7 +44,9 @@ export const useGameStore = create<GameState>()(
       }, get().songsPerRound);
     },
 
-    backFromSettings: (newSettings) => {
+    openSettings: () => set({ view: ViewState.SETTINGS }),
+
+    saveSettings: (newSettings) => {
       if (newSettings.songsPerRound !== get().songsPerRound) {
         set({ songsPerRound: newSettings.songsPerRound });
       }

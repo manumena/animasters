@@ -3,16 +3,15 @@ import PlayersFormRow from './PlayersFormRow';
 import { IoSettingsSharp } from "react-icons/io5"
 import { Button } from '@mui/material';
 import styled from '@emotion/styled';
+import { useGameStore } from '../stores/useGameStore';
 
-interface PlayersNamesFormProps {
-  startCallback: (playerNames: string[]) => void
-  settingsCallback: () => void
-}
 
-export default function MainScreen({ startCallback, settingsCallback }: PlayersNamesFormProps) {
+export default function MainScreen() {
 
   const [ playerNames, setPlayerNames] = useState<string[]>([''])
   const [ disabled, setDisabled ] = useState<boolean>(true)
+
+  const { startGame, openSettings } = useGameStore();
 
   useEffect(() => {
     function everyNameIsFilled() {
@@ -50,8 +49,8 @@ export default function MainScreen({ startCallback, settingsCallback }: PlayersN
           )}
         </div>
       </div>
-      <StartButton variant="outlined" disabled={disabled} onClick={() => {startCallback(playerNames)}}>Start</StartButton>
-      <SideButton variant="outlined" onClick={() => settingsCallback()}><IoSettingsSharp /></SideButton>
+      <StartButton variant="outlined" disabled={disabled} onClick={() => {startGame(playerNames)}}>Start</StartButton>
+      <SideButton variant="outlined" onClick={openSettings}><IoSettingsSharp /></SideButton>
     </MainScreenContainer>
   )
 }
