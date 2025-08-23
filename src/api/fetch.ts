@@ -1,8 +1,9 @@
+import { Settings } from "../stores/useGameStore";
 import { Match } from "../types";
 
-export function fetchSongs(callbackOnFetch: (data: Match) => any, amount?: number) {
+export function fetchSongs(callbackOnFetch: (data: Match) => any, settings: Settings) {
   // Build url
-  const url = buildUrl(amount)
+  const url = buildUrl(settings)
 
   // Request a match to match-generator
   fetch(url)
@@ -10,10 +11,16 @@ export function fetchSongs(callbackOnFetch: (data: Match) => any, amount?: numbe
     .then(data => callbackOnFetch(data))
 }
 
-function buildUrl(amount?: number) {
+function buildUrl({ songsPerRound, includeOpenings, includeEndings, includeSoundtracks }: Settings): string {
   let url = 'https://match-generator.manuelmena19938676.workers.dev/generate-match'
   // let url = 'http://127.0.0.1:8787/generate-match'
-  if (amount)
-    url += '?amount=' + amount
+  if (songsPerRound)
+    url += '?amount=' + songsPerRound
+  if (includeOpenings)
+    url += '&includeOpenings=' + includeOpenings
+  if (includeEndings)
+    url += '&includeEndings=' + includeEndings
+  if (includeSoundtracks)
+    url += '&includeSoundtracks=' + includeSoundtracks
   return url
 }

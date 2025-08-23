@@ -49,7 +49,7 @@ export default function MatchScreen() {
       setRevealButtonLabel(REVEAL_BUTTON_LABEL)
       setRevealedSongs(Array.from(Array(data.match.length).keys()).map(() => false))
     },
-    settings.songsPerRound)
+    settings)
   }
   
   useLayoutEffect(() => {

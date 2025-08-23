@@ -7,6 +7,9 @@ export enum ViewState { MAIN, PLAYING, RESULTS, SETTINGS }
 
 export interface Settings {
   songsPerRound: number;
+  includeOpenings: boolean;
+  includeEndings: boolean;
+  includeSoundtracks: boolean;
 }
 
 interface GameState {
@@ -35,6 +38,9 @@ export const useGameStore = create<GameState>()(
     songs: [],
     settings: {
       songsPerRound: DEFAULT_SONGS_PER_ROUND,
+      includeOpenings: true,
+      includeEndings: true,
+      includeSoundtracks: true
     },
 
     startGame: (playerNames) => {
@@ -42,12 +48,12 @@ export const useGameStore = create<GameState>()(
       // Fetch songs async
       fetchSongs((data: Match) => {
         set({ songs: data.match, view: ViewState.PLAYING });
-      }, get().settings.songsPerRound);
+      }, get().settings);
     },
 
     openSettings: () => set({ view: ViewState.SETTINGS }),
 
-  saveSettings: (newSettings) => {
+    saveSettings: (newSettings) => {
       set({ settings: newSettings });
       set({ view: ViewState.MAIN });
     }
