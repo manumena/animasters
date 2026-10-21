@@ -6392,7 +6392,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-config-react-app@npm:^7.0.1":
+"eslint-config-react-app@npm:7.0.1, eslint-config-react-app@npm:^7.0.1":
   version: 7.0.1
   resolution: "eslint-config-react-app@npm:7.0.1"
   dependencies:
@@ -6622,7 +6622,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^8.3.0":
+"eslint@npm:8.57.1, eslint@npm:^8.3.0":
   version: 8.57.1
   resolution: "eslint@npm:8.57.1"
   dependencies:
@@ -7449,6 +7449,8 @@ __metadata:
     "@types/react-dom": "npm:^18.0.11"
     "@types/styled-components": "npm:^5.1.28"
     bootstrap: "npm:^5.2.3"
+    eslint: "npm:8.57.1"
+    eslint-config-react-app: "npm:7.0.1"
     mui: "npm:^0.0.1"
     react: "npm:^18.2.0"
     react-bootstrap: "npm:^2.7.2"
@@ -13459,7 +13461,7 @@ __metadata:
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 10c0/2c2f16b1d936203d5b808e68e0cdac15411c97e170cb0d15a67bc9a853b1bfb9e0720a7019eaac276e3558584af2f2113cbc5be88303d8e802227733af106c50
+  checksum: 10c0/e3333f887c6829dfe0ab6c1dbe0dd1e3e2aeb56c66460cb85c5440c566f900c833d370ca34eb47558c0c69e78ced4bfe09b8f4f98b6de7afed9b84b8d1dd06a1
   languageName: node
   linkType: hard
 
