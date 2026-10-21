@@ -5,3 +5,4 @@ workers_dev = true
 
 [build]
 command = "npm run build"
+pages_build_output_dir = "./build"
