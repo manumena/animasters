@@ -8,6 +8,7 @@ import { useGameStore } from "../stores/useGameStore"
 
 
 const FIREBASE_DOMAIN = "https://firebasestorage.googleapis.com/v0/b/guess-the-anime-a6470.appspot.com/o/"
+const SUPABASE_DOMAIN = "https://dszqiegiplfnrnovpqvn.supabase.co/storage/v1/object/public/animasters/"
 const REVEAL_BUTTON_LABEL = 'Reveal'
 const NEW_ROUND = 'New Round'
 
@@ -20,6 +21,7 @@ export default function MatchScreen() {
   const [ revealedSongs, setRevealedSongs ] = useState<boolean[]>(Array.from(Array(songs.length).keys()).map(() => false))
   const [ revealButtonLabel, setRevealButtonLabel ] = useState<string>(REVEAL_BUTTON_LABEL)
 
+  console.log({songs})
   function goToPreviousSong() {
     if (currentSong > 0)
       setCurrentSong(currentSong - 1)
@@ -69,7 +71,7 @@ export default function MatchScreen() {
           <audio 
             controls={true}
             loop={true}
-            src={FIREBASE_DOMAIN + songs[currentSong].path}
+            src={SUPABASE_DOMAIN + songs[currentSong].path}
           />
         </div>
         <div className="song-navigation-container">

@@ -8,7 +8,7 @@ export default function Home() {
         <audio 
           controls={true}
           loop={true}
-          src="https://firebasestorage.googleapis.com/v0/b/guess-the-anime-a6470.appspot.com/o/kick_back.mp3?alt=media&token=2b9963d9-a151-429e-aad7-217f860ef5e1"
+          src="https://dszqiegiplfnrnovpqvn.supabase.co/storage/v1/object/public/animasters/Chainsawman/kick_back.mp3"
         />
         <p>Pochita appreciation page</p>
         <a
