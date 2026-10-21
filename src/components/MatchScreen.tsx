@@ -7,7 +7,6 @@ import { fetchSongs } from "../api/fetch"
 import { useGameStore } from "../stores/useGameStore"
 
 
-const FIREBASE_DOMAIN = "https://firebasestorage.googleapis.com/v0/b/guess-the-anime-a6470.appspot.com/o/"
 const SUPABASE_DOMAIN = "https://dszqiegiplfnrnovpqvn.supabase.co/storage/v1/object/public/animasters/"
 const REVEAL_BUTTON_LABEL = 'Reveal'
 const NEW_ROUND = 'New Round'

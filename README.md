@@ -2,6 +2,29 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Deploying to Cloudflare Pages
+
+Use these build settings in the Cloudflare Pages dashboard:
+
+- Root directory: repository root
+- Build command: `yarn build`
+- Build output directory: `build`
+
+The repository pins Yarn 4.5.1 in `package.json`. Yarn reads `.yarnrc.yml`
+to install dependencies into `node_modules`; the filename must use `.yml`,
+not `.yaml`. This also allows the existing `npm run build` command to work
+after Cloudflare installs dependencies with Yarn.
+
+`wrangler.toml` declares the Pages output directory. Configure the build
+command in the Pages dashboard, not in a Wrangler `[build]` section.
+
+To verify the production build locally:
+
+```sh
+yarn install --immutable
+CI=true yarn build
+```
+
 ## Available Scripts
 
 In the project directory, you can run:
