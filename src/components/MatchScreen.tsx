@@ -74,9 +74,9 @@ export default function MatchScreen() {
           />
         </div>
         <div className="song-navigation-container">
-          <Button variant="outline-light" onClick={goToPreviousSong}><BsArrowLeft/></Button>
+          <Button aria-label="Previous song" variant="outline-light" onClick={goToPreviousSong}><BsArrowLeft/></Button>
           <Button variant="outline-light" onClick={revealCurrentSong}>{revealButtonLabel}</Button>
-          <Button variant="outline-light" onClick={goToNextSong}><BsArrowRight/></Button>
+          <Button aria-label="Next song" variant="outline-light" onClick={goToNextSong}><BsArrowRight/></Button>
         </div>
         <div className="new-round-container">
           <Button variant="outline-light" onClick={startNextRound}>{NEW_ROUND}</Button>

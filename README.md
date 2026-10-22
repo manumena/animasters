@@ -1,69 +1,59 @@
-# Getting Started with Create React App
+# AniMasters
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Browser-based anime song guessing, built with React, React Router, TypeScript, and Vite. This migration preserves the existing local-player game; multiplayer is described in [the architecture document](docs/multiplayer-architecture.md).
 
-## Deploying to Cloudflare Pages
+## Requirements
 
-Use these build settings in the Cloudflare Pages dashboard:
+- Node.js 24.18 or newer within the 24.x line (`.nvmrc` pins 24.18.0).
+- Yarn 4.5.1, pinned by `packageManager` in `package.json`.
 
-- Root directory: repository root
-- Build command: `yarn build`
-- Build output directory: `build`
-
-The repository pins Yarn 4.5.1 in `package.json`. Yarn reads `.yarnrc.yml`
-to install dependencies into `node_modules`; the filename must use `.yml`,
-not `.yaml`. This also allows the existing `npm run build` command to work
-after Cloudflare installs dependencies with Yarn.
-
-`wrangler.toml` declares the Pages output directory. Configure the build
-command in the Pages dashboard, not in a Wrangler `[build]` section.
-
-To verify the production build locally:
+Use Yarn for dependency changes and commit `yarn.lock`. The previous npm lockfile has been removed so installs have one source of truth. `.yarnrc.yml` uses `nodeLinker: node-modules`.
 
 ```sh
+nvm use
+corepack enable
 yarn install --immutable
-CI=true yarn build
+yarn dev
 ```
 
-## Available Scripts
+The development server uses [localhost:3000](http://localhost:3000). `yarn start` is an alias for the same server.
 
-In the project directory, you can run:
+## Commands
 
-### `yarn start`
+| Command | Purpose |
+| --- | --- |
+| `yarn dev` / `yarn start` | Development server with hot updates. |
+| `yarn typecheck` | Check application, test, and Vite configuration types. |
+| `yarn lint` | Run ESLint independently of the build. |
+| `yarn test` | Run the Vitest regression suite once. |
+| `yarn test:watch` | Run tests in watch mode. |
+| `yarn build` | Type-check and build production assets into `dist/`. |
+| `yarn preview` | Serve the production build locally. |
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Tests mock match generation and verify player entry, settings, reveal/navigation, manual scoring, new rounds, and the `/pochita` route. They do not certify live backend availability or real-device audio playback.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Cloudflare Pages
 
-### `yarn test`
+- Root directory: repository root.
+- Build command: `yarn build`.
+- Build output directory: **`dist`**, replacing CRA's `build` directory.
+- Node.js: match `.nvmrc` (set `NODE_VERSION=24.18.0` if the dashboard overrides it).
+- Use the pinned Yarn version; clear an old dependency cache if it retains CRA tooling.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+`wrangler.toml` declares the Pages output directory. Update any dashboard override before the next deployment. This migration does not deploy the app or change dashboard settings.
 
-### `yarn build`
+The app still uses `BrowserRouter`, with `/` and `/pochita` routes. Cloudflare Pages provides SPA fallback when there is no top-level `404.html`; preserve that behavior so direct route visits and refreshes load the app. Vite's development and preview servers also support SPA fallback.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Build conventions
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- `index.html` lives at the repository root and loads `src/index.tsx`.
+- Files in `public/` are served from `/`; imported images and CSS assets are bundled by Vite.
+- Vite exposes browser configuration through `import.meta.env.VITE_*`. These values are public: do not put credentials in them. The current API and media URLs remain unchanged.
+- React 18, React Router 6, Zustand, and the existing UI libraries are retained. React 19 and UI consolidation can be reviewed independently after this build-tool migration.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Architecture and recovery
 
-### `yarn eject`
+- [Multiplayer architecture](docs/multiplayer-architecture.md)
+- [Technology review](docs/technology-review.md)
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+Private pre-migration archives of both repositories are stored locally in `.local-backups/2026-10-22-pre-frontend-migration/`, with checksums and restoration instructions. They include Git history and local configuration, so the entire backup directory is ignored by Git and blocked by the Vite development server. They are not included in a clone or deployment.

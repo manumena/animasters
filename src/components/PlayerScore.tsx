@@ -22,8 +22,8 @@ export default function PlayerScore({ name }: PlayerScoreProps) {
     <div className="player-score-container">
       <div className="player-name">{name}</div>
       <div className="player-score">{score}</div>
-      <Button variant="outline-light" onClick={handleClickPlus}><HiOutlinePlus/></Button>
-      <Button variant="outline-light" onClick={handleClickMinus}><HiOutlineMinus/></Button>
+      <Button aria-label={`Add point for ${name}`} variant="outline-light" onClick={handleClickPlus}><HiOutlinePlus/></Button>
+      <Button aria-label={`Remove point for ${name}`} variant="outline-light" onClick={handleClickMinus}><HiOutlineMinus/></Button>
     </div>
   )
 }

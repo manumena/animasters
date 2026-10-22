@@ -50,7 +50,7 @@ export default function MainScreen() {
         </div>
       </div>
       <StartButton variant="outlined" disabled={disabled} onClick={() => {startGame(playerNames)}}>Start</StartButton>
-      <SideButton variant="outlined" onClick={openSettings}><IoSettingsSharp /></SideButton>
+      <SideButton aria-label="Settings" variant="outlined" onClick={openSettings}><IoSettingsSharp /></SideButton>
     </MainScreenContainer>
   )
 }

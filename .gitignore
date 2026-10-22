@@ -18,6 +18,10 @@
 
 # Production
 /build
+/dist
+
+# Private local recovery archives
+/.local-backups/
 
 # Environment variables
 .env.local

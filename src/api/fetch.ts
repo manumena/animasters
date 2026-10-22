@@ -1,7 +1,7 @@
 import { Settings } from "../stores/useGameStore";
 import { Match } from "../types";
 
-export function fetchSongs(callbackOnFetch: (data: Match) => any, settings: Settings) {
+export function fetchSongs(callbackOnFetch: (data: Match) => void, settings: Settings) {
   // Build url
   const url = buildUrl(settings)
 
