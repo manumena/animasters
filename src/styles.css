@@ -1,6 +1,46 @@
+/* Keep the existing typography and element sizing after removing Bootstrap. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212529;
+  background-color: #fff;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1 {
+  margin: 0 0 .5rem;
+  font-size: calc(1.375rem + 1.5vw);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+@media (min-width: 1200px) {
+  h1 { font-size: 2.5rem; }
+}
+
+p { margin: 0 0 1rem; }
+
+img, svg { vertical-align: middle; }
+
+button, input {
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
 body{
   background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('./assets/lofi-cafe.gif');
-  background-size: cover; 
+  background-size: cover;
   height: 100vh;
   padding:0;
   margin:0;
@@ -8,43 +48,6 @@ body{
 
 .main-container {
   color: aliceblue;
-}
-
-.main-screen-container {
-  text-align: center;
-  position: absolute;
-  width: 600px;
-  top: 20%;
-  left: 50%;
-  transform: translate(-50%);
-}
-
-.players-form input {
-  background-color: transparent;
-  width: 200px;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 5px;
-  color: aliceblue;
-}
-
-.players-form input:focus {
-  background-color: transparent;
-  caret-color: aliceblue;
-  outline-color: aliceblue;
-  color: aliceblue;
-}
-
-.players-form input::placeholder {
-  color: aliceblue;
-}
-
-.players-form input:last-of-type {
-  display: inline-block;
-}
-
-.start-button {
-  width: 200px; 
 }
 
 .song-counter-container {
@@ -116,7 +119,10 @@ body{
 
 .App-link {
   color: #61dafb;
+  text-decoration: underline;
 }
+
+.App-link:hover { color: #0a58ca; }
 
 @keyframes App-logo-spin {
   from {

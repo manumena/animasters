@@ -29,10 +29,12 @@ describe('existing game flows', () => {
     renderApp();
     const start = screen.getByRole('button', { name: 'Start' });
     expect(start).toBeDisabled();
+    expect(screen.getByRole('textbox', { name: 'Player 1 name' })).toHaveFocus();
     await user.type(screen.getByPlaceholderText('Enter player name...'), 'Manu');
     expect(start).toBeEnabled();
     await user.click(screen.getByRole('button', { name: 'Add player' }));
     expect(start).toBeDisabled();
+    expect(screen.getByRole('textbox', { name: 'Player 2 name' })).toHaveFocus();
     await user.type(screen.getAllByPlaceholderText('Enter player name...')[1], 'Alex');
     expect(start).toBeEnabled();
     await user.click(screen.getByRole('button', { name: 'Remove player' }));
@@ -45,15 +47,15 @@ describe('existing game flows', () => {
     const user = userEvent.setup();
     renderApp();
     await user.click(screen.getByRole('button', { name: 'Settings' }));
-    const amount = screen.getByRole('textbox');
+    const amount = screen.getByRole('textbox', { name: 'Songs per round' });
     await user.clear(amount);
     await user.type(amount, '20');
-    await user.click(screen.getAllByRole('checkbox')[1]);
+    await user.click(screen.getByRole('checkbox', { name: 'Include endings' }));
     await user.click(screen.getByRole('button', { name: 'Back' }));
     expect(screen.getByRole('heading', { name: 'AniMasters' })).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Settings' }));
-    expect(screen.getByRole('textbox')).toHaveValue('20');
-    expect(screen.getAllByRole('checkbox')[1]).not.toBeChecked();
+    expect(screen.getByRole('textbox', { name: 'Songs per round' })).toHaveValue('20');
+    expect(screen.getByRole('checkbox', { name: 'Include endings' })).not.toBeChecked();
   });
 
   it('loads a match, reveals answers, navigates songs, keeps manual scores, and loads a new round', async () => {

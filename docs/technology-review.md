@@ -1,8 +1,14 @@
 # Technology review: Animasters and match-generator
 
 Date: October 21, 2026
-Status: Original recommendations from October 21; see the October 22 implementation update below.
+Status: Original recommendations from October 21; see the implementation updates below.
 Related: [Multiplayer architecture and gameplay decisions](multiplayer-architecture.md).
+
+## October 23 implementation update
+
+The frontend now uses React/React DOM 19.3.1, matching React 19 types, MUI 9.5.0, and Emotion. Bootstrap form fields and game buttons have been replaced with styled MUI controls, and settings styling now uses MUI's Emotion engine. Bootstrap, React Bootstrap, styled-components, and the direct Popper dependency have been removed. Existing icon artwork, layout, typography, settings, playback, reveal/navigation, and manual scoring are preserved. React Router 6 and Zustand remain unchanged; multiplayer is still a later implementation step.
+
+The October 22 Vite migration was committed as `7917957` and deployed to Cloudflare Pages. Cloudflare Pages automatically deploys frontend updates pushed to `main`. Existing repository backups remain in place. Validation covers the production build, TypeScript, ESLint, regression tests, and a browser comparison with the live app.
 
 ## October 22 implementation update
 
@@ -103,4 +109,4 @@ Use focused unit tests for ranking, the 90-second/20-second deadline rule, dupli
 
 Use separate Playwright browser contexts to simulate several players in one room and verify joins, readiness, simultaneous submissions, reconnects, and reveal. Also verify audio behavior on real mobile devices, since a desktop automated run cannot establish that autoplay and device audio work everywhere. [Playwright browser contexts](https://playwright.dev/docs/browser-contexts)
 
-The October 21 review itself made no application changes. The October 22 frontend implementation is recorded above; no database changes or deployments have been performed.
+The October 21 review itself made no application changes. Subsequent frontend implementations and deployment status are recorded above; no database changes have been performed.

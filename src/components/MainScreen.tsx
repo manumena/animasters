@@ -2,8 +2,9 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import PlayersFormRow from './PlayersFormRow';
 import { IoSettingsSharp } from "react-icons/io5"
 import { Button } from '@mui/material';
-import styled from '@emotion/styled';
+import { styled } from '@mui/material/styles';
 import { useGameStore } from '../stores/useGameStore';
+import { ScreenContainer, SideButton } from './GameControls';
 
 
 export default function MainScreen() {
@@ -38,9 +39,9 @@ export default function MainScreen() {
     updatedNames.splice(id, 1)
     setPlayerNames(updatedNames)
   }
-  
+
   return (
-    <MainScreenContainer>
+    <ScreenContainer>
       <h1>AniMasters</h1>
       <div>
         <div className='players-form'>
@@ -51,29 +52,11 @@ export default function MainScreen() {
       </div>
       <StartButton variant="outlined" disabled={disabled} onClick={() => {startGame(playerNames)}}>Start</StartButton>
       <SideButton aria-label="Settings" variant="outlined" onClick={openSettings}><IoSettingsSharp /></SideButton>
-    </MainScreenContainer>
+    </ScreenContainer>
   )
 }
-
-const MainScreenContainer = styled.div`
-  text-align: center;
-  position: absolute;
-  width: 600px;
-  top: 20%;
-  left: 50%;
-  transform: translate(-50%);
-`
 
 const StartButton = styled(Button)`
   height: 38px;
   width: 200px;
-`
-
-export const SideButton = styled(Button)`
-  margin-left: 5px;
-  position: absolute;
-  padding: 6px 10px 6px 10px
-  width: 38px;
-  height: 38px;
-  min-width: 0px;
 `

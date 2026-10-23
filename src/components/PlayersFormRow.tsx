@@ -1,8 +1,7 @@
 import { ChangeEvent, useEffect, useRef } from "react";
-import { Form } from "react-bootstrap";
 import { HiOutlinePlus } from "react-icons/hi";
 import { RxCross1 } from "react-icons/rx";
-import { SideButton } from "./MainScreen";
+import { PlayerNameInput, SideButton } from "./GameControls";
 
 interface PlayersFormRowProps {
   name: string
@@ -24,7 +23,7 @@ export default function PlayersFormRow({name, totalPlayers, id, onChangeCallback
   
   return (
     <div>
-      <Form.Control ref={ref} value={name} type="text" placeholder="Enter player name..." onChange={(e: ChangeEvent<HTMLInputElement>) => onChangeCallback(e, id)} />
+      <PlayerNameInput inputRef={ref} value={name} type="text" placeholder="Enter player name..." slotProps={{ input: { 'aria-label': `Player ${id + 1} name` } }} onChange={(e: ChangeEvent<HTMLInputElement>) => onChangeCallback(e, id)} />
       { id === totalPlayers - 1 ?
         <SideButton aria-label="Add player" variant="outlined" onClick={onClickPlusCallback}><HiOutlinePlus/></SideButton> :
         <SideButton aria-label="Remove player" variant="outlined" onClick={() => onClickMinusCallback(id)}><RxCross1/></SideButton>

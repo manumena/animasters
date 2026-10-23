@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Button } from "react-bootstrap"
+import { GameButton } from "./GameControls"
 import { HiOutlineMinus, HiOutlinePlus } from "react-icons/hi"
 
 interface PlayerScoreProps {
@@ -22,8 +22,8 @@ export default function PlayerScore({ name }: PlayerScoreProps) {
     <div className="player-score-container">
       <div className="player-name">{name}</div>
       <div className="player-score">{score}</div>
-      <Button aria-label={`Add point for ${name}`} variant="outline-light" onClick={handleClickPlus}><HiOutlinePlus/></Button>
-      <Button aria-label={`Remove point for ${name}`} variant="outline-light" onClick={handleClickMinus}><HiOutlineMinus/></Button>
+      <GameButton aria-label={`Add point for ${name}`} onClick={handleClickPlus}><HiOutlinePlus/></GameButton>
+      <GameButton aria-label={`Remove point for ${name}`} onClick={handleClickMinus}><HiOutlineMinus/></GameButton>
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import { useLayoutEffect, useState } from "react"
 import { Match, Song } from "../types"
 import PlayerScore from "./PlayerScore"
-import { Button } from "react-bootstrap"
+import { GameButton } from "./GameControls"
 import { BsArrowRight, BsArrowLeft } from "react-icons/bs"
 import { fetchSongs } from "../api/fetch"
 import { useGameStore } from "../stores/useGameStore"
@@ -74,12 +74,12 @@ export default function MatchScreen() {
           />
         </div>
         <div className="song-navigation-container">
-          <Button aria-label="Previous song" variant="outline-light" onClick={goToPreviousSong}><BsArrowLeft/></Button>
-          <Button variant="outline-light" onClick={revealCurrentSong}>{revealButtonLabel}</Button>
-          <Button aria-label="Next song" variant="outline-light" onClick={goToNextSong}><BsArrowRight/></Button>
+          <GameButton aria-label="Previous song" onClick={goToPreviousSong}><BsArrowLeft/></GameButton>
+          <GameButton onClick={revealCurrentSong}>{revealButtonLabel}</GameButton>
+          <GameButton aria-label="Next song" onClick={goToNextSong}><BsArrowRight/></GameButton>
         </div>
         <div className="new-round-container">
-          <Button variant="outline-light" onClick={startNextRound}>{NEW_ROUND}</Button>
+          <GameButton onClick={startNextRound}>{NEW_ROUND}</GameButton>
         </div>
       </div>
     </>

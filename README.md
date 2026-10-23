@@ -49,7 +49,8 @@ The app still uses `BrowserRouter`, with `/` and `/pochita` routes. Cloudflare P
 - `index.html` lives at the repository root and loads `src/index.tsx`.
 - Files in `public/` are served from `/`; imported images and CSS assets are bundled by Vite.
 - Vite exposes browser configuration through `import.meta.env.VITE_*`. These values are public: do not put credentials in them. The current API and media URLs remain unchanged.
-- React 18, React Router 6, Zustand, and the existing UI libraries are retained. React 19 and UI consolidation can be reviewed independently after this build-tool migration.
+- React and React DOM use 19.3.1 with matching React 19 types. React Router 6 and Zustand remain in place.
+- UI components use MUI 9.5.0 and its Emotion styling engine. Bootstrap, React Bootstrap, and styled-components have been removed. Shared controls in `src/components/GameControls.tsx` and the small reset in `src/styles.css` preserve the existing layout, typography, colors, and interactions. React Icons retains the existing icon artwork.
 
 ## Architecture and recovery
 

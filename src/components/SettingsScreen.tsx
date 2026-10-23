@@ -1,8 +1,9 @@
 import { List, ListItem, TextField, Button, Container, Checkbox } from "@mui/material";
 import { useState } from "react";
 import { BsArrowLeft } from "react-icons/bs";
-import styled from "styled-components";
+import { styled } from '@mui/material/styles';
 import { useGameStore } from "../stores/useGameStore";
+import { ScreenContainer } from './GameControls';
 
 export default function SettingsScreen() {
   const { saveSettings, settings } = useGameStore();
@@ -18,7 +19,7 @@ export default function SettingsScreen() {
   }
 
   return (
-    <SettingsScreenContainer>
+    <ScreenContainer>
       <Container>
         <Button
           style={{ float: "left", height: "60px" }}
@@ -44,6 +45,7 @@ export default function SettingsScreen() {
             id="outlined-basic"
             variant="outlined"
             value={newSongsPerRound}
+            slotProps={{ htmlInput: { 'aria-label': 'Songs per round' } }}
             onChange={(event) => onChangeSongsPerRound(event.target.value)}
             sx={{ width: "60px", input: { textAlign: "center" } }}
           />
@@ -52,6 +54,7 @@ export default function SettingsScreen() {
           <span>Include openings</span>
           <Checkbox
             checked={includeOpenings}
+            slotProps={{ input: { 'aria-label': 'Include openings' } }}
             onChange={(e) => setIncludeOpenings(e.target.checked)}
           />
         </FlexListItem>
@@ -59,6 +62,7 @@ export default function SettingsScreen() {
           <span>Include endings</span>
           <Checkbox
             checked={includeEndings}
+            slotProps={{ input: { 'aria-label': 'Include endings' } }}
             onChange={(e) => setIncludeEndings(e.target.checked)}
           />
         </FlexListItem>
@@ -66,22 +70,14 @@ export default function SettingsScreen() {
           <span>Include soundtracks</span>
           <Checkbox
             checked={includeSoundtracks}
+            slotProps={{ input: { 'aria-label': 'Include soundtracks' } }}
             onChange={(e) => setIncludeSoundtracks(e.target.checked)}
           />
         </FlexListItem>
       </List>
-    </SettingsScreenContainer>
+    </ScreenContainer>
   );
 }
-
-const SettingsScreenContainer = styled.div`
-  text-align: center;
-  position: absolute;
-  width: 600px;
-  top: 20%;
-  left: 50%;
-  transform: translate(-50%);
-`;
 
 const FlexListItem = styled(ListItem)`
   display: flex;
