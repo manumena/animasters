@@ -6,6 +6,10 @@ Related: [Multiplayer architecture and gameplay decisions](multiplayer-architect
 
 ## October 23 implementation update
 
+The owner selected Hono. Backend modernization was committed and pushed as `ae06b23`: Hono 4.13.13, Wrangler 4.152.0, TypeScript 6.0.3, ESLint, generated Worker runtime types, and 30 regression tests in the Worker runtime. Existing endpoints, response shapes, defaults, and song-selection behavior were preserved; the existing database driver remains pinned. The production dry-run bundle and a local read-only request against the existing database passed. This records implementation validation, not confirmation of the backend's remote deployment.
+
+SQLite-backed Durable Objects and WebSocket hibernation are now accepted for the upcoming multiplayer implementation. They have not been added to the backend yet; see the architecture document for accepted gameplay defaults and the implementation sequence.
+
 The frontend now uses React/React DOM 19.3.1, matching React 19 types, MUI 9.5.0, and Emotion. Bootstrap form fields and game buttons have been replaced with styled MUI controls, and settings styling now uses MUI's Emotion engine. Bootstrap, React Bootstrap, styled-components, and the direct Popper dependency have been removed. Existing icon artwork, layout, typography, settings, playback, reveal/navigation, and manual scoring are preserved. React Router 6 and Zustand remain unchanged; multiplayer is still a later implementation step.
 
 The October 22 Vite migration was committed as `7917957` and deployed to Cloudflare Pages. Cloudflare Pages automatically deploys frontend updates pushed to `main`. Existing repository backups remain in place. Validation covers the production build, TypeScript, ESLint, regression tests, and a browser comparison with the live app.
