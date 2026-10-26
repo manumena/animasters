@@ -2,7 +2,10 @@ import { Route, Routes } from "react-router-dom"
 import "./styles.css"
 import ScreenManager from './pages/ScreenManager';
 import Pochita from './pages/Pochita';
+import { lazy, Suspense } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+const Catalog = lazy(() => import('./pages/Catalog'));
 
 const theme = createTheme({
   palette: {
@@ -70,6 +73,7 @@ function App() {
         <Routes>
           <Route path="/" element={<ScreenManager />} />
           <Route path="/pochita" element={<Pochita />} />
+          <Route path="/catalog" element={<Suspense fallback={<p role="status">Loading anime search…</p>}><Catalog /></Suspense>} />
         </Routes>
       </div>
     </ThemeProvider>

@@ -1,0 +1,14 @@
+/catalog/anime.*.json
+  Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff
+
+/catalog/manifest.*.json
+  Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff
+
+/catalog/manifest.json
+  Cache-Control: public, max-age=0, must-revalidate
+  X-Content-Type-Options: nosniff
+
+/catalog/LICENSE.txt
+  Cache-Control: public, max-age=86400

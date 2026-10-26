@@ -58,3 +58,35 @@ The app still uses `BrowserRouter`, with `/` and `/pochita` routes. Cloudflare P
 - [Technology review](docs/technology-review.md)
 
 Private pre-migration archives of both repositories are stored locally in `.local-backups/2026-10-22-pre-frontend-migration/`, with checksums and restoration instructions. They include Git history and local configuration, so the entire backup directory is ignored by Git and blocked by the Vite development server. They are not included in a clone or deployment.
+
+## Anime autocomplete
+
+`/catalog` (linked from the home screen) uses a dedicated browser Web Worker and a compact static export under `public/catalog/`. It does not change the current manual game or submit guesses yet. The catalog downloads only when opening the catalog page; the index is reused on subsequent navigation in the same page session.
+
+The backend owns export/curation tooling; see `match-generator/catalog/search-delivery.md`. To regenerate the files, run its read-only `catalog export` command against the intended Neon database with `--out ../animasters/public/catalog`. No database credentials belong in this frontend or its Pages build. Commit the generated assets together with their manifest when publishing an update, retaining older published versions.
+
+`public/_headers` gives hash-named assets immutable caching and revalidates the latest manifest. The worker verifies schema version, content hash and counts before searching. Loading failures provide a Retry action. A future room can construct `CatalogClient` with its pinned version; once loaded, retries retain that version. The catalog and its index are not persisted in localStorage or IndexedDB.
+
+The current schema-v4 catalog includes TV releases and ONA (web) releases with multiple known episodes together, excluding movie/OVA/special/unknown-only answers. Web releases with one or unknown episode count are excluded; TV counts do not affect eligibility. Eligibility is determined across all releases in a canonical group; TV and web labels do not automatically merge identities. The export contains 14,872 answers and 87,022 additional aliases.
+
+Identified unsupported-language aliases are removed before export. English, Spanish and Japanese/romaji are retained, as are uncertain spellings; this is a conservative cleanup rather than a fully language-verified catalog. Recovery and measured savings are documented in `match-generator/catalog/alias-language-cleanup.md`.
+
+The export removes capitalization-only duplicates, including variants of the display title. It preserves the first spelling seen by the existing worker index, so search results and ranking remain unchanged.
+
+Search ranks exact titles/aliases first, then the catalog's popularity/editorial weight for partial matches. Current weights are 56 provisional editorial priorities; externally sourced popularity has not been populated. Results deduplicate by canonical ID, show release type/year, and preserve separate adaptations. Typing arbitrary text does not select an ID. Catalog-wide duplicate curation is ongoing; only two reviewed duplicate pairs have been redirected so far.
+
+Run `yarn test`, `yarn lint`, `yarn build`, and `yarn catalog:benchmark` to validate. The benchmark runs the real full-catalog index in Node and checks the Nanatsu ranking regression. It is not a real-phone performance test; mobile memory, startup peak, and input-to-paint latency still need device measurements. The search implementation supports prefix, substring, and reordered-token queries, but not edit-distance typo correction.
+
+
+### Reading the autocomplete code
+
+Follow the request from the UI to the worker:
+
+1. `src/components/AnimeAutocomplete.tsx` subscribes to loading state and debounces input.
+2. `src/catalog/client.ts` owns the worker, assigns request IDs, and resolves search promises.
+3. `src/catalog/catalog.worker.ts` receives messages and keeps the index off React's thread.
+4. `src/catalog/load.ts` downloads and verifies the versioned asset.
+5. `src/catalog/search.ts` builds the index, finds candidates, and ranks results.
+6. `src/catalog/types.ts` documents the compact catalog and message contracts.
+
+Keep related operations grouped and explain lifecycle, identity and ranking decisions in comments. The standing readability conventions are in `AGENTS.md` in both repositories.

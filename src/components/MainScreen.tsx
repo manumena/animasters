@@ -5,6 +5,7 @@ import { Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useGameStore } from '../stores/useGameStore';
 import { ScreenContainer, SideButton } from './GameControls';
+import { Link as RouterLink } from 'react-router-dom';
 
 
 export default function MainScreen() {
@@ -52,6 +53,7 @@ export default function MainScreen() {
       </div>
       <StartButton variant="outlined" disabled={disabled} onClick={() => {startGame(playerNames)}}>Start</StartButton>
       <SideButton aria-label="Settings" variant="outlined" onClick={openSettings}><IoSettingsSharp /></SideButton>
+      <Button component={RouterLink} to="/catalog" sx={{ display: 'block', mt: 2 }}>Browse anime catalog</Button>
     </ScreenContainer>
   )
 }

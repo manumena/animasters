@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "version": "1f6c56590d1b890796253b794f1b619872f6702d10182c212fd465d992a92bce",
+  "url": "/catalog/anime.1f6c56590d1b890796253b794f1b619872f6702d10182c212fd465d992a92bce.json",
+  "bytes": 9925696,
+  "entries": 41451,
+  "aliases": 243125,
+  "source": {
+    "name": "manami-project/anime-offline-database",
+    "snapshot": "2026-27",
+    "url": "https://github.com/manami-project/anime-offline-database/releases/download/2026-27/anime-offline-database-minified.json"
+  },
+  "attribution": "Contains information from anime-offline-database by manami-project, made available under ODbL 1.0 and DbCL 1.0.",
+  "license": "ODbL-1.0 AND DbCL-1.0",
+  "licenseUrl": "/catalog/LICENSE.txt"
+}

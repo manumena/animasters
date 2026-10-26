@@ -21,7 +21,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "catalog:benchmark": "node --expose-gc scripts/benchmark-catalog.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
