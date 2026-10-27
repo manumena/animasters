@@ -90,3 +90,11 @@ Follow the request from the UI to the worker:
 6. `src/catalog/types.ts` documents the compact catalog and message contracts.
 
 Keep related operations grouped and explain lifecycle, identity and ranking decisions in comments. The standing readability conventions are in `AGENTS.md` in both repositories.
+
+## Multiplayer lobby
+
+Open `/rooms` or use **Create or join a room** on the home screen. Create with a nickname, share the four-character uppercase alphanumeric code/link, and join from another device. The live lobby shows up to ten players. Nicknames are unique within the room, ignoring case. Reloading restores your private player credential from localStorage; another tab for the same player replaces the old connection. Abandoned rooms expire after thirty minutes. Settings and multiplayer gameplay are next; the existing manual game remains available.
+
+For local development, start `match-generator` with `npx wrangler dev --local --port 8788`, then run `VITE_API_URL=http://127.0.0.1:8788 yarn dev --host 127.0.0.1 --port 3000`. Without `VITE_API_URL`, room requests use the existing deployed Worker. Set the variable at build time for alternate environments; only a public API base URL belongs here. The Worker must be deployed with its new Durable Object binding/migration before the deployed frontend can create rooms.
+
+Room code: `src/pages/Rooms.tsx` owns entry/lobby rendering; `src/rooms/client.ts` handles normalization, credentials, API calls, and reconnecting WebSockets. The catalog worker is independent of the lobby connection.

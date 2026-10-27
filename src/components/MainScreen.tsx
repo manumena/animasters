@@ -44,6 +44,7 @@ export default function MainScreen() {
   return (
     <ScreenContainer>
       <h1>AniMasters</h1>
+      <Button component={RouterLink} to="/rooms" variant="outlined" sx={{ mb: 2 }}>Create or join a room</Button>
       <div>
         <div className='players-form'>
           { playerNames.map((name, id) =>

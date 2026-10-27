@@ -1,8 +1,8 @@
 # Animasters multiplayer architecture
 
 Created: October 21, 2026
-Updated: October 24, 2026
-Status: Architecture and core gameplay accepted, including SQLite-backed Durable Objects, WebSocket hibernation, and Manami's snapshot with our own season mappings. Technology modernization is complete. All seven reviewed MVP defaults were accepted on October 24. The initial catalog and season mappings are implemented and imported into Neon; browser autocomplete and versioned export are implemented; multiplayer remains to be built.
+Updated: October 27, 2026
+Status: Architecture and core gameplay accepted, including SQLite-backed Durable Objects, WebSocket hibernation, and Manami's snapshot with our own season mappings. Technology modernization is complete. All seven reviewed MVP defaults were accepted on October 24. The initial catalog and season mappings are implemented and imported into Neon; browser autocomplete and versioned export are implemented; the multiplayer lobby is implemented locally; match gameplay remains to be built.
 Scope: The `animasters` frontend and `match-generator` backend.
 
 ## Product direction
@@ -60,7 +60,7 @@ SQLite here is embedded in each Durable Object. It is not another separately hos
 - Backend: Hono on Cloudflare Workers, Wrangler 4, TypeScript, ESLint, generated Worker runtime types, and 30 regression tests. The modernization was committed and pushed as `ae06b23`, preserving the existing HTTP API and song-selection behavior. Deployment testing is separate from this architecture decision.
 - Existing Postgres connection and driver remain in place. The frontend retains Yarn; the backend retains npm and its lockfile.
 
-The framework choice is settled. The initial catalog import and explicit season mappings are implemented in `match-generator`; multiplayer rooms and the new gameplay protocol are not implemented yet. Historical findings remain in [Technology review](technology-review.md).
+The framework choice is settled. The initial catalog import and explicit season mappings are implemented in `match-generator`; room creation, joining and lobby reconnection are implemented locally; the gameplay protocol remains to be built. Historical findings remain in [Technology review](technology-review.md).
 
 ## System responsibilities
 
@@ -365,13 +365,27 @@ The initial catalog import, editorial metadata layer, static export and browser 
 
 Deferred to the second iteration: flash tiebreaker, retained per-player scores and song counts, and the identity and retention policy needed for those statistics. Host transfer and late joins are outside the first iteration. Special recovery for songs still loading after the intermission and room-wide failed-song void/replacement mechanisms are also outside the MVP.
 
+## Room creation and lobby — October 27
+
+Accepted: room codes have exactly four characters from `A–Z` and `0–9`, with no special characters. Code input converts lowercase ASCII letters to uppercase, removes other characters, and limits the result to four characters. The API also accepts lowercase and validates the full code. All 36 characters are available; a code need not contain both a letter and a digit.
+
+The first multiplayer slice adds `/rooms` and `/rooms/:code`, while retaining the manual game. Players create a room with a nickname, copy its code or invite link, or join an existing room. Live lobby snapshots show the host and connected players. Match settings, audio enablement, catalog readiness and starting gameplay are not part of this slice.
+
+The Worker reserves codes using cryptographic randomness and a collision check inside the room Durable Object. The object name is the code; its SQLite record owns the roster and host identity. A collision retries another code rather than replacing an existing room. Nicknames are trimmed, normalized to NFC, limited to 24 Unicode code points, and unique within a room ignoring case. Control/format characters are rejected. The roster limit is ten including the host; disconnected players retain their slots.
+
+A private random credential identifies each player. It is stored in this browser origin's localStorage and is never put in invite links or public snapshots. HTTP session checks use a bearer header; WebSocket handshakes use a credential subprotocol, selecting only the non-secret `animasters` protocol in the response. A new authenticated socket replaces that player's old socket. Refresh restores the same identity. No accounts or cross-device identity transfer are introduced.
+
+Hibernatable sockets broadcast lobby snapshots on membership/connection changes. Automatic ping/pong replies do not require a running per-room timer. The client uses bounded reconnect backoff and checks saved membership before connecting so expired rooms have an actionable error. Rooms with nobody connected expire after thirty minutes, including newly created rooms whose creator never connects. Alarms and request-time checks enforce expiry; an expired code may be reused with new credentials. Lobby storage does not query Neon or change existing song data.
+
+Development uses `VITE_API_URL` to target a local Worker. Wrangler includes the `ROOMS` binding and the append-only `v1-rooms` SQLite-class migration for the existing deployment target. The multiplayer game must still implement the accepted readiness, timing, scoring, media privacy and catalog-version rules; lobby connection does not mean a device is ready to play.
+
 ## Suggested implementation sequence
 
 Completed work is identified below; the remaining steps describe the delivery order.
 
 1. Technology refresh and MVP product choices complete. Record the agreed v1 API/message contract.
 2. Initial catalog import complete: stable IDs, aliases, explicit mappings for current songs, and release picture/thumbnail URLs are in Neon. Versioned export and browser autocomplete are implemented. Continue catalog curation, real-phone measurements, and preparation of media references and metadata for answer privacy.
-3. Add room creation, joining, SQLite-backed room storage, hibernatable WebSocket connections, reconnect identity, persisted room snapshots, and host controls.
+3. Room creation, joining, SQLite-backed lobby storage, hibernatable WebSockets, reconnect identity and lobby snapshots are implemented locally. Add host match settings and the start/readiness protocol next.
 4. Implement the round state machine, initial audio enablement, the 10-second/all-ready intermission, the 90-second maximum, and the first-guess 20-second deadline.
 5. Add autocomplete, authoritative submissions, rank-based scoring, answer reveal, and ready-for-next-round flow.
 6. Add final standings and reconnection recovery. Defer long-term statistics and special media-failure recovery.
