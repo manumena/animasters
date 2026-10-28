@@ -7,11 +7,20 @@ interface AudioState {
   error?: string;
 }
 
+interface ScheduledSource {
+  roundId: string;
+  startsAt: number;
+  stopsAt: number;
+}
+
 /** Owns browser audio only. Neither seeking nor replaying changes the server clock. */
 export class RoomAudio {
   private context?: AudioContext;
   private gain?: GainNode;
   private source?: AudioBufferSourceNode;
+  // A pending next song and the still-audible previous song can coexist.
+  // Keep both until they end so a shortened countdown can stop both correctly.
+  private sources = new Map<AudioBufferSourceNode, ScheduledSource>();
   private buffer?: AudioBuffer;
   private round?: RoundSnapshot;
   private scheduledId?: string;
@@ -58,15 +67,19 @@ export class RoomAudio {
     this.serverNow = serverNow;
     const sameRound = this.round?.id === round.id;
     this.round = round;
+
+    // Apply new deadlines even while a download is pending or has failed.
+    if (this.context && round.startsAt) {
+      const cutoff = this.context.currentTime + Math.max(0, (round.startsAt - serverNow()) / 1000);
+      for (const [source, timing] of this.sources) {
+        if (timing.roundId !== round.id) this.stopSource(source, timing, cutoff);
+      }
+    }
     if (sameRound && this.buffer) {
       this.schedule();
       return;
     }
     if (sameRound && this.state.loading) return;
-    // Stop the previous round at the shared boundary even if the next download fails.
-    if (this.source && this.context && round.startsAt) {
-      this.source.stop(this.context.currentTime + Math.max(0, (round.startsAt - serverNow()) / 1000));
-    }
     this.buffer = undefined;
     this.request?.abort();
     const request = new AbortController();
@@ -102,16 +115,21 @@ export class RoomAudio {
   private playAt(offset: number, when: number) {
     const context = this.audioContext();
     if (!this.buffer || !this.state.enabled) return;
-    this.source?.stop(when);
+    for (const [source, timing] of this.sources) {
+      this.stopSource(source, timing, when);
+    }
     const source = context.createBufferSource();
     source.buffer = this.buffer;
     source.connect(this.gain!);
     source.start(when, offset);
+    this.sources.set(source, { roundId: this.round!.id, startsAt: when, stopsAt: Infinity });
     this.source = source;
     this.offset = offset;
     this.startedAt = when;
     this.playing = true;
     source.onended = () => {
+      this.sources.delete(source);
+      source.disconnect();
       if (this.source === source) {
         this.playing = false;
         this.offset = this.buffer?.duration ?? 0;
@@ -119,6 +137,17 @@ export class RoomAudio {
     };
   }
 
+  private stopSource(source: AudioBufferSourceNode, timing: ScheduledSource, when: number): void {
+    const now = this.context!.currentTime;
+    // Cancel superseded future starts immediately. Removing them prevents a later
+    // stop() call from moving their cancellation and accidentally reviving them.
+    const cutoff = timing.startsAt > now ? now : Math.min(when, timing.stopsAt);
+    source.stop(cutoff);
+    timing.stopsAt = cutoff;
+    if (cutoff <= now) this.sources.delete(source);
+  }
+
+  // Local playback controls never change the room's round or shared deadline.
   position(): number {
     if (!this.playing || !this.context) return this.offset;
     return Math.min(this.state.duration, this.offset + Math.max(0, this.context.currentTime - this.startedAt));
@@ -126,9 +155,10 @@ export class RoomAudio {
   pause(): void {
     this.offset = this.position();
     this.playing = false;
-    const source = this.source;
     this.source = undefined;
-    source?.stop();
+    for (const [source, timing] of this.sources) {
+      this.stopSource(source, timing, this.context!.currentTime);
+    }
   }
   play(): void {
     this.playAt(this.offset >= this.state.duration ? 0 : this.offset, this.audioContext().currentTime);
