@@ -58,5 +58,5 @@ it('restores this device’s saved player without creating another membership', 
   setup('/rooms/A7B2');
   expect(screen.getByRole('heading', { name: 'Your room' })).toBeVisible();
   expect(enterRoom).not.toHaveBeenCalled();
-  expect(watchRoom).toHaveBeenCalledWith(session, expect.any(Function), expect.any(Function));
+  expect(watchRoom).toHaveBeenCalledWith(session, expect.any(Function), expect.any(Function), expect.any(Object));
 });

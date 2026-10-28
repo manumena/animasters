@@ -98,3 +98,11 @@ Open `/rooms` or use **Create or join a room** on the home screen. Create with a
 For local development, start `match-generator` with `npx wrangler dev --local --port 8788`, then run `VITE_API_URL=http://127.0.0.1:8788 yarn dev --host 127.0.0.1 --port 3000`. Without `VITE_API_URL`, room requests use the existing deployed Worker. Set the variable at build time for alternate environments; only a public API base URL belongs here. The Worker must be deployed with its new Durable Object binding/migration before the deployed frontend can create rooms.
 
 Room code: `src/pages/Rooms.tsx` owns entry/lobby rendering; `src/rooms/client.ts` handles normalization, credentials, API calls, and reconnecting WebSockets. The catalog worker is independent of the lobby connection.
+
+## Playing a multiplayer match
+
+In the room, wait for anime search to load, then click **Enable audio & Ready**. Everyone connected being ready starts one match automatically. The first song preloads for ten seconds. Audio starts at the announced server time; pause, seek and replay affect only your device. Select an autocomplete result and press **Submit guess**, or **Pass**. Answers are final. The room controls deadlines, reveals, scores, next rounds and final standings.
+
+Defaults are 40 songs, all three song types, no repeated canonical anime. Subsequent rounds start after ten seconds or everyone connected clicking Ready. The first guess caps remaining time at twenty seconds, within a ninety-second maximum. A disconnected player keeps their slot; a full refresh requires enabling audio again. This flow uses the existing public audio files: filenames currently expose titles in network inspection, pending the planned opaque-path/metadata migration.
+
+Implementation: `src/rooms/RoomGame.tsx` renders the match, `audio.ts` schedules decoded audio and local controls, and `client.ts` carries versioned commands and estimates the server clock using low-round-trip samples. The room owns a catalog worker pinned to the backend's published revision. The backend must be deployed before this frontend revision. Physical-device audio skew and mobile suspension behavior still need real-phone testing.

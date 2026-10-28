@@ -1,8 +1,33 @@
+export interface RoundSnapshot {
+  id: string;
+  number: number;
+  total: number;
+  audioUrl: string;
+  startsAt?: number;
+  deadline?: number;
+}
 export interface RoomSnapshot {
   code: string;
   hostId: string;
-  phase: 'lobby';
-  players: { id: string; nickname: string; connected: boolean }[];
+  phase: 'lobby' | 'preparing' | 'countdown' | 'guessing' | 'paused' | 'completed';
+  catalogVersion?: string;
+  settings?: { amount: number };
+  players: { id: string; nickname: string; connected: boolean; ready?: boolean; score?: number; submitted?: boolean }[];
+  round?: RoundSnapshot;
+  submission?: { actionId: string; animeId: number | null };
+  result?: {
+    roundId: string; number: number; anime: string; name: string;
+    players: { id: string; guess: string | null; points: number; correct: boolean }[];
+  };
+  error?: string;
+}
+export type GameAction =
+  | { type: 'ready'; catalogVersion?: string; roundId?: string }
+  | { type: 'guess'; roundId: string; actionId: string; animeId: number | null };
+export interface GameCallbacks {
+  onSender?: (send: (action: GameAction) => boolean) => void;
+  onClock?: (serverMinusPerformance: number) => void;
+  onError?: (error: string) => void;
 }
 export interface RoomSession {
   room: RoomSnapshot;
@@ -50,6 +75,7 @@ export function watchRoom(
   session: RoomSession,
   onRoom: (room: RoomSnapshot) => void,
   onStatus: (status: string) => void,
+  callbacks: GameCallbacks = {},
 ): () => void {
   let stopped = false;
   let socket: WebSocket | undefined;
@@ -57,6 +83,18 @@ export function watchRoom(
   let heartbeat: ReturnType<typeof setInterval>;
   let attempts = 0;
   let lastPong = Date.now();
+  let bestRoundTrip = Infinity;
+  const probes: ReturnType<typeof setTimeout>[] = [];
+  const probeClock = () => {
+    if (socket?.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({ v: 1, type: 'clock', sentAt: performance.now() }));
+    }
+  };
+  callbacks.onSender?.(action => {
+    if (socket?.readyState !== WebSocket.OPEN) return false;
+    socket.send(JSON.stringify({ v: 1, ...action }));
+    return true;
+  });
 
   async function connect() {
     if (stopped) return;
@@ -86,6 +124,8 @@ export function watchRoom(
       attempts = 0;
       lastPong = Date.now();
       onStatus('Connected');
+      bestRoundTrip = Infinity;
+      for (let sample = 0; sample < 5; sample++) probes.push(setTimeout(probeClock, sample * 150));
       // Server-side automatic pong replies remain compatible with hibernation.
       heartbeat = setInterval(() => {
         if (Date.now() - lastPong > 60_000) socket?.close();
@@ -98,6 +138,15 @@ export function watchRoom(
       try {
         const message = JSON.parse(event.data);
         if (message.type === 'snapshot') onRoom(message.room);
+        if (message.type === 'error') callbacks.onError?.(message.error);
+        if (message.type === 'clock') {
+          const received = performance.now();
+          const roundTrip = received - message.sentAt;
+          if (roundTrip >= 0 && roundTrip < bestRoundTrip) {
+            bestRoundTrip = roundTrip;
+            callbacks.onClock?.(message.serverTime - (message.sentAt + received) / 2);
+          }
+        }
       } catch { socket?.close(1002, 'Invalid message'); }
     };
     socket.onclose = event => {
@@ -122,9 +171,18 @@ export function watchRoom(
     retry = setTimeout(connect, Math.min(1000 * 2 ** (attempts - 1), 15_000));
   }
 
+  const refreshClock = () => {
+    bestRoundTrip = Infinity;
+    probeClock();
+  };
+  window.addEventListener('pageshow', refreshClock);
+  document.addEventListener('visibilitychange', refreshClock);
   connect();
   return () => {
     stopped = true;
+    window.removeEventListener('pageshow', refreshClock);
+    document.removeEventListener('visibilitychange', refreshClock);
+    probes.forEach(clearTimeout);
     clearTimeout(retry);
     clearInterval(heartbeat);
     socket?.close();

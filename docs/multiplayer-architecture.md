@@ -2,14 +2,14 @@
 
 Created: October 21, 2026
 Updated: October 27, 2026
-Status: Architecture and core gameplay accepted, including SQLite-backed Durable Objects, WebSocket hibernation, and Manami's snapshot with our own season mappings. Technology modernization is complete. All seven reviewed MVP defaults were accepted on October 24. The initial catalog and season mappings are implemented and imported into Neon; browser autocomplete and versioned export are implemented; the multiplayer lobby is implemented locally; match gameplay remains to be built.
+Status: Architecture and core gameplay accepted, including SQLite-backed Durable Objects, WebSocket hibernation, and Manami's snapshot with our own season mappings. Technology modernization is complete. All seven reviewed MVP defaults were accepted on October 24. The initial catalog and season mappings are implemented and imported into Neon; browser autocomplete and versioned export are implemented; the multiplayer lobby is deployed; readiness, scheduled playback, guessing, scoring and automatic progression are implemented locally.
 Scope: The `animasters` frontend and `match-generator` backend.
 
 ## Product direction
 
 Animasters will become a browser-based multiplayer anime-song guessing game. Players join a shared room from their own devices, listen to the same song on their own devices, select an anime through autocomplete, and submit a final guess or pass. The backend validates answers, awards points according to the order of correct guesses, reveals round results, and coordinates progression through the match.
 
-The room creator is the host: they choose settings and start the match. Hosting does not require their browser to run the game server. The backend owns the game and can continue if the host disconnects.
+The room creator is the host. Everyone connected clicks Ready to start automatically; host-editable settings remain the next UI addition. Hosting does not require their browser to run the game server. The backend owns the game and can continue if the host disconnects.
 
 Terminology for the new game:
 
@@ -60,7 +60,7 @@ SQLite here is embedded in each Durable Object. It is not another separately hos
 - Backend: Hono on Cloudflare Workers, Wrangler 4, TypeScript, ESLint, generated Worker runtime types, and 30 regression tests. The modernization was committed and pushed as `ae06b23`, preserving the existing HTTP API and song-selection behavior. Deployment testing is separate from this architecture decision.
 - Existing Postgres connection and driver remain in place. The frontend retains Yarn; the backend retains npm and its lockfile.
 
-The framework choice is settled. The initial catalog import and explicit season mappings are implemented in `match-generator`; room creation, joining and lobby reconnection are implemented locally; the gameplay protocol remains to be built. Historical findings remain in [Technology review](technology-review.md).
+The framework choice is settled. The initial catalog import and explicit season mappings are implemented in `match-generator`; room creation, joining and lobby reconnection are deployed; the gameplay protocol is implemented locally. Historical findings remain in [Technology review](technology-review.md).
 
 ## System responsibilities
 
@@ -143,8 +143,8 @@ Lobby -> Load audio + Ready -> Scheduled start -> Guessing (maximum 90s)
 1. The host creates a room and chooses match settings.
 2. Players join through a shareable link or short room code, choose nicknames, and use “Enable audio and join.” Initialize/resume the audio context directly in that gesture, before awaiting network work. Start loading the answer index in the lobby.
 3. The backend assigns each player an identity and a private reconnect token. A nickname or room code is not proof of ownership of an existing player.
-4. After all connected players have enabled audio and loaded the search index, the host starts the match. The server fixes the roster, selects and retains the song sequence, and refuses new joins. Authenticated reconnections are not new joins.
-5. For the first round, the server distributes permitted media information and starts the same 10-second/all-connected-Ready preload countdown used between rounds. There is no additional audio-loaded wait. Disconnected players do not block readiness.
+4. Each connected player loads the pinned search index and clicks Enable audio & Ready. Once all connected players are ready, the room starts preparation automatically. The server fixes the roster, selects and retains the song sequence, and refuses new joins. Authenticated reconnections are not new joins.
+5. For the first round, the server distributes permitted media information and starts a full 10-second preload countdown. Lobby Ready clicks cannot shorten this first countdown. There is no additional audio-loaded wait. Disconnected players do not block readiness.
 6. The server publishes a shared start time. Guessing opens at that time, with no minimum listening period. The initial deadline is 90 seconds after the start. For subsequent rounds, start after the 10-second intermission or earlier once every connected player hits Ready; missing a Ready click does not exclude a connected player.
 7. A player submits one final guess or passes. An accepted submission cannot be edited or replaced. The server checks identity, round, phase, and deadline; malformed or unauthorized requests are rejected rather than counted as wrong guesses.
 8. The first accepted guess, whether correct or incorrect, sets the deadline to the earlier of the original 90-second deadline and 20 seconds after its acceptance. Later guesses do not restart the timer. Passing does not start it.
@@ -168,7 +168,7 @@ Client-triggered auto-Ready is unsuitable as the sole timer authority: backgroun
 
 “Enable audio and join” enables audio in the lobby; it does not prove that the first song is loaded. The accepted first-round preload countdown handles song loading without an extra wait; a countdown cannot grant audio permission. [Browser autoplay restrictions](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Autoplay)
 
-Accepted first-round flow: require connected players to enable audio and finish loading the search index before the host starts. Then preload the first song using the same 10-second/all-Ready countdown as later rounds, without an additional audio-loaded wait. This first-round flow was accepted with the MVP defaults on October 24.
+Updated first-round flow, accepted October 27: everyone connected enables audio, loads the pinned search index and clicks Ready; the room starts automatically. After generating the match, preload the first song for a full ten seconds without an additional audio-loaded wait. Later rounds retain ten-seconds-or-all-Ready behavior. This supersedes the October 24 host-start/first-round-Ready shortcut.
 
 The “one final guess” interpretation follows the requested submit-or-pass flow. Correct guesses are ranked among correct guesses: wrong answers and passes do not consume a positive scoring position. These interpretations are made explicit in the scoring example below.
 
@@ -258,7 +258,7 @@ The initial implementation uses a small custom index in a dedicated browser Web 
 
 Deployment clarification: the browser Web Worker belongs to the `animasters` frontend build and executes on each player's device; it is not a new hosted service. `match-generator` can own the catalog import/export tooling, manifest and versioned asset delivery. Each browser can cache the downloaded asset; each active app instance builds and owns an in-memory search index, normally rebuilt after refresh. Running the search itself in `match-generator` would make it server-side search and reintroduce a network request per query. [Browser Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers)
 
-Complete initial search-index loading before the host can start with that connected player. This is separate from the subsequent 10-second song-preload countdown. A network failure while fetching the index should show an error/retry path rather than silently limiting search to the playable catalog.
+Complete initial search-index loading before that connected player can become Ready. This is separate from the subsequent 10-second song-preload countdown. A network failure while fetching the index should show an error/retry path rather than silently limiting search to the playable catalog.
 
 ### Catalog sizing before implementation
 
@@ -290,7 +290,7 @@ Regular seasons share an accepted answer identity: a franchise title counts acro
 - Include round identifiers and action identifiers so delayed messages cannot affect a later round and retries can be recognized.
 - Broadcast only permitted room information. Keep answers, other players' guess contents, and future songs private until the appropriate reveal phase.
 - On reconnect, authenticate the player and send a current snapshot with its phase, deadlines, personal submission status, and permitted scores. Do not rely solely on replaying missed messages.
-- Apply host privileges on the server. Do not transfer them. If the host disconnects before starting the match, starting must wait for their return. Once started, game progression does not depend on host actions.
+- Apply host privileges on the server. Do not transfer them. Lobby readiness checks exclude disconnected players, including the host; all remaining connected players being ready can start the match. Once started, game progression does not depend on host actions.
 - Initially cap the room at 10 players. Reject new players after match start. Preserve existing players' reconnect identity, slot, score, and submissions throughout the match; reconnecting does not provide another attempt.
 - Skip disconnected players when checking readiness. Unanswered rounds score 0; already submitted guesses retain their actual result. All-disconnected rooms must not advance through songs with nobody present; suspend between rounds. An active round can still finish at its existing deadline. Expire the unfinished room after 30 minutes with nobody connected; resume a paused intermission with a fresh 10 seconds when someone returns before expiry.
 - Validate message shapes and bound guesses, search requests, and room creation. Reject unauthorized actions regardless of what controls the UI displays.
@@ -352,7 +352,7 @@ All seven defaults below are accepted. Remaining engineering details and data cu
 | Area | Accepted default |
 | --- | --- |
 | Scoring | One final guess or pass. Only correct guesses consume positive ranking positions. N is fixed to the starting roster, including the playing host. Scores may be negative. |
-| Countdown and first round | Backend deadlines; intermission begins at reveal. Connected players enable audio and finish loading the search index before host Start; first song then uses the same 10-second/all-Ready preload countdown. |
+| Countdown and first round | Backend deadlines; intermission begins at reveal. Updated October 27: everyone connected enables audio, loads search and clicks Ready; first song then has a full ten-second preload countdown. |
 | Playback and refresh | Existing files play from the beginning, with manual replay and no automatic loop. Socket recovery preserves local playback; full refresh permits restarting the current song with only the remaining guessing time. |
 | All disconnected | Finish an active round on its existing deadline, then pause. Resume with a fresh 10-second intermission when someone returns. Unfinished rooms expire after 30 minutes with nobody connected. Completed rooms expire 30 minutes after completion. |
 | No autocomplete result | Select a known anime, revise the query, or pass. No arbitrary free-text submissions. |
@@ -369,7 +369,7 @@ Deferred to the second iteration: flash tiebreaker, retained per-player scores a
 
 Accepted: room codes have exactly four characters from `A–Z` and `0–9`, with no special characters. Code input converts lowercase ASCII letters to uppercase, removes other characters, and limits the result to four characters. The API also accepts lowercase and validates the full code. All 36 characters are available; a code need not contain both a letter and a digit.
 
-The first multiplayer slice adds `/rooms` and `/rooms/:code`, while retaining the manual game. Players create a room with a nickname, copy its code or invite link, or join an existing room. Live lobby snapshots show the host and connected players. Match settings, audio enablement, catalog readiness and starting gameplay are not part of this slice.
+The deployed first multiplayer slice adds `/rooms` and `/rooms/:code`, while retaining the manual game. Players create a room with a nickname, copy its code or invite link, or join an existing room. Live lobby snapshots show the host and connected players. Editable match settings remain outside this first slice; audio enablement, catalog readiness and gameplay were added in the subsequent implementation below.
 
 The Worker reserves codes using cryptographic randomness and a collision check inside the room Durable Object. The object name is the code; its SQLite record owns the roster and host identity. A collision retries another code rather than replacing an existing room. Nicknames are trimmed, normalized to NFC, limited to 24 Unicode code points, and unique within a room ignoring case. Control/format characters are rejected. The roster limit is ten including the host; disconnected players retain their slots.
 
@@ -379,16 +379,34 @@ Hibernatable sockets broadcast lobby snapshots on membership/connection changes.
 
 Development uses `VITE_API_URL` to target a local Worker. Wrangler includes the `ROOMS` binding and the append-only `v1-rooms` SQLite-class migration for the existing deployment target. The multiplayer game must still implement the accepted readiness, timing, scoring, media privacy and catalog-version rules; lobby connection does not mean a device is ready to play.
 
+## Playable match flow — October 27
+
+Implemented locally after the owner confirmed the room deployment. Every connected player explicitly clicks **Enable audio & Ready** after the room's catalog is indexed. The browser resumes its reusable AudioContext in that click; the room verifies readiness against its pinned catalog version. There is no separate host Start. Readiness on a replacement lobby connection resets because a refreshed browser may need to enable audio again.
+
+Defaults are persisted per room: 40 songs, openings/endings/soundtracks enabled, no repeated canonical anime. Multiplayer uses one read-only Neon query joined to `catalog.song_answers`, groups eligible songs by canonical ID and samples without replacement. The legacy generation endpoint remains unchanged. The database's song-type enum is compared as text against bound filter values. Insufficient eligible answers return the room to a retryable lobby rather than silently reducing the requested count.
+
+The room persists a preparation attempt ID and timeout before waiting on database work. Only the matching attempt may install the generated song sequence. The roster locks during preparation; late joins are rejected. Preparation failure clears readiness and returns to the lobby. Generated songs and accepted answer IDs remain in SQLite and survive reconnection/hibernation.
+
+The first song gets a full ten-second countdown after generation. The browser preloads and decodes it, estimates server-clock offset using timestamp exchanges and schedules Web Audio playback for the shared start. Guessing opens at that same timestamp. Later rounds preload during the ten-second results interval; all connected Ready clicks can bring that start forward with a 500 ms delivery margin. Local pause/seek/replay do not change the server deadline. Snapshot updates do not restart local playback. Refresh allows enabling audio and restarting the still-open current song, without extra guessing time.
+
+The reusable autocomplete submits a known anime ID only after explicit Submit guess; Pass submits null. Versioned messages carry round/action IDs. Only one answer per player is accepted, and retries cannot double-score. Server acceptance order determines positive scores. Pending correctness, deltas and other players' choices are absent from snapshots until reveal. The 90-second cap, first-guess 20-second window, all-finished reveal, automatic progression, all-disconnected pause and final standings are implemented. SQLite updates precede snapshots; one alarm covers preparation, round deadlines and room expiration, and incoming events also enforce due transitions.
+
+The backend bundles an immutable ID/title projection of the published catalog to validate guesses without a database/network lookup per submission. `scripts/catalog/game-catalog.mjs` verifies the export hash and emits the revision-specific file. The frontend uses that revision in a room-owned browser search worker. Retain published frontend assets and backend answer projections; adding another supported revision requires explicit version dispatch before changing the active default. Do not overwrite an existing projection or change an active room's rules during a deployment.
+
+Validation includes a two-browser local match using the actual Neon catalog and Supabase audio: shared countdown/playback positions, autocomplete submission, the shortened deadline, pass, reveal and preloading the next song. Unit/runtime tests cover state transitions, replayed submissions, scoring, privacy boundaries, preparation, expiry/hibernation and Web Audio scheduling. Exact acoustic skew on different physical phones is not yet measured.
+
+**Remaining media privacy work:** existing Supabase paths contain anime/song names, and audio metadata has not been sanitized. The new snapshots hide the answer fields and future song list, but the current playable URL can still reveal the answer in developer tools. Opaque filenames and metadata cleanup remain required for the previously agreed privacy goal. No remote audio or database records were changed by this implementation.
+
 ## Suggested implementation sequence
 
 Completed work is identified below; the remaining steps describe the delivery order.
 
 1. Technology refresh and MVP product choices complete. Record the agreed v1 API/message contract.
 2. Initial catalog import complete: stable IDs, aliases, explicit mappings for current songs, and release picture/thumbnail URLs are in Neon. Versioned export and browser autocomplete are implemented. Continue catalog curation, real-phone measurements, and preparation of media references and metadata for answer privacy.
-3. Room creation, joining, SQLite-backed lobby storage, hibernatable WebSockets, reconnect identity and lobby snapshots are implemented locally. Add host match settings and the start/readiness protocol next.
-4. Implement the round state machine, initial audio enablement, the 10-second/all-ready intermission, the 90-second maximum, and the first-guess 20-second deadline.
-5. Add autocomplete, authoritative submissions, rank-based scoring, answer reveal, and ready-for-next-round flow.
-6. Add final standings and reconnection recovery. Defer long-term statistics and special media-failure recovery.
+3. Room creation, joining, SQLite-backed storage, hibernatable WebSockets and reconnection are deployed. Host-editable match settings remain to be added.
+4. Round state machine, audio enablement, first ten-second countdown, later all-ready intermissions and guess deadlines are implemented locally.
+5. Autocomplete submissions, scoring, reveal and next-round readiness are implemented locally.
+6. Final standings and reconnection recovery are implemented locally. Validate deployment and real-phone audio timing next. Defer long-term statistics and special media-failure recovery.
 
 Validate with multiple real browsers and phones. Cover simultaneous guesses, duplicate submissions, the four-player scoring example, incorrect-first guesses, all-pass rounds, no-guess timeouts, the 90-second cap, deadline boundaries, refreshes, host departure, and object restart or hibernation. Verify shared initial playback, independent controls, and that loading/failed media does not block the server deadline; do not add deferred media-recovery features for these checks. Specifically test wake-up after readiness/submission, deadline enforcement while asleep, retried alarms, socket identity restoration, all-disconnected pauses, the 10-second/all-ready race, connected players missing Ready, and 30-minute completed-room cleanup. Test guessing anime with no songs, alias deduplication/ambiguity, cached catalog versions, and autocomplete performance/coverage on phones. Confirm that pre-reveal responses do not contain correctness, score changes, answers, or the future song sequence. Measure request, duration, and storage usage during representative matches and idle connected rooms.
 

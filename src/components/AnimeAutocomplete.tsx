@@ -16,9 +16,10 @@ interface Props {
   value: AnimeOption | null;
   onChange: (value: AnimeOption | null) => void;
   client?: CatalogClient;
+  disabled?: boolean;
 }
 
-export default function AnimeAutocomplete({ value, onChange, client = catalogClient }: Props) {
+export default function AnimeAutocomplete({ value, onChange, client = catalogClient, disabled = false }: Props) {
   // React subscribes to loading state; the complete catalog stays in the worker.
   const state = useSyncExternalStore(client.subscribe, client.getSnapshot);
   const [query, setQuery] = useState(value?.title ?? '');
@@ -79,7 +80,7 @@ export default function AnimeAutocomplete({ value, onChange, client = catalogCli
         value={value}
         inputValue={query}
         options={options}
-        disabled={!ready}
+        disabled={!ready || disabled}
         loading={searching}
         loadingText="Searching…"
         noOptionsText={
