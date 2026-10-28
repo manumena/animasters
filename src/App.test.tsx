@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -23,37 +23,20 @@ beforeEach(() => {
   useGameStore.setState(useGameStore.getInitialState(), true);
 });
 
-describe('existing game flows', () => {
-  it('requires a name for every player and supports adding and removing players', async () => {
-    const user = userEvent.setup();
-    renderApp();
-    const start = screen.getByRole('button', { name: 'Start' });
-    expect(start).toBeDisabled();
-    expect(screen.getByRole('textbox', { name: 'Player 1 name' })).toHaveFocus();
-    await user.type(screen.getByPlaceholderText('Enter player name...'), 'Manu');
-    expect(start).toBeEnabled();
-    await user.click(screen.getByRole('button', { name: 'Add player' }));
-    expect(start).toBeDisabled();
-    expect(screen.getByRole('textbox', { name: 'Player 2 name' })).toHaveFocus();
-    await user.type(screen.getAllByPlaceholderText('Enter player name...')[1], 'Alex');
-    expect(start).toBeEnabled();
-    await user.click(screen.getByRole('button', { name: 'Remove player' }));
-    expect(screen.getAllByPlaceholderText('Enter player name...')).toHaveLength(1);
-    expect(screen.getByPlaceholderText('Enter player name...')).toHaveValue('Alex');
-    expect(start).toBeEnabled();
-  });
-
+describe('retained legacy screens', () => {
+  // These screens remain in the codebase but no longer have home-page controls.
+  // Enter through the store so their existing coverage stays independent of navigation.
   it('keeps settings when returning to the main screen', async () => {
     const user = userEvent.setup();
+    useGameStore.getState().openSettings();
     renderApp();
-    await user.click(screen.getByRole('button', { name: 'Settings' }));
     const amount = screen.getByRole('textbox', { name: 'Songs per round' });
     await user.clear(amount);
     await user.type(amount, '20');
     await user.click(screen.getByRole('checkbox', { name: 'Include endings' }));
     await user.click(screen.getByRole('button', { name: 'Back' }));
     expect(screen.getByRole('heading', { name: 'AniMasters' })).toBeVisible();
-    await user.click(screen.getByRole('button', { name: 'Settings' }));
+    act(() => useGameStore.getState().openSettings());
     expect(screen.getByRole('textbox', { name: 'Songs per round' })).toHaveValue('20');
     expect(screen.getByRole('checkbox', { name: 'Include endings' })).not.toBeChecked();
   });
@@ -63,8 +46,7 @@ describe('existing game flows', () => {
     vi.stubGlobal('fetch', fetchMock);
     const user = userEvent.setup();
     const { container } = renderApp();
-    await user.type(screen.getByPlaceholderText('Enter player name...'), 'Manu');
-    await user.click(screen.getByRole('button', { name: 'Start' }));
+    act(() => useGameStore.getState().startGame(['Manu']));
     await screen.findByRole('button', { name: 'Reveal' });
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(new URL(fetchMock.mock.calls[0][0]).searchParams.get('amount')).toBe('40');
