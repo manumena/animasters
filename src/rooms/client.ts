@@ -32,6 +32,7 @@ export interface RoomSnapshot {
 }
 export type GameAction =
   | { type: 'ready'; catalogVersion?: string; roundId?: string; settingsRevision?: number }
+  | { type: 'ready-next-match'; completedRoundId: string; catalogVersion?: string; settingsRevision: number }
   | { type: 'unready' }
   | { type: 'settings'; settings: RoomSettings; settingsRevision: number }
   | { type: 'guess'; roundId: string; actionId: string; animeId: number | null };

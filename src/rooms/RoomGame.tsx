@@ -83,7 +83,22 @@ export default function RoomGame({ session, onBack }: { session: RoomSession; on
     setError('');
     try {
       await audio.enable();
-      if (!send.current({ type: 'ready', catalogVersion: room.catalogVersion, roundId: round?.id, settingsRevision: room.settingsRevision ?? 0 })) {
+      // Rematch readiness is tied to the final result, separate from round Ready.
+      // A delayed click from an earlier match cannot start another one.
+      const action: GameAction = room.phase === 'completed' && room.result
+        ? {
+          type: 'ready-next-match',
+          completedRoundId: room.result.roundId,
+          catalogVersion: room.catalogVersion,
+          settingsRevision: room.settingsRevision ?? 0,
+        }
+        : {
+          type: 'ready',
+          catalogVersion: room.catalogVersion,
+          roundId: round?.id,
+          settingsRevision: room.settingsRevision ?? 0,
+        };
+      if (!send.current(action)) {
         setError('Reconnect before becoming ready.');
       }
     } catch (cause) {
@@ -109,6 +124,26 @@ export default function RoomGame({ session, onBack }: { session: RoomSession; on
     }
   }
 
+  // Reuse the lobby controls after the standings, with the same host-only edits
+  // and revision acknowledgement. Score snapshots leave unsaved drafts intact.
+  const matchPreferences = <RoomPreferences
+    key={room.settingsRevision ?? 0}
+    settings={room.settings}
+    isHost={session.playerId === room.hostId}
+    connected={connected}
+    canReady={ready}
+    isReady={Boolean(me?.ready)}
+    isRematch={room.phase === 'completed'}
+    onReady={becomeReady}
+    onUnready={() => send.current({ type: 'unready' })}
+    onSave={settings => {
+      setError('');
+      if (!send.current({ type: 'settings', settings, settingsRevision: room.settingsRevision ?? 0 })) {
+        setError('Reconnect before saving match settings.');
+      }
+    }}
+  />;
+
   return (
     <Stack spacing={2}>
       <Typography component="h1" variant="h4">{room.phase === 'lobby' ? 'Your room' : room.phase === 'completed' ? 'Final standings' : 'AniMasters'}</Typography>
@@ -119,22 +154,7 @@ export default function RoomGame({ session, onBack }: { session: RoomSession; on
           <Button variant="outlined" onClick={() => copy(shareLink)}>Copy invite link</Button>
         </Stack>
         <Typography sx={{ overflowWrap: 'anywhere' }}>{shareLink}</Typography>
-        <RoomPreferences
-          key={room.settingsRevision ?? 0}
-          settings={room.settings}
-          isHost={session.playerId === room.hostId}
-          connected={connected}
-          canReady={ready}
-          isReady={Boolean(me?.ready)}
-          onReady={becomeReady}
-          onUnready={() => send.current({ type: 'unready' })}
-          onSave={settings => {
-            setError('');
-            if (!send.current({ type: 'settings', settings, settingsRevision: room.settingsRevision ?? 0 })) {
-              setError('Reconnect before saving match settings.');
-            }
-          }}
-        />
+        {matchPreferences}
       </>}
       <Typography role="status">{status}{copyStatus ? ` · ${copyStatus}` : ''}</Typography>
       {(error || room.error) && <Alert severity="error">{error || room.error}</Alert>}
@@ -171,6 +191,7 @@ export default function RoomGame({ session, onBack }: { session: RoomSession; on
           {' · '}{player.score ?? 0} points{player.ready ? ' · Ready' : ''}{guessing && player.submitted ? ' · Finished' : ''}
         </li>)}
       </Box>
+      {room.phase === 'completed' && matchPreferences}
       <Button onClick={onBack}>Back to room entry</Button>
     </Stack>
   );

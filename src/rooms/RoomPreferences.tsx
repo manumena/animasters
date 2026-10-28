@@ -8,6 +8,7 @@ interface Props {
   connected: boolean;
   canReady: boolean;
   isReady: boolean;
+  isRematch?: boolean;
   onSave: (settings: RoomSettings) => void;
   onReady: () => void;
   onUnready: () => void;
@@ -20,7 +21,7 @@ export default function RoomPreferences(props: Props) {
   return <PreferencesForm {...props} settings={props.settings} />;
 }
 
-function PreferencesForm({ settings, isHost, connected, canReady, isReady, onSave, onReady, onUnready }: Props & { settings: RoomSettings }) {
+function PreferencesForm({ settings, isHost, connected, canReady, isReady, isRematch = false, onSave, onReady, onUnready }: Props & { settings: RoomSettings }) {
   const [amount, setAmount] = useState(String(settings.amount));
   const [draft, setDraft] = useState(settings);
   const count = Number(amount);
@@ -37,7 +38,7 @@ function PreferencesForm({ settings, isHost, connected, canReady, isReady, onSav
   ].filter(Boolean);
 
   return <Stack spacing={2}>
-    <Typography component="h2" variant="h6">Match preferences</Typography>
+    <Typography component="h2" variant="h6">{isRematch ? 'Next match preferences' : 'Match preferences'}</Typography>
     <Typography>{settings.amount} songs · {types.length ? types.join(', ') : 'All song types'} · No repeated anime</Typography>
     {isHost ? <Stack
       component="form"
@@ -84,13 +85,15 @@ function PreferencesForm({ settings, isHost, connected, canReady, isReady, onSav
         {isReady ? 'Click Not ready to edit preferences.' : changed ? 'Save your changes before becoming ready.' : 'Saving changes clears everyone’s Ready status.'}
       </Typography>
     </Stack> : <Typography>Only the host can change these settings.</Typography>}
-    <Typography>Invite your friends before pressing Ready. The match starts when everyone connected is ready.</Typography>
+    <Typography>{isRematch
+      ? 'The next match starts when everyone connected is ready. Scores reset for the new match.'
+      : 'Invite your friends before pressing Ready. The match starts when everyone connected is ready.'}</Typography>
     <Button
       variant="outlined"
       disabled={isReady ? !connected : !canReady || (isHost && (changed || !validCount))}
       onClick={isReady ? onUnready : onReady}
     >
-      {isReady ? 'Not ready' : 'Enable audio & Ready'}
+      {isReady ? 'Not ready' : isRematch ? 'Ready for next match' : 'Enable audio & Ready'}
     </Button>
     {isReady && <Typography role="status">Ready — waiting for players</Typography>}
   </Stack>;

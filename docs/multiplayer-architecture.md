@@ -405,6 +405,14 @@ The room persists a settings revision alongside the preferences. Saving a change
 
 Match generation receives the saved count and filters. An insufficient filtered catalog returns a specific availability message and resets the room to the lobby; the host can reduce the count or broaden the types. Unknown database errors retain the generic preparation error. No database schema or remote data changes are involved.
 
+## Same-room rematches — October 28
+
+After final standings, players can choose **Ready for next match**. The host can edit the same preferences for the upcoming match; guests see the saved configuration. Saving a changed configuration clears everyone's readiness. All connected players must explicitly opt in again, and reconnecting clears that player's readiness. Disconnected players keep their slots without blocking the next match. The roster, room code, host, pinned catalog and credentials remain unchanged; new joins are still disabled after the initial lobby.
+
+The server accepts a separate `ready-next-match` action with the final result's round ID, catalog version and settings revision. This prevents delayed round Ready messages and readiness left in older deployed rooms from starting another match. Preparation remains serialized and guarded by its generation ID.
+
+Final scores and the last reveal remain visible until song generation succeeds. Success resets scores, submissions, the reveal and the old completion timestamp, then begins a full ten-second first-song preload. A generation error or timeout returns to the final standings with readiness cleared and settings editable. The previous completion expiry is suspended during preparation; failure preserves the original expiry, while successful rematches receive a new thirty-minute retention window when they finish. Long-term match history remains deferred.
+
 ## Suggested implementation sequence
 
 Completed work is identified below; the remaining steps describe the delivery order.

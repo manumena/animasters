@@ -58,3 +58,14 @@ it('explains that no selected types includes every song type', () => {
   setup({ isHost: false, settings: { ...settings, includeOpenings: false, includeEndings: false, includeSoundtracks: false } });
   expect(screen.getByText('40 songs · All song types · No repeated anime')).toBeVisible();
 });
+
+it('offers rematch readiness and keeps host edits subject to saving first', async () => {
+  const { user, props } = setup({ isRematch: true });
+  expect(screen.getByRole('heading', { name: 'Next match preferences' })).toBeVisible();
+  await user.click(screen.getByRole('button', { name: 'Ready for next match' }));
+  expect(props.onReady).toHaveBeenCalledOnce();
+  await user.click(screen.getByLabelText('Include endings'));
+  expect(screen.getByRole('button', { name: 'Ready for next match' })).toBeDisabled();
+  await user.click(screen.getByRole('button', { name: 'Save settings' }));
+  expect(props.onSave).toHaveBeenCalledWith({ ...settings, includeEndings: false });
+});
