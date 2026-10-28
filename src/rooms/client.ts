@@ -1,3 +1,11 @@
+export interface RoomSettings {
+  amount: number;
+  repeatAnimes: boolean;
+  includeOpenings: boolean;
+  includeEndings: boolean;
+  includeSoundtracks: boolean;
+}
+
 export interface RoundSnapshot {
   id: string;
   number: number;
@@ -11,7 +19,8 @@ export interface RoomSnapshot {
   hostId: string;
   phase: 'lobby' | 'preparing' | 'countdown' | 'guessing' | 'paused' | 'completed';
   catalogVersion?: string;
-  settings?: { amount: number };
+  settings?: RoomSettings;
+  settingsRevision?: number;
   players: { id: string; nickname: string; connected: boolean; ready?: boolean; score?: number; submitted?: boolean }[];
   round?: RoundSnapshot;
   submission?: { actionId: string; animeId: number | null };
@@ -22,7 +31,9 @@ export interface RoomSnapshot {
   error?: string;
 }
 export type GameAction =
-  | { type: 'ready'; catalogVersion?: string; roundId?: string }
+  | { type: 'ready'; catalogVersion?: string; roundId?: string; settingsRevision?: number }
+  | { type: 'unready' }
+  | { type: 'settings'; settings: RoomSettings; settingsRevision: number }
   | { type: 'guess'; roundId: string; actionId: string; animeId: number | null };
 export interface GameCallbacks {
   onSender?: (send: (action: GameAction) => boolean) => void;

@@ -4,6 +4,7 @@ import { CatalogClient } from '../catalog/client';
 import AnimeAutocomplete from '../components/AnimeAutocomplete';
 import type { AnimeOption } from '../catalog/types';
 import { watchRoom, type GameAction, type RoomSession, type RoomSnapshot } from './client';
+import RoomPreferences from './RoomPreferences';
 import { RoomAudio } from './audio';
 
 export default function RoomGame({ session, onBack }: { session: RoomSession; onBack: () => void }) {
@@ -82,7 +83,7 @@ export default function RoomGame({ session, onBack }: { session: RoomSession; on
     setError('');
     try {
       await audio.enable();
-      if (!send.current({ type: 'ready', catalogVersion: room.catalogVersion, roundId: round?.id })) {
+      if (!send.current({ type: 'ready', catalogVersion: room.catalogVersion, roundId: round?.id, settingsRevision: room.settingsRevision ?? 0 })) {
         setError('Reconnect before becoming ready.');
       }
     } catch (cause) {
@@ -118,11 +119,22 @@ export default function RoomGame({ session, onBack }: { session: RoomSession; on
           <Button variant="outlined" onClick={() => copy(shareLink)}>Copy invite link</Button>
         </Stack>
         <Typography sx={{ overflowWrap: 'anywhere' }}>{shareLink}</Typography>
-        <Typography>40 songs · Openings, endings and soundtracks · No repeated anime</Typography>
-        <Typography>Invite your friends before pressing Ready. The match starts when everyone connected is ready.</Typography>
-        <Button variant="outlined" disabled={!ready || me?.ready} onClick={becomeReady}>
-          {me?.ready ? 'Ready — waiting for players' : 'Enable audio & Ready'}
-        </Button>
+        <RoomPreferences
+          key={room.settingsRevision ?? 0}
+          settings={room.settings}
+          isHost={session.playerId === room.hostId}
+          connected={connected}
+          canReady={ready}
+          isReady={Boolean(me?.ready)}
+          onReady={becomeReady}
+          onUnready={() => send.current({ type: 'unready' })}
+          onSave={settings => {
+            setError('');
+            if (!send.current({ type: 'settings', settings, settingsRevision: room.settingsRevision ?? 0 })) {
+              setError('Reconnect before saving match settings.');
+            }
+          }}
+        />
       </>}
       <Typography role="status">{status}{copyStatus ? ` · ${copyStatus}` : ''}</Typography>
       {(error || room.error) && <Alert severity="error">{error || room.error}</Alert>}

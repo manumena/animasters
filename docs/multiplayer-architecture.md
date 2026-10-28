@@ -1,7 +1,7 @@
 # Animasters multiplayer architecture
 
 Created: October 21, 2026
-Updated: October 27, 2026
+Updated: October 28, 2026
 Status: Architecture and core gameplay accepted, including SQLite-backed Durable Objects, WebSocket hibernation, and Manami's snapshot with our own season mappings. Technology modernization is complete. All seven reviewed MVP defaults were accepted on October 24. The initial catalog and season mappings are implemented and imported into Neon; browser autocomplete and versioned export are implemented; the multiplayer lobby is deployed; readiness, scheduled playback, guessing, scoring and automatic progression are implemented locally.
 Scope: The `animasters` frontend and `match-generator` backend.
 
@@ -9,7 +9,7 @@ Scope: The `animasters` frontend and `match-generator` backend.
 
 Animasters will become a browser-based multiplayer anime-song guessing game. Players join a shared room from their own devices, listen to the same song on their own devices, select an anime through autocomplete, and submit a final guess or pass. The backend validates answers, awards points according to the order of correct guesses, reveals round results, and coordinates progression through the match.
 
-The room creator is the host. Everyone connected clicks Ready to start automatically; host-editable settings remain the next UI addition. Hosting does not require their browser to run the game server. The backend owns the game and can continue if the host disconnects.
+The room creator is the host. Everyone connected clicks Ready to start automatically; the host can edit match preferences in the lobby before becoming ready. Hosting does not require their browser to run the game server. The backend owns the game and can continue if the host disconnects.
 
 Terminology for the new game:
 
@@ -397,13 +397,21 @@ Validation includes a two-browser local match using the actual Neon catalog and 
 
 **Remaining media privacy work:** existing Supabase paths contain anime/song names, and audio metadata has not been sanitized. The new snapshots hide the answer fields and future song list, but the current playable URL can still reveal the answer in developer tools. Opaque filenames and metadata cleanup remain required for the previously agreed privacy goal. No remote audio or database records were changed by this implementation.
 
+## Lobby match preferences — October 28
+
+Implemented the same preferences as the manual settings screen: song count, openings, endings and soundtracks. The host edits a local draft and saves it to the room. Guests see the saved values. The room validates host identity, lobby phase, a whole-number count from 1 to 999 and boolean type flags. No types checked retains the legacy meaning of all types. Repeated anime remain disabled; no extra repeat-anime toggle was introduced.
+
+The room persists a settings revision alongside the preferences. Saving a changed configuration increments the revision and clears every player's Ready flag. Lobby Ready carries the revision the player saw, so a delayed click cannot start a match with newly changed settings. Retrying an identical save does not clear readiness again. A host already marked Ready can choose Not ready to edit; settings cannot change after preparation starts.
+
+Match generation receives the saved count and filters. An insufficient filtered catalog returns a specific availability message and resets the room to the lobby; the host can reduce the count or broaden the types. Unknown database errors retain the generic preparation error. No database schema or remote data changes are involved.
+
 ## Suggested implementation sequence
 
 Completed work is identified below; the remaining steps describe the delivery order.
 
 1. Technology refresh and MVP product choices complete. Record the agreed v1 API/message contract.
 2. Initial catalog import complete: stable IDs, aliases, explicit mappings for current songs, and release picture/thumbnail URLs are in Neon. Versioned export and browser autocomplete are implemented. Continue catalog curation, real-phone measurements, and preparation of media references and metadata for answer privacy.
-3. Room creation, joining, SQLite-backed storage, hibernatable WebSockets and reconnection are deployed. Host-editable match settings remain to be added.
+3. Room creation, joining, SQLite-backed storage, hibernatable WebSockets and reconnection are deployed. Host-editable match settings are implemented locally.
 4. Round state machine, audio enablement, first ten-second countdown, later all-ready intermissions and guess deadlines are implemented locally.
 5. Autocomplete submissions, scoring, reveal and next-round readiness are implemented locally.
 6. Final standings and reconnection recovery are implemented locally. Validate deployment and real-phone audio timing next. Defer long-term statistics and special media-failure recovery.
