@@ -23,6 +23,37 @@ beforeEach(() => {
   useGameStore.setState(useGameStore.getInitialState(), true);
 });
 
+describe('homepage room entry', () => {
+  it.each([
+    ['Create a room', 'Create my room', false],
+    ['Join a room', 'Join this room', true],
+  ])('opens the correct form from %s', async (linkName, submitName, joining) => {
+    const user = userEvent.setup();
+    renderApp();
+
+    await user.click(screen.getByRole('link', { name: linkName }));
+
+    expect(await screen.findByRole('button', { name: submitName })).toBeVisible();
+    expect(screen.getByRole('textbox', { name: 'Nickname' })).toBeVisible();
+    expect(Boolean(screen.queryByRole('textbox', { name: 'Room code' }))).toBe(joining);
+  });
+
+  it('keeps the sample round local without loading songs or playing audio', async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    const user = userEvent.setup();
+    const { container } = renderApp();
+
+    await user.click(screen.getByRole('button', { name: 'Preview the reveal' }));
+    expect(screen.getByRole('heading', { name: 'Naruto Shippuden · Blue Bird' })).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: 'Back to round preview' }));
+    expect(screen.getByRole('heading', { name: 'That opening you know by heart.' })).toBeVisible();
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(container.querySelector('audio')).toBeNull();
+  });
+});
+
 describe('retained legacy screens', () => {
   // These screens remain in the codebase but no longer have home-page controls.
   // Enter through the store so their existing coverage stays independent of navigation.
@@ -35,7 +66,7 @@ describe('retained legacy screens', () => {
     await user.type(amount, '20');
     await user.click(screen.getByRole('checkbox', { name: 'Include endings' }));
     await user.click(screen.getByRole('button', { name: 'Back' }));
-    expect(screen.getByRole('heading', { name: 'AniMasters' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: /You know the anime/ })).toBeVisible();
     act(() => useGameStore.getState().openSettings());
     expect(screen.getByRole('textbox', { name: 'Songs per round' })).toHaveValue('20');
     expect(screen.getByRole('checkbox', { name: 'Include endings' })).not.toBeChecked();

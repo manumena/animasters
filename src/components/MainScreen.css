@@ -1,0 +1,422 @@
+/* Scope the landing page so the room, match and debugging screens keep their styles. */
+.home-page {
+  /* Use the selected sketch's dark palette regardless of the browser theme. */
+  --home-background: #111b21;
+  --home-panel: #1b2b32;
+  --home-text: #f2f7f4;
+  --home-muted: #b0c1c5;
+  --home-line: #354950;
+  --home-accent: #9ae1d0;
+  --home-accent-ink: #153c32;
+  color-scheme: dark;
+  position: relative;
+  isolation: isolate;
+  /* Leave room for the full backdrop without stretching the content above it. */
+  min-height: max(100vh, 56.25vw);
+  background: var(--home-background);
+  color: var(--home-text);
+  padding-bottom: 40px;
+}
+
+.home-page h1,
+.home-page h2,
+.home-page h3,
+.home-page p {
+  margin: 0;
+}
+
+.home-page svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Only the text and controls determine the hero's height. */
+.home-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  color: #f4f7f5;
+  padding-bottom: 60px;
+}
+
+/* This decorative layer can extend behind the next section without taking up
+   layout space. Fit all 1920×1080 pixels on wide screens; crop sides on phones.
+   The page's isolated stacking context keeps it above the page background and
+   behind every content section, including links and buttons. */
+.home-hero::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: max(100%, 56.25vw);
+  background-color: #122632;
+  background-image:
+    linear-gradient(transparent calc(100% - 70px), var(--home-background)),
+    linear-gradient(#050f188c, #050f188c),
+    url('../assets/lofi-cafe.gif');
+  background-size: cover;
+  background-position: 50% 58%;
+  pointer-events: none;
+}
+
+.home-header {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 25px 36px 0;
+}
+
+.home-brand {
+  display: inline-flex;
+  align-items: center;
+  color: inherit;
+  text-decoration: none;
+  font-size: 23px;
+  font-weight: 750;
+  letter-spacing: -1px;
+}
+
+.home-brand-light { font-weight: 400; }
+
+.home-brand small {
+  align-self: flex-start;
+  margin: 2px 0 0 8px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.home-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 33px;
+  height: 33px;
+  margin-right: 9px;
+  border-radius: 10px;
+  background: #a7ecdb;
+  color: #123e34;
+}
+
+.home-hero-copy {
+  text-align: center;
+  padding: 65px 24px 28px;
+  text-shadow: 0 2px 20px #04101c66;
+}
+
+.home-eyebrow {
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 1.7px;
+  text-transform: uppercase;
+}
+
+.home-hero-copy h1 {
+  margin: 18px 0;
+  font-size: clamp(32px, 4.5vw, 49px);
+  line-height: 1.16;
+  font-weight: 650;
+  letter-spacing: -1.9px;
+}
+
+.home-hero-copy h1 span { color: #a7ecdb; }
+
+.home-description {
+  color: #d4e1e2;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.home-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 25px;
+}
+
+.home-actions .MuiButton-root {
+  min-height: 48px;
+  padding: 11px 22px;
+  border-radius: 9px;
+  font-size: 14px;
+}
+
+.home-actions .home-create {
+  background: #a7ecdb;
+  color: #123e34;
+}
+
+.home-actions .home-create:hover { background: #bdf5e7; }
+
+.home-actions .home-join {
+  background: #1b3039;
+  border-color: #6b858b;
+  color: #f4f7f5;
+}
+
+.home-actions .home-join:hover {
+  background: #29424b;
+  border-color: #a7ecdb;
+}
+
+.home-benefits {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 11px;
+  color: #d4e1e2;
+}
+
+.home-benefits li + li::before {
+  content: '·';
+  margin-right: 18px;
+}
+
+.home-page .home-scene-caption {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 18px;
+  color: #e4ecef;
+  font-size: 11px;
+}
+
+/* The example explains the game without starting playback or exposing real songs. */
+.home-content {
+  position: relative;
+  max-width: 1028px;
+  margin: 0 auto;
+  padding: 0 36px;
+}
+
+.home-round {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 26px;
+  max-width: 740px;
+  margin: -32px auto 0;
+  padding: 24px 28px;
+  border: 1px solid var(--home-line);
+  border-radius: 18px;
+  background: var(--home-panel);
+  box-shadow: 0 14px 40px #08151e15;
+}
+
+.home-track {
+  padding-right: 25px;
+  border-right: 1px solid var(--home-line);
+}
+
+.home-track h2 {
+  margin-top: 10px;
+  font-size: 19px;
+  line-height: 1.35;
+  font-weight: 500;
+}
+
+.home-wave {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 68px;
+}
+
+.home-wave span {
+  flex: 0 1 5px;
+  height: 25%;
+  border-radius: 4px;
+  background: var(--home-accent);
+}
+
+.home-wave span:nth-child(3n) { height: 68%; }
+.home-wave span:nth-child(4n) { height: 45%; }
+.home-wave span:nth-child(5n) { height: 85%; }
+
+/* Decorative equalizer: stagger the bars without fetching or analysing audio.
+   Transforms keep the surrounding layout still; reduced motion stays static. */
+@media (prefers-reduced-motion: no-preference) {
+  .home-wave span {
+    animation: home-equalizer 1.4s ease-in-out infinite;
+  }
+
+  .home-wave span:nth-child(2n) { animation-duration: 1.1s; animation-delay: -.45s; }
+  .home-wave span:nth-child(3n) { animation-duration: 1.7s; animation-delay: -.8s; }
+  .home-wave span:nth-child(5n) { animation-duration: 1.3s; animation-delay: -.2s; }
+}
+
+@keyframes home-equalizer {
+  0%, 100% { transform: scaleY(.45); }
+  30% { transform: scaleY(1); }
+  65% { transform: scaleY(.65); }
+}
+
+.home-small {
+  font-size: 11px;
+  color: var(--home-muted);
+}
+
+.home-example-answer {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--home-line);
+  border-radius: 8px;
+  background: var(--home-background);
+  color: var(--home-muted);
+  font-size: 12px;
+}
+
+.home-enter { margin-left: auto; }
+
+.home-answer .home-reveal {
+  min-height: 44px;
+  padding: 9px 0;
+  color: var(--home-text);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.home-score {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding-top: 12px;
+  border-top: 1px solid var(--home-line);
+  font-size: 12px;
+}
+
+.home-score small {
+  margin-left: auto;
+  color: var(--home-muted);
+  font-size: 11px;
+}
+
+.home-score strong {
+  color: var(--home-accent);
+  font-size: 18px;
+}
+
+.home-avatar {
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: var(--home-accent);
+  color: var(--home-accent-ink);
+}
+
+/* Keep the instructions and expandable rules compact below the main action. */
+.home-how {
+  max-width: 860px;
+  margin: 40px auto 0;
+}
+
+.home-section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 23px;
+}
+
+.home-section-heading h2 {
+  font-size: 21px;
+  font-weight: 500;
+  letter-spacing: -.5px;
+}
+
+.home-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.home-step-number {
+  color: var(--home-accent);
+  font: 12px monospace;
+}
+
+.home-steps h3 {
+  padding: 8px 0 4px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.home-steps p {
+  color: var(--home-muted);
+  font-size: 12px;
+}
+
+.home-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  max-width: 860px;
+  margin: 30px auto 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--home-line);
+  color: var(--home-muted);
+  font-size: 11px;
+}
+
+.home-footer details {
+  max-width: 280px;
+  text-align: right;
+}
+
+.home-footer summary {
+  min-height: 44px;
+  color: var(--home-text);
+  cursor: pointer;
+}
+
+.home-footer p { padding-top: 10px; }
+
+@media (max-width: 700px) {
+  .home-header { padding: 20px 20px 0; }
+  .home-hero::before { background-position: 62% 50%; }
+  .home-hero-copy { padding: 45px 20px 28px; }
+  .home-hero-copy h1 { font-size: 34px; letter-spacing: -1.2px; }
+  .home-description { font-size: 14px; }
+  .home-actions .MuiButton-root { padding: 11px 14px; font-size: 13px; }
+  .home-content { padding: 0 20px; }
+  .home-round { grid-template-columns: minmax(0, 1fr); gap: 20px; padding: 21px; }
+  .home-track { border-right: 0; padding-right: 0; }
+  .home-wave { justify-content: center; }
+  .home-how { margin-top: 30px; }
+  .home-steps { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .home-steps li { display: grid; grid-template-columns: 28px 1fr; column-gap: 10px; }
+  .home-steps h3 { padding: 0 0 4px; }
+  .home-steps p { grid-column: 2; }
+  .home-footer { flex-direction: column; }
+  .home-footer details { text-align: left; }
+}
+
+@media (max-width: 360px) {
+  .home-header { padding: 16px 16px 0; }
+  .home-hero-copy { padding-left: 16px; padding-right: 16px; }
+  .home-hero-copy h1 { font-size: 30px; }
+  .home-content { padding: 0 16px; }
+}
+
+/* A GIF cannot be paused. Respect the system preference without another UI control. */
+@media (prefers-reduced-motion: reduce) {
+  .home-hero::before { background-image: none; background-color: transparent; }
+}

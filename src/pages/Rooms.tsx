@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
+import { Link as RouterLink, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Alert, Box, Button, Stack, TextField, Typography } from '@mui/material';
 import { enterRoom, normalizeRoomCode, savedSession } from '../rooms/client';
 import RoomGame from '../rooms/RoomGame';
@@ -9,12 +9,16 @@ import type { RoomSession } from '../rooms/client';
 /** Room entry and lobby are separate from the existing local-player game. */
 export default function Rooms() {
   const { code: routeCode } = useParams();
+  const [searchParams] = useSearchParams();
   const code = normalizeRoomCode(routeCode ?? '');
   const navigate = useNavigate();
   const [session, setSession] = useState<RoomSession | null>(() => savedSession(code));
   const [nickname, setNickname] = useState('');
   const [inputCode, setInputCode] = useState(code);
-  const [mode, setMode] = useState<'create' | 'join'>(routeCode ? 'join' : 'create');
+  // The homepage can open either form; a shared room code always selects Join.
+  const [mode, setMode] = useState<'create' | 'join'>(
+    routeCode || searchParams.get('mode') === 'join' ? 'join' : 'create',
+  );
   const [pending, setPending] = useState(false);
   const [error, setError] = useState('');
 
