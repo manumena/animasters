@@ -1,0 +1,431 @@
+<div
+  id="am-equalizer-options"
+  class="viz-carousel viz-dotted-background"
+  aria-label="AniMasters sound-bar motion"
+>
+  <section data-variant="Rounded spectrum">
+    <div
+      class="eq-stage"
+      data-model="rounded"
+      aria-label="Rounded spectrum controls"
+    >
+      <div class="eq-topline"><span>ANIMASTERS · MOTION STUDY</span></div>
+      <h2>Rounded spectrum</h2>
+      <p class="eq-caption">
+        Connected clusters · quick lift · gradual settling
+      </p>
+      <div class="eq-card">
+        <span class="eq-eyebrow">A TASTE OF THE GAME</span>
+        <h3>That opening you know by heart.</h3>
+        <div
+          class="eq-spectrum"
+          role="img"
+          aria-label="Simulated spectrum with bars growing around their center"
+        ></div>
+        <span class="eq-note">Illustrative round · no audio</span>
+      </div>
+      <div class="eq-actions">
+        <button type="button" class="eq-play cursor-interaction">
+          Play motion</button
+        ><span class="eq-status" aria-live="polite">Paused</span>
+      </div>
+    </div>
+  </section>
+  <section data-variant="Classic analyzer" hidden>
+    <div
+      class="eq-stage eq-classic"
+      data-model="classic"
+      aria-label="Classic analyzer controls"
+    >
+      <div class="eq-topline"><span>ANIMASTERS · MOTION STUDY</span></div>
+      <h2>Classic analyzer</h2>
+      <p class="eq-caption">
+        Shared baseline · sharp lift · falling peak markers
+      </p>
+      <div class="eq-card">
+        <span class="eq-eyebrow">A TASTE OF THE GAME</span>
+        <h3>That opening you know by heart.</h3>
+        <div
+          class="eq-spectrum"
+          role="img"
+          aria-label="Simulated spectrum rising from a baseline with falling peak markers"
+        ></div>
+        <span class="eq-note">Illustrative round · no audio</span>
+      </div>
+      <div class="eq-actions">
+        <button type="button" class="eq-play cursor-interaction">
+          Play motion</button
+        ><span class="eq-status" aria-live="polite">Paused</span>
+      </div>
+    </div>
+  </section>
+  <section data-variant="Soft groove" hidden>
+    <div class="eq-stage" data-model="soft" aria-label="Soft groove controls">
+      <div class="eq-topline"><span>ANIMASTERS · MOTION STUDY</span></div>
+      <h2>Soft groove</h2>
+      <p class="eq-caption">
+        Broad clusters · smaller movement · longer settling
+      </p>
+      <div class="eq-card">
+        <span class="eq-eyebrow">A TASTE OF THE GAME</span>
+        <h3>That opening you know by heart.</h3>
+        <div
+          class="eq-spectrum"
+          role="img"
+          aria-label="A restrained simulated spectrum with slow settling"
+        ></div>
+        <span class="eq-note">Illustrative round · no audio</span>
+      </div>
+      <div class="eq-actions">
+        <button type="button" class="eq-play cursor-interaction">
+          Play motion</button
+        ><span class="eq-status" aria-live="polite">Paused</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<style>
+  /* Match the selected dark homepage. Only motion and bar anchoring differ. */
+  #am-equalizer-options .eq-stage {
+    box-sizing: border-box;
+    max-width: 540px;
+    min-height: 430px;
+    margin: 0 auto;
+    padding: 26px 28px;
+    border-radius: 18px;
+    background: #111b21;
+    color: #f2f7f4;
+    font:
+      14px/1.5 -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      sans-serif;
+    color-scheme: dark;
+  }
+  #am-equalizer-options .eq-stage * {
+    box-sizing: border-box;
+  }
+  #am-equalizer-options .eq-topline {
+    padding-right: 70px;
+    color: #b0c1c5;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+  }
+  #am-equalizer-options h2 {
+    margin: 20px 0 4px;
+    font-size: 24px;
+    font-weight: 550;
+  }
+  #am-equalizer-options .eq-caption {
+    margin: 0 0 24px;
+    color: #b0c1c5;
+    font-size: 12px;
+  }
+  #am-equalizer-options .eq-card {
+    padding: 22px 24px;
+    border: 1px solid #354950;
+    border-radius: 16px;
+    background: #1b2b32;
+  }
+  #am-equalizer-options .eq-eyebrow {
+    font-size: 10px;
+    letter-spacing: 1.7px;
+  }
+  #am-equalizer-options h3 {
+    margin: 10px 0 0;
+    font-size: 19px;
+    line-height: 1.35;
+    font-weight: 500;
+  }
+  #am-equalizer-options .eq-spectrum {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 68px;
+    margin: 12px 0 6px;
+  }
+  #am-equalizer-options .eq-slot {
+    position: relative;
+    flex: 0 1 5px;
+    height: 60px;
+  }
+  #am-equalizer-options .eq-bar {
+    position: absolute;
+    inset: 0;
+    display: block;
+    border-radius: 4px;
+    background: #9ae1d0;
+    transform-origin: center;
+  }
+  #am-equalizer-options .eq-peak {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: #d5f6ed;
+  }
+  #am-equalizer-options .eq-classic .eq-bar {
+    transform-origin: bottom;
+    border-radius: 2px 2px 0 0;
+  }
+  #am-equalizer-options .eq-classic .eq-peak {
+    display: block;
+  }
+  #am-equalizer-options .eq-note {
+    color: #b0c1c5;
+    font-size: 11px;
+  }
+  #am-equalizer-options .eq-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 20px;
+  }
+  #am-equalizer-options .eq-play {
+    min-height: 44px;
+    padding: 9px 18px;
+    border: 1px solid #9ae1d0;
+    border-radius: 8px;
+    background: #9ae1d0;
+    color: #153c32;
+    font: inherit;
+    font-weight: 550;
+  }
+  #am-equalizer-options .eq-status {
+    font-size: 11px;
+    color: #b0c1c5;
+  }
+  @media (max-width: 420px) {
+    #am-equalizer-options .eq-stage {
+      min-height: 470px;
+      padding: 24px 18px;
+    }
+    #am-equalizer-options .eq-card {
+      padding: 22px 18px;
+    }
+    #am-equalizer-options .eq-topline {
+      padding-right: 60px;
+      font-size: 9px;
+    }
+    #am-equalizer-options .eq-actions {
+      flex-wrap: wrap;
+    }
+  }
+</style>
+
+<script>
+  (() => {
+    const root = document.getElementById("am-equalizer-options");
+    const motionPreference = matchMedia("(prefers-reduced-motion: reduce)");
+    const barCount = 21;
+    const phraseLength = 10;
+
+    // An invented musical phrase, not a recording or FFT measurement. Each event
+    // excites a broad region of the spectrum instead of animating individual bars.
+    const events = [
+      ...[0, 1.25, 2.5, 3.125, 4.375, 5, 6.25, 7.5, 8.125, 9.375].map(
+        (time, index) => ({
+          time,
+          center: 0.14 + (index % 3) * 0.025,
+          width: 0.15,
+          level: index % 3 === 0 ? 0.88 : 0.61,
+          decay: 0.22,
+        }),
+      ),
+      ...[0.15, 1.6, 2.9, 4.4, 5.2, 6.7, 8.1, 9.3].map((time, index) => ({
+        time,
+        center: [0.43, 0.57, 0.48, 0.64][index % 4],
+        width: 0.18,
+        level: 0.55 + (index % 3) * 0.1,
+        decay: 0.45,
+      })),
+      ...[0.625, 1.875, 3.125, 4.375, 5.625, 6.875, 8.125, 9.375].map(
+        (time, index) => ({
+          time,
+          center: 0.8 + (index % 2) * 0.04,
+          width: 0.11,
+          level: index % 2 ? 0.46 : 0.3,
+          decay: 0.12,
+        }),
+      ),
+    ];
+
+    const presets = {
+      rounded: { rise: 45, fall: 480, strength: 1, broaden: 1 },
+      classic: { rise: 22, fall: 300, strength: 1.08, broaden: 0.82 },
+      soft: { rise: 90, fall: 850, strength: 0.82, broaden: 1.3 },
+    };
+
+    function spectrumAt(time, settings) {
+      return Array.from({ length: barCount }, (_, index) => {
+        const position = index / (barCount - 1);
+        let energy = 0.06;
+
+        for (const event of events) {
+          const age =
+            (((time - event.time) % phraseLength) + phraseLength) %
+            phraseLength;
+          const onset = 1 - Math.exp(-age / 0.018);
+          const envelope = onset * Math.exp(-age / event.decay);
+          const distance =
+            (position - event.center) / (event.width * settings.broaden);
+          const frequencyWeight = Math.exp(-0.5 * distance * distance);
+          energy += envelope * event.level * frequencyWeight;
+        }
+
+        return Math.min(0.96, 0.04 + energy * settings.strength);
+      });
+    }
+
+    function makeBars(container) {
+      return Array.from({ length: barCount }, () => {
+        const slot = document.createElement("span");
+        const bar = document.createElement("span");
+        const peak = document.createElement("span");
+        slot.className = "eq-slot";
+        slot.setAttribute("aria-hidden", "true");
+        bar.className = "eq-bar";
+        peak.className = "eq-peak";
+        slot.append(bar, peak);
+        container.append(slot);
+        return { bar, peak };
+      });
+    }
+
+    const studies = [...root.querySelectorAll(".eq-stage")].map((stage) => {
+      const settings = { ...presets[stage.dataset.model] };
+      const study = {
+        stage,
+        settings,
+        bars: makeBars(stage.querySelector(".eq-spectrum")),
+        button: stage.querySelector(".eq-play"),
+        status: stage.querySelector(".eq-status"),
+        running: false,
+        time: 0.2,
+        levels: spectrumAt(0.2, settings),
+        peaks: Array(barCount).fill(0),
+        holds: Array(barCount).fill(0),
+      };
+
+      study.button.addEventListener("click", () => {
+        // Playback is explicitly requested. Switching variants never starts it.
+        study.running = !study.running;
+        study.button.textContent = study.running
+          ? "Pause motion"
+          : "Play motion";
+        study.status.textContent = study.running
+          ? "Simulated spectrum · silent"
+          : "Paused";
+        scheduleFrame();
+      });
+
+      if (globalThis.Tweak) {
+        const tweak = new Tweak({
+          container: stage,
+          onChange: () => {
+            if (!study.running)
+              study.levels = spectrumAt(study.time, study.settings);
+            paint(study);
+          },
+        });
+        tweak.addSlider(settings, "rise", {
+          label: "Rise time",
+          min: 15,
+          max: 150,
+          step: 5,
+          unit: "ms",
+        });
+        tweak.addSlider(settings, "fall", {
+          label: "Fall time",
+          min: 200,
+          max: 1200,
+          step: 25,
+          unit: "ms",
+        });
+        tweak.addSlider(settings, "strength", {
+          label: "Movement strength",
+          min: 0.6,
+          max: 1.2,
+          step: 0.05,
+        });
+      }
+
+      return study;
+    });
+
+    function paint(study) {
+      study.bars.forEach(({ bar, peak }, index) => {
+        bar.style.transform = `scaleY(${study.levels[index].toFixed(4)})`;
+        peak.style.transform = `translateY(${-Math.max(study.levels[index], study.peaks[index]) * 58}px)`;
+      });
+    }
+
+    function advance(study, elapsed) {
+      study.time = (study.time + elapsed) % phraseLength;
+      const targets = spectrumAt(study.time, study.settings);
+
+      study.levels.forEach((level, index) => {
+        // Separate attack/release filters give a fast rise and a slower fall.
+        // Delta-time smoothing keeps the motion consistent at different frame rates.
+        const milliseconds =
+          targets[index] > level ? study.settings.rise : study.settings.fall;
+        const blend = 1 - Math.exp(-elapsed / (milliseconds / 1000));
+        const nextLevel = level + (targets[index] - level) * blend;
+        study.levels[index] = nextLevel;
+
+        if (nextLevel >= study.peaks[index]) {
+          study.peaks[index] = nextLevel;
+          study.holds[index] = 0.18;
+        } else if (study.holds[index] > 0) {
+          study.holds[index] -= elapsed;
+        } else {
+          study.peaks[index] = Math.max(
+            nextLevel,
+            study.peaks[index] - elapsed * 0.65,
+          );
+        }
+      });
+      paint(study);
+    }
+
+    // No loop while paused or backgrounded. Hidden variants keep their play state
+    // and clock, but do not need per-frame updates while they are out of view.
+    let frameId = 0;
+    let lastFrame = 0;
+
+    function scheduleFrame() {
+      if (frameId || document.hidden || !studies.some((study) => study.running))
+        return;
+      lastFrame = performance.now();
+      frameId = requestAnimationFrame(tick);
+    }
+
+    function tick(now) {
+      frameId = 0;
+      if (!root.isConnected || document.hidden) return;
+      const elapsed = Math.min((now - lastFrame) / 1000, 0.05);
+      lastFrame = now;
+
+      for (const study of studies) {
+        if (study.running && !study.stage.closest("[data-variant]").hidden)
+          advance(study, elapsed);
+      }
+      if (studies.some((study) => study.running))
+        frameId = requestAnimationFrame(tick);
+    }
+
+    motionPreference.addEventListener("change", (event) => {
+      if (!event.matches) return;
+      for (const study of studies) {
+        study.running = false;
+        study.button.textContent = "Play motion";
+        study.status.textContent = "Paused · reduced motion";
+      }
+    });
+    document.addEventListener("visibilitychange", scheduleFrame);
+    studies.forEach(paint);
+  })();
+</script>

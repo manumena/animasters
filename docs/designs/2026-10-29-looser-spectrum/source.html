@@ -1,0 +1,491 @@
+<div id="am-loose-spectrum" class="viz-dotted-background">
+  <section class="fast-stage" aria-label="Looser spectrum">
+    <div class="fast-topline">ANIMASTERS · MOTION REFINEMENT</div>
+    <h2>Looser spectrum</h2>
+    <p class="fast-caption">
+      Shared rhythm · individual accents · centered bars
+    </p>
+    <div class="fast-card">
+      <span class="fast-eyebrow">A TASTE OF THE GAME</span>
+      <h3>That opening you know by heart.</h3>
+      <div
+        class="fast-spectrum"
+        role="img"
+        aria-label="Simulated frequency groups expanding upward and downward from a shared center"
+      ></div>
+      <span class="fast-note">Illustrative round · no audio</span>
+    </div>
+    <div class="fast-tempo">
+      <label for="loose-spectrum-tempo"
+        >Song tempo
+        <output id="loose-spectrum-tempo-value" for="loose-spectrum-tempo"
+          >192 BPM</output
+        ></label
+      >
+      <input
+        id="loose-spectrum-tempo"
+        class="cursor-interaction"
+        type="range"
+        min="96"
+        max="192"
+        step="2"
+        value="192"
+        aria-valuetext="192 beats per minute"
+      />
+      <div class="fast-range-labels">
+        <span>Original pace · 96</span><span>192 · faster</span>
+      </div>
+    </div>
+    <div class="fast-tempo">
+      <label for="loose-spectrum-independence"
+        >Bar independence
+        <output
+          id="loose-spectrum-independence-value"
+          for="loose-spectrum-independence"
+          >55%</output
+        >
+      </label>
+      <input
+        id="loose-spectrum-independence"
+        class="cursor-interaction"
+        type="range"
+        min="0"
+        max="100"
+        step="5"
+        value="55"
+        aria-valuetext="55 percent independence"
+      />
+      <div class="fast-range-labels">
+        <span>Linked clusters</span><span>Individual accents</span>
+      </div>
+    </div>
+    <div class="fast-actions">
+      <button class="fast-play cursor-interaction" type="button">
+        Play motion
+      </button>
+      <span class="fast-status" aria-live="polite">Paused</span>
+    </div>
+  </section>
+</div>
+
+<style>
+  /* Retain the selected homepage palette and preview proportions. */
+  #am-loose-spectrum .fast-stage {
+    box-sizing: border-box;
+    max-width: 540px;
+    margin: 0 auto;
+    padding: 26px 28px;
+    border-radius: 18px;
+    background: #111b21;
+    color: #f2f7f4;
+    font:
+      14px/1.5 -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      sans-serif;
+    color-scheme: dark;
+  }
+  #am-loose-spectrum .fast-stage * {
+    box-sizing: border-box;
+  }
+  #am-loose-spectrum .fast-topline {
+    padding-right: 70px;
+    color: #b0c1c5;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+  }
+  #am-loose-spectrum h2 {
+    margin: 20px 0 4px;
+    font-size: 24px;
+    font-weight: 550;
+  }
+  #am-loose-spectrum .fast-caption {
+    margin: 0 0 24px;
+    color: #b0c1c5;
+    font-size: 12px;
+  }
+  #am-loose-spectrum .fast-card {
+    padding: 22px 24px;
+    border: 1px solid #354950;
+    border-radius: 16px;
+    background: #1b2b32;
+  }
+  #am-loose-spectrum .fast-eyebrow {
+    font-size: 10px;
+    letter-spacing: 1.7px;
+  }
+  #am-loose-spectrum h3 {
+    margin: 10px 0 0;
+    font-size: 19px;
+    line-height: 1.35;
+    font-weight: 500;
+  }
+  #am-loose-spectrum .fast-spectrum {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 68px;
+    margin: 12px 0 6px;
+  }
+  #am-loose-spectrum .fast-bar {
+    display: block;
+    flex: 0 1 5px;
+    height: 60px;
+    border-radius: 4px;
+    background: #9ae1d0;
+    transform-origin: center;
+  }
+  #am-loose-spectrum .fast-note {
+    color: #b0c1c5;
+    font-size: 11px;
+  }
+  #am-loose-spectrum .fast-tempo {
+    margin-top: 22px;
+  }
+  #am-loose-spectrum .fast-tempo label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  #am-loose-spectrum .fast-tempo output {
+    font-variant-numeric: tabular-nums;
+    color: #9ae1d0;
+  }
+  #am-loose-spectrum .fast-tempo input {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    margin: 0;
+    accent-color: #9ae1d0;
+  }
+  #am-loose-spectrum .fast-range-labels {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    color: #b0c1c5;
+    font-size: 11px;
+  }
+  #am-loose-spectrum .fast-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 22px;
+  }
+  #am-loose-spectrum .fast-play {
+    min-height: 44px;
+    padding: 9px 18px;
+    border: 1px solid #9ae1d0;
+    border-radius: 8px;
+    background: #9ae1d0;
+    color: #153c32;
+    font: inherit;
+    font-weight: 550;
+  }
+  #am-loose-spectrum .fast-status {
+    font-size: 11px;
+    color: #b0c1c5;
+  }
+  @media (max-width: 420px) {
+    #am-loose-spectrum .fast-stage {
+      padding: 24px 18px;
+    }
+    #am-loose-spectrum .fast-card {
+      padding: 22px 18px;
+    }
+    #am-loose-spectrum .fast-topline {
+      padding-right: 65px;
+      font-size: 9px;
+    }
+  }
+</style>
+
+<script>
+  (() => {
+    const root = document.getElementById("am-loose-spectrum");
+    const stage = root.querySelector(".fast-stage");
+    const spectrum = root.querySelector(".fast-spectrum");
+    const playButton = root.querySelector(".fast-play");
+    const status = root.querySelector(".fast-status");
+    const tempoInput = root.querySelector("#loose-spectrum-tempo");
+    const tempoOutput = root.querySelector("#loose-spectrum-tempo-value");
+    const independenceInput = root.querySelector(
+      "#loose-spectrum-independence",
+    );
+    const independenceOutput = root.querySelector(
+      "#loose-spectrum-independence-value",
+    );
+    const motionPreference = matchMedia("(prefers-reduced-motion: reduce)");
+    const baseTempo = 96;
+    const phraseLength = 10;
+    const barCount = 21;
+
+    // Preserve Classic's response. Tempo changes event spacing, not the real-time
+    // rise/release filters, so a faster song does not make each bar twitch faster.
+    const settings = {
+      tempo: 192,
+      independence: 55,
+      rise: 22,
+      fall: 300,
+      strength: 1.08,
+      broaden: 0.82,
+    };
+
+    // Same invented phrase as the earlier alternatives; no recording or FFT data.
+    // Each musical event drives overlapping groups of bars instead of a fixed shape.
+    const events = [
+      ...[0, 1.25, 2.5, 3.125, 4.375, 5, 6.25, 7.5, 8.125, 9.375].map(
+        (time, index) => ({
+          time,
+          center: 0.14 + (index % 3) * 0.025,
+          width: 0.15,
+          level: index % 3 === 0 ? 0.88 : 0.61,
+          decay: 0.22,
+        }),
+      ),
+      ...[0.15, 1.6, 2.9, 4.4, 5.2, 6.7, 8.1, 9.3].map((time, index) => ({
+        time,
+        center: [0.43, 0.57, 0.48, 0.64][index % 4],
+        width: 0.18,
+        level: 0.55 + (index % 3) * 0.1,
+        decay: 0.45,
+      })),
+      ...[0.625, 1.875, 3.125, 4.375, 5.625, 6.875, 8.125, 9.375].map(
+        (time, index) => ({
+          time,
+          center: 0.8 + (index % 2) * 0.04,
+          width: 0.11,
+          level: index % 2 ? 0.46 : 0.3,
+          decay: 0.12,
+        }),
+      ),
+    ];
+
+    // Repeatable per-bar accents: do not inject fresh random values every frame.
+    // All accents use the same beat grid, with modest timing and level variation.
+    function seededValue(bar, beat, salt) {
+      const wrappedBeat = ((beat % 16) + 16) % 16;
+      const value =
+        Math.sin((bar + 1) * 127.1 + wrappedBeat * 311.7 + salt * 74.7) *
+        43758.5453;
+      return value - Math.floor(value);
+    }
+
+    function localAccentAt(time, bar) {
+      const beatLength = 0.625;
+      const currentBeat = Math.floor(time / beatLength);
+      let energy = 0;
+
+      // Keep the tails of recent accents so skipping a beat never snaps a bar off.
+      for (let offset = 0; offset < 4; offset++) {
+        const beat = currentBeat - offset;
+        if (seededValue(bar, beat, 1) < 0.25) continue;
+        const delay = seededValue(bar, beat, 2) * 0.12;
+        const age = time - beat * beatLength - delay;
+        if (age < 0) continue;
+        const level = 0.25 + seededValue(bar, beat, 3) * 0.75;
+        const decay = 0.16 + seededValue(bar, beat, 4) * 0.2;
+        energy += level * (1 - Math.exp(-age / 0.018)) * Math.exp(-age / decay);
+      }
+      return energy;
+    }
+
+    function spectrumAt(time) {
+      const accents = Array.from({ length: barCount }, (_, index) =>
+        localAccentAt(time, index),
+      );
+      const independence = settings.independence / 100;
+      return Array.from({ length: barCount }, (_, index) => {
+        const position = index / (barCount - 1);
+        let energy = 0.06;
+        for (const event of events) {
+          const age =
+            (((time - event.time) % phraseLength) + phraseLength) %
+            phraseLength;
+          const onset = 1 - Math.exp(-age / 0.018);
+          const envelope = onset * Math.exp(-age / event.decay);
+          const distance =
+            (position - event.center) / (event.width * settings.broaden);
+          energy +=
+            envelope * event.level * Math.exp(-0.5 * distance * distance);
+        }
+        // Most of a local accent belongs to its own bar; a little spills into
+        // neighboring bars. The shared spectrum remains even at maximum independence.
+        const left = accents[Math.max(0, index - 1)];
+        const right = accents[Math.min(barCount - 1, index + 1)];
+        const localEnergy = accents[index] * 0.7 + (left + right) * 0.15;
+        const combined =
+          energy * (1 - independence * 0.4) + localEnergy * independence * 0.95;
+        return Math.min(0.96, 0.04 + combined * settings.strength);
+      });
+    }
+
+    const bars = Array.from({ length: barCount }, () => {
+      const bar = document.createElement("span");
+      bar.className = "fast-bar";
+      bar.setAttribute("aria-hidden", "true");
+      spectrum.append(bar);
+      return bar;
+    });
+    let time = 0.2;
+    let levels = spectrumAt(time);
+    let running = false;
+    let frameId = 0;
+    let lastFrame = 0;
+
+    function paint() {
+      bars.forEach((bar, index) => {
+        bar.style.transform = `scaleY(${levels[index].toFixed(4)})`;
+      });
+    }
+
+    function renderControls() {
+      tempoInput.value = String(settings.tempo);
+      tempoInput.setAttribute(
+        "aria-valuetext",
+        `${settings.tempo} beats per minute`,
+      );
+      tempoOutput.textContent = `${settings.tempo} BPM`;
+      independenceInput.value = String(settings.independence);
+      independenceInput.setAttribute(
+        "aria-valuetext",
+        `${settings.independence} percent independence`,
+      );
+      independenceOutput.textContent = `${settings.independence}%`;
+      playButton.textContent = running ? "Pause motion" : "Play motion";
+      status.textContent = running ? "Simulated spectrum · silent" : "Paused";
+    }
+
+    // Restore design choices without restoring playback.
+    function restoreSettings(savedState) {
+      const saved = savedState?.modelContent;
+      if (saved?.design !== "Looser spectrum") return;
+      if (
+        !Number.isFinite(saved.tempo) ||
+        saved.tempo < 96 ||
+        saved.tempo > 192
+      )
+        return;
+      settings.tempo = Math.round(saved.tempo / 2) * 2;
+      if (
+        Number.isFinite(saved.independence) &&
+        saved.independence >= 0 &&
+        saved.independence <= 100
+      ) {
+        settings.independence = Math.round(saved.independence / 5) * 5;
+      }
+      if (!running) {
+        levels = spectrumAt(time);
+        paint();
+      }
+      renderControls();
+    }
+
+    tempoInput.addEventListener("input", () => {
+      settings.tempo = Number(tempoInput.value);
+      renderControls();
+    });
+    independenceInput.addEventListener("input", () => {
+      settings.independence = Number(independenceInput.value);
+      if (!running) {
+        levels = spectrumAt(time);
+        paint();
+      }
+      renderControls();
+    });
+    function saveSettings() {
+      if (window.openai?.setWidgetState) {
+        window.openai
+          .setWidgetState({
+            modelContent: {
+              design: "Looser spectrum",
+              tempo: settings.tempo,
+              independence: settings.independence,
+            },
+            privateContent: null,
+          })
+          .catch(() => {});
+      }
+    }
+    tempoInput.addEventListener("change", saveSettings);
+    independenceInput.addEventListener("change", saveSettings);
+    window.addEventListener("openai:set_globals", (event) => {
+      restoreSettings(event.detail?.globals?.widgetState);
+    });
+
+    function scheduleFrame() {
+      if (frameId || !running || document.hidden || !root.isConnected) return;
+      lastFrame = performance.now();
+      frameId = requestAnimationFrame(tick);
+    }
+
+    function tick(now) {
+      frameId = 0;
+      if (!running || document.hidden || !root.isConnected) return;
+      const elapsed = Math.min((now - lastFrame) / 1000, 0.05);
+      lastFrame = now;
+      time = (time + (elapsed * settings.tempo) / baseTempo) % phraseLength;
+      const targets = spectrumAt(time);
+
+      // Frame-rate-independent smoothing retains the requested quick expansion
+      // and slower contraction, even while the musical phrase moves faster.
+      levels = levels.map((level, index) => {
+        const milliseconds =
+          targets[index] > level ? settings.rise : settings.fall;
+        const blend = 1 - Math.exp(-elapsed / (milliseconds / 1000));
+        return level + (targets[index] - level) * blend;
+      });
+      paint();
+      frameId = requestAnimationFrame(tick);
+    }
+
+    playButton.addEventListener("click", () => {
+      running = !running;
+      renderControls();
+      scheduleFrame();
+    });
+    document.addEventListener("visibilitychange", scheduleFrame);
+    motionPreference.addEventListener("change", (event) => {
+      if (!event.matches) return;
+      running = false;
+      renderControls();
+      status.textContent = "Paused · reduced motion";
+    });
+
+    // Keep detailed response tuning separate from the visible song-tempo control.
+    if (globalThis.Tweak) {
+      const tweak = new Tweak({
+        container: stage,
+        onChange: () => {
+          if (!running) levels = spectrumAt(time);
+          paint();
+        },
+      });
+      tweak.addSlider(settings, "rise", {
+        label: "Rise time",
+        min: 15,
+        max: 150,
+        step: 5,
+        unit: "ms",
+      });
+      tweak.addSlider(settings, "fall", {
+        label: "Fall time",
+        min: 150,
+        max: 1000,
+        step: 25,
+        unit: "ms",
+      });
+      tweak.addSlider(settings, "strength", {
+        label: "Movement strength",
+        min: 0.6,
+        max: 1.2,
+        step: 0.05,
+      });
+    }
+
+    renderControls();
+    restoreSettings(window.openai?.widgetState);
+    paint();
+  })();
+</script>

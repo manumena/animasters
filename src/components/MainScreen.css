@@ -232,31 +232,11 @@
 
 .home-wave span {
   flex: 0 1 5px;
-  height: 25%;
+  height: 60px;
   border-radius: 4px;
   background: var(--home-accent);
-}
-
-.home-wave span:nth-child(3n) { height: 68%; }
-.home-wave span:nth-child(4n) { height: 45%; }
-.home-wave span:nth-child(5n) { height: 85%; }
-
-/* Decorative equalizer: stagger the bars without fetching or analysing audio.
-   Transforms keep the surrounding layout still; reduced motion stays static. */
-@media (prefers-reduced-motion: no-preference) {
-  .home-wave span {
-    animation: home-equalizer 1.4s ease-in-out infinite;
-  }
-
-  .home-wave span:nth-child(2n) { animation-duration: 1.1s; animation-delay: -.45s; }
-  .home-wave span:nth-child(3n) { animation-duration: 1.7s; animation-delay: -.8s; }
-  .home-wave span:nth-child(5n) { animation-duration: 1.3s; animation-delay: -.2s; }
-}
-
-@keyframes home-equalizer {
-  0%, 100% { transform: scaleY(.45); }
-  30% { transform: scaleY(1); }
-  65% { transform: scaleY(.65); }
+  /* The spectrum controller changes only scale, keeping layout and center stable. */
+  transform-origin: center;
 }
 
 .home-small {

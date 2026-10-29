@@ -3,6 +3,7 @@ import { Button } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { FiArrowRight, FiHeadphones, FiMoon, FiSearch } from 'react-icons/fi';
 import { Link as RouterLink } from 'react-router-dom';
+import HomeSpectrum from './HomeSpectrum';
 import './MainScreen.css';
 
 // Keep the new homepage palette local while the existing room screens retain theirs.
@@ -34,9 +35,7 @@ function RoundPreview() {
         <h2 aria-live="polite">
           {revealed ? 'Naruto Shippuden · Blue Bird' : 'That opening you know by heart.'}
         </h2>
-        <div className="home-wave" aria-hidden="true">
-          {Array.from({ length: 21 }, (_, index) => <span key={index} />)}
-        </div>
+        <HomeSpectrum />
         <span className="home-small">Illustrative round · no audio</span>
       </div>
 
