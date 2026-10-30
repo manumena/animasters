@@ -1,23 +1,4 @@
-/* Scope the landing page so the room, match and debugging screens keep their styles. */
-.home-page {
-  /* Use the selected sketch's dark palette regardless of the browser theme. */
-  --home-background: #111b21;
-  --home-panel: #1b2b32;
-  --home-text: #f2f7f4;
-  --home-muted: #b0c1c5;
-  --home-line: #354950;
-  --home-accent: #9ae1d0;
-  --home-accent-ink: #153c32;
-  color-scheme: dark;
-  position: relative;
-  isolation: isolate;
-  /* Leave room for the full backdrop without stretching the content above it. */
-  min-height: max(100vh, 56.25vw);
-  background: var(--home-background);
-  color: var(--home-text);
-  padding-bottom: 40px;
-}
-
+/* Homepage content; the shared café shell owns its backdrop and brand. */
 .home-page h1,
 .home-page h2,
 .home-page h3,
@@ -38,67 +19,6 @@
   flex-direction: column;
   color: #f4f7f5;
   padding-bottom: 60px;
-}
-
-/* This decorative layer can extend behind the next section without taking up
-   layout space. Fit all 1920×1080 pixels on wide screens; crop sides on phones.
-   The page's isolated stacking context keeps it above the page background and
-   behind every content section, including links and buttons. */
-.home-hero::before {
-  content: '';
-  position: absolute;
-  z-index: -1;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: max(100%, 56.25vw);
-  background-color: #122632;
-  background-image:
-    linear-gradient(transparent calc(100% - 70px), var(--home-background)),
-    linear-gradient(#050f188c, #050f188c),
-    url('../assets/lofi-cafe.gif');
-  background-size: cover;
-  background-position: 50% 58%;
-  pointer-events: none;
-}
-
-.home-header {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 25px 36px 0;
-}
-
-.home-brand {
-  display: inline-flex;
-  align-items: center;
-  color: inherit;
-  text-decoration: none;
-  font-size: 23px;
-  font-weight: 750;
-  letter-spacing: -1px;
-}
-
-.home-brand-light { font-weight: 400; }
-
-.home-brand small {
-  align-self: flex-start;
-  margin: 2px 0 0 8px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.home-brand-mark {
-  display: grid;
-  place-items: center;
-  width: 33px;
-  height: 33px;
-  margin-right: 9px;
-  border-radius: 10px;
-  background: #a7ecdb;
-  color: #123e34;
 }
 
 .home-hero-copy {
@@ -370,8 +290,6 @@
 .home-footer p { padding-top: 10px; }
 
 @media (max-width: 700px) {
-  .home-header { padding: 20px 20px 0; }
-  .home-hero::before { background-position: 62% 50%; }
   .home-hero-copy { padding: 45px 20px 28px; }
   .home-hero-copy h1 { font-size: 34px; letter-spacing: -1.2px; }
   .home-description { font-size: 14px; }
@@ -390,13 +308,7 @@
 }
 
 @media (max-width: 360px) {
-  .home-header { padding: 16px 16px 0; }
   .home-hero-copy { padding-left: 16px; padding-right: 16px; }
   .home-hero-copy h1 { font-size: 30px; }
   .home-content { padding: 0 16px; }
-}
-
-/* A GIF cannot be paused. Respect the system preference without another UI control. */
-@media (prefers-reduced-motion: reduce) {
-  .home-hero::before { background-image: none; background-color: transparent; }
 }

@@ -1,0 +1,164 @@
+/* Quick entry shares the homepage shell; these rules only style its form. */
+.room-entry-back {
+  max-width: 1200px;
+  margin: 25px auto 0;
+  padding: 0 36px;
+}
+
+.room-entry-back .MuiButton-root {
+  min-height: 44px;
+  padding: 0;
+  color: var(--home-text);
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.room-entry {
+  width: min(420px, calc(100% - 32px));
+  margin: 24px auto 0;
+}
+
+.room-entry p {
+  margin: 0;
+}
+.room-entry-intro {
+  margin-bottom: 25px;
+  text-align: center;
+}
+.room-entry-intro .room-entry-eyebrow {
+  margin-bottom: 12px;
+  color: #a7ecdb;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 1.6px;
+}
+
+.room-entry-intro h1 {
+  margin: 0 0 14px;
+  font-size: 35px;
+  line-height: 1.15;
+  letter-spacing: -1.2px;
+  font-weight: 650;
+}
+
+.room-entry-intro p {
+  color: #d3e0e0;
+  font-size: 15px;
+}
+.room-entry-form {
+  display: grid;
+  gap: 20px;
+  padding: 26px;
+  background: var(--home-panel);
+  border: 1px solid var(--home-line);
+  border-radius: 18px;
+}
+
+/* Pressed buttons express the current mode without adding a second route. */
+.room-entry-modes {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 5px;
+  border-radius: 10px;
+  background: #111e26;
+}
+
+.room-entry-modes .MuiButton-root {
+  flex: 1;
+  min-height: 44px;
+  border-radius: 7px;
+  color: var(--home-muted);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.room-entry-modes .MuiButton-root[aria-pressed="true"] {
+  background: #32474c;
+  color: var(--home-text);
+}
+.room-entry-modes .MuiButton-root:hover {
+  background: #29424b;
+}
+.room-entry-field {
+  display: grid;
+  gap: 8px;
+}
+.room-entry-field label {
+  font-size: 14px;
+  font-weight: 600;
+}
+.room-entry-field .MuiOutlinedInput-root {
+  background: #12232b;
+  border-radius: 9px;
+}
+.room-entry-field .MuiOutlinedInput-notchedOutline {
+  border-color: #62767c;
+}
+.room-entry-field .MuiInputBase-input {
+  padding: 13px 14px;
+  color: var(--home-text);
+  font-size: 16px;
+}
+.room-entry-field .MuiInputBase-input::placeholder {
+  color: #a8bbbf;
+  opacity: 1;
+}
+.room-entry-field .MuiFormHelperText-root {
+  margin: 8px 0 0;
+  color: var(--home-muted);
+  font-size: 12px;
+}
+.room-entry-code input {
+  letter-spacing: 6px;
+}
+
+.room-entry-form .room-entry-submit {
+  min-height: 48px;
+  border-radius: 9px;
+  background: #a7ecdb;
+  color: #123e34;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.room-entry-form .room-entry-submit:hover {
+  background: #bdf5e7;
+}
+.room-entry-form .room-entry-submit.Mui-disabled {
+  background: #32474c;
+  color: #b0c1c5;
+}
+.room-entry-next {
+  color: var(--home-muted);
+  font-size: 12px;
+}
+.room-entry .room-entry-footnote {
+  margin-top: 20px;
+  color: #d3e0e0;
+  text-align: center;
+  font-size: 12px;
+}
+
+@media (max-width: 700px) {
+  .room-entry-back {
+    padding: 0 20px;
+    margin-top: 16px;
+  }
+  .room-entry-form {
+    padding: 20px;
+  }
+  .room-entry-intro h1 {
+    font-size: 32px;
+  }
+}
+
+@media (max-width: 360px) {
+  .room-entry-back {
+    padding: 0 16px;
+  }
+  .room-entry-intro h1 {
+    font-size: 30px;
+  }
+}

@@ -15,6 +15,12 @@ Keep each design exploration in a dated folder with a descriptive name. Save its
 
 Open a `preview.html` file in a browser and use its variant picker. Previews do not create rooms or contact the game backend. Some exported presentation assets load from a CDN, so an internet connection may be needed.
 
+## Room explorations
+
+| Date | Sketch | Variants | Feedback |
+| --- | --- | --- | --- |
+| October 29, 2026 | [Room creation directions](2026-10-29-room-creation/README.md) · [Preview](2026-10-29-room-creation/preview.html) | Quick entry; Café welcome; Café counter | Owner selected Quick entry. Implemented with a shared homepage backdrop; Create/Join behavior retained. |
+
 ## Current direction
 
 - Preserve the centered typography, simple Create/Join actions and gameplay preview from Clean music quiz.

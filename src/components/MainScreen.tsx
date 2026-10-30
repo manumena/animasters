@@ -1,22 +1,10 @@
 import { useState } from 'react';
 import { Button } from '@mui/material';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { FiArrowRight, FiHeadphones, FiMoon, FiSearch } from 'react-icons/fi';
+import { FiArrowRight, FiMoon, FiSearch } from 'react-icons/fi';
 import { Link as RouterLink } from 'react-router-dom';
 import HomeSpectrum from './HomeSpectrum';
+import CafePage, { CafeHeader } from './CafePage';
 import './MainScreen.css';
-
-// Keep the new homepage palette local while the existing room screens retain theirs.
-const homepageTheme = createTheme({
-  palette: {
-    mode: 'dark',
-    primary: { main: '#9ae1d0', contrastText: '#153c32' },
-  },
-  typography: {
-    fontFamily: 'inherit',
-    button: { textTransform: 'none', fontWeight: 600 },
-  },
-});
 
 const howToPlay = [
   { title: 'Create & invite', description: 'Share the room code with your friends.' },
@@ -66,82 +54,74 @@ function RoundPreview() {
 
 export default function MainScreen() {
   return (
-    <ThemeProvider theme={homepageTheme}>
-      <main className="home-page">
-        <div className="home-hero">
-          <header className="home-header">
-            <RouterLink to="/" className="home-brand" aria-label="AniMasters home">
-              <span className="home-brand-mark"><FiHeadphones aria-hidden="true" /></span>
-              <span>ani<span className="home-brand-light">masters</span></span>
-              <small>Beta</small>
-            </RouterLink>
-          </header>
+    <CafePage className="home-page">
+      <div className="home-hero">
+        <CafeHeader />
 
-          <div className="home-hero-copy">
-            <p className="home-eyebrow">Your anime game night</p>
-            <h1>You know the anime.<br /><span>How fast can you name it?</span></h1>
-            <p className="home-description">
-              Listen, guess and climb the scoreboard.<br />
-              Openings, endings and soundtracks. Better with friends.
-            </p>
-            <div className="home-actions">
-              <Button
-                component={RouterLink}
-                to="/rooms?mode=create"
-                variant="contained"
-                disableElevation
-                className="home-create"
-                endIcon={<FiArrowRight aria-hidden="true" />}
-              >
-                Create a room
-              </Button>
-              <Button component={RouterLink} to="/rooms?mode=join" variant="outlined" className="home-join">
-                Join a room
-              </Button>
-            </div>
-            <ul className="home-benefits" aria-label="Game features">
-              <li>No account needed</li>
-              <li>Up to 10 players</li>
-              <li>Your own device</li>
-            </ul>
-          </div>
-
-          <p className="home-scene-caption">
-            <FiMoon aria-hidden="true" /> A familiar place. A new favorite game.
+        <div className="home-hero-copy">
+          <p className="home-eyebrow">Your anime game night</p>
+          <h1>You know the anime.<br /><span>How fast can you name it?</span></h1>
+          <p className="home-description">
+            Listen, guess and climb the scoreboard.<br />
+            Openings, endings and soundtracks. Better with friends.
           </p>
+          <div className="home-actions">
+            <Button
+              component={RouterLink}
+              to="/rooms?mode=create"
+              variant="contained"
+              disableElevation
+              className="home-create"
+              endIcon={<FiArrowRight aria-hidden="true" />}
+            >
+              Create a room
+            </Button>
+            <Button component={RouterLink} to="/rooms?mode=join" variant="outlined" className="home-join">
+              Join a room
+            </Button>
+          </div>
+          <ul className="home-benefits" aria-label="Game features">
+            <li>No account needed</li>
+            <li>Up to 10 players</li>
+            <li>Your own device</li>
+          </ul>
         </div>
 
-        <div className="home-content">
-          <RoundPreview />
+        <p className="home-scene-caption">
+          <FiMoon aria-hidden="true" /> A familiar place. A new favorite game.
+        </p>
+      </div>
 
-          <section className="home-how" aria-labelledby="home-how-heading">
-            <div className="home-section-heading">
-              <h2 id="home-how-heading">A good night starts with one room.</h2>
-              <span className="home-small">Three simple steps</span>
-            </div>
-            <ol className="home-steps">
-              {howToPlay.map((step, index) => (
-                <li key={step.title}>
-                  <span className="home-step-number" aria-hidden="true">0{index + 1}</span>
-                  <h3>{step.title}</h3>
-                  <p>{step.description}</p>
-                </li>
-              ))}
-            </ol>
-          </section>
+      <div className="home-content">
+        <RoundPreview />
 
-          <footer className="home-footer">
-            <span>Made for people who never skip the opening.</span>
-            <details>
-              <summary>Scoring rules</summary>
-              <p>
-                With four players: +4, +3, +2, then +1 for correct guesses in order.
-                Wrong answer: −1. Pass: 0.
-              </p>
-            </details>
-          </footer>
-        </div>
-      </main>
-    </ThemeProvider>
+        <section className="home-how" aria-labelledby="home-how-heading">
+          <div className="home-section-heading">
+            <h2 id="home-how-heading">A good night starts with one room.</h2>
+            <span className="home-small">Three simple steps</span>
+          </div>
+          <ol className="home-steps">
+            {howToPlay.map((step, index) => (
+              <li key={step.title}>
+                <span className="home-step-number" aria-hidden="true">0{index + 1}</span>
+                <h3>{step.title}</h3>
+                <p>{step.description}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <footer className="home-footer">
+          <span>Made for people who never skip the opening.</span>
+          <details>
+            <summary>Scoring rules</summary>
+            <p>
+              With four players: +4, +3, +2, then +1 for correct guesses in order.
+              Wrong answer: −1. Pass: 0.
+            </p>
+          </details>
+        </footer>
+      </div>
+    </CafePage>
   );
 }

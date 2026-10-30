@@ -1,0 +1,105 @@
+/* Shared artwork geometry must not depend on either page's content height.
+   These minimum frames follow the homepage's desktop and phone composition.
+   At wide widths, 16:9 fits the full image; narrow screens crop only its sides. */
+.cafe-page {
+  --cafe-frame-height: 592px;
+  --home-background: #111b21;
+  --home-panel: #1b2b32;
+  --home-text: #f2f7f4;
+  --home-muted: #b0c1c5;
+  --home-line: #354950;
+  --home-accent: #9ae1d0;
+  --home-accent-ink: #153c32;
+  color-scheme: dark;
+  position: relative;
+  isolation: isolate;
+  min-height: max(100vh, var(--cafe-frame-height), 56.25vw);
+  background: var(--home-background);
+  color: var(--home-text);
+  padding-bottom: 40px;
+}
+
+.cafe-page::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 auto;
+  height: max(var(--cafe-frame-height), 56.25vw);
+  background-color: #122632;
+  background-image:
+    linear-gradient(transparent calc(100% - 70px), var(--home-background)),
+    linear-gradient(#050f188c, #050f188c), url("../assets/lofi-cafe.gif");
+  background-size: cover;
+  background-position: 50% 58%;
+  pointer-events: none;
+}
+
+.cafe-header {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 25px 36px 0;
+}
+.cafe-brand {
+  display: inline-flex;
+  align-items: center;
+  color: inherit;
+  text-decoration: none;
+  font-size: 23px;
+  font-weight: 750;
+  letter-spacing: -1px;
+}
+.cafe-brand-light {
+  font-weight: 400;
+}
+.cafe-brand small {
+  align-self: flex-start;
+  margin: 2px 0 0 8px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.cafe-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 33px;
+  height: 33px;
+  margin-right: 9px;
+  border-radius: 10px;
+  background: #a7ecdb;
+  color: #123e34;
+}
+.cafe-brand-mark svg {
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 700px) {
+  .cafe-page {
+    --cafe-frame-height: 610px;
+  }
+  .cafe-page::before {
+    background-position: 62% 50%;
+  }
+  .cafe-header {
+    padding: 20px 20px 0;
+  }
+}
+
+@media (max-width: 360px) {
+  .cafe-page {
+    --cafe-frame-height: 592px;
+  }
+  .cafe-header {
+    padding: 16px 16px 0;
+  }
+}
+
+/* The existing GIF cannot pause, so retain the homepage's reduced-motion fallback. */
+@media (prefers-reduced-motion: reduce) {
+  .cafe-page::before {
+    background-image: none;
+    background-color: transparent;
+  }
+}

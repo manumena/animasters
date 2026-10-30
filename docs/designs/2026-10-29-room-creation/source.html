@@ -1,0 +1,246 @@
+<div id="animasters-room-directions" class="viz-carousel" aria-label="Room creation directions">
+  <section data-variant="Quick entry" aria-label="Quick entry">
+    <div class="room-scene room-centered" data-layout="centered"></div>
+  </section>
+  <section data-variant="Café welcome" aria-label="Café welcome" hidden>
+    <div class="room-scene room-split" data-layout="split"></div>
+  </section>
+  <section data-variant="Café counter" aria-label="Café counter" hidden>
+    <div class="room-scene room-counter" data-layout="counter"></div>
+  </section>
+</div>
+
+<!-- Shared elements keep the three sketches focused on layout differences. -->
+<template id="room-sketch-header">
+  <header class="room-header">
+    <div class="room-brand"><span class="room-mark"><i data-lucide="headphones" aria-hidden="true"></i></span><strong>ani</strong>masters<small>BETA</small></div>
+  </header>
+  <div class="room-back"><a href="https://animasters.pages.dev/" target="_blank" rel="noopener">← Back home</a></div>
+</template>
+
+<template id="room-sketch-form">
+  <form class="room-form">
+    <div class="room-modes" aria-label="Room entry">
+      <button class="cursor-interaction" type="button" data-mode="create" aria-pressed="true">Create room</button>
+      <button class="cursor-interaction" type="button" data-mode="join" aria-pressed="false">Join room</button>
+    </div>
+    <div class="room-fields">
+      <label class="room-field">Your nickname<input name="nickname" placeholder="What should we call you?" maxlength="24" autocomplete="nickname" required><small>Your name for this game. No account needed.</small></label>
+      <label class="room-field room-code" hidden>Room code<input name="code" placeholder="A7B2" maxlength="4" pattern="[A-Z0-9]{4}" autocapitalize="characters" autocomplete="off" spellcheck="false" disabled><small>4 letters or numbers from your friend.</small></label>
+      <button class="room-submit cursor-interaction" type="button">Create my room <span aria-hidden="true">→</span></button>
+    </div>
+    <p class="room-next">You’ll get a code to share and can choose the match settings in the lobby.</p>
+    <p class="room-status" role="status" hidden></p>
+  </form>
+</template>
+
+<style>
+  /* The fixed dark palette and control shapes come from the chosen homepage. */
+  #animasters-room-directions .room-scene {
+    --room-background: #111b21;
+    --room-panel: #1b2b32;
+    --room-text: #f2f7f4;
+    --room-muted: #b0c1c5;
+    --room-line: #354950;
+    --room-accent: #a7ecdb;
+    --room-radius: 18px;
+    position: relative;
+    isolation: isolate;
+    container-type: inline-size;
+    min-height: 900px;
+    padding-bottom: 42px;
+    background: var(--room-background);
+    color: var(--room-text);
+    color-scheme: dark;
+    font: 15px/1.5 Arial, sans-serif;
+  }
+  #animasters-room-directions .room-scene * { box-sizing: border-box; }
+  #animasters-room-directions .room-scene [hidden] { display: none; }
+  #animasters-room-directions .room-scene h1,
+  #animasters-room-directions .room-scene p { margin: 0; }
+
+  /* Use one independent artwork frame for every layout. Form height cannot
+     zoom the café. 591.4375px is the current homepage's desktop hero height;
+     narrow layouts use its approximately 610px phone frame. Wide views retain
+     the entire 16:9 source. Production should share the homepage frame itself. */
+  #animasters-room-directions .room-scene::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: 0 0 auto;
+    height: max(591.4375px, 56.25cqw);
+    background-color: #122632;
+    background-image:
+      linear-gradient(transparent calc(100% - 70px), #111b21),
+      linear-gradient(#050f188c, #050f188c),
+      url('https://cdn.jsdelivr.net/gh/manumena/animasters@4856ebff01ecec6fefe23093c02f0f043c65c0f8/src/assets/lofi-cafe.gif');
+    background-size: cover;
+    background-position: 50% 58%;
+    pointer-events: none;
+  }
+  #animasters-room-directions .room-header { padding: 25px 36px 0; max-width: 1200px; margin: auto; }
+  #animasters-room-directions .room-brand { display: flex; align-items: center; font-size: 23px; letter-spacing: -1px; }
+  #animasters-room-directions .room-brand strong { font-weight: 750; }
+  #animasters-room-directions .room-brand small { align-self: start; margin: 2px 0 0 8px; font-size: 10px; letter-spacing: 1px; }
+  #animasters-room-directions .room-mark { display: grid; place-items: center; width: 33px; height: 33px; border-radius: 10px; margin-right: 9px; color: #123e34; background: var(--room-accent); }
+  #animasters-room-directions .room-mark svg { width: 18px; height: 18px; }
+  #animasters-room-directions .room-back { max-width: 1200px; margin: 25px auto 0; padding: 0 36px; }
+  #animasters-room-directions .room-back a { display: inline-flex; align-items: center; min-height: 44px; color: var(--room-text); font-size: 13px; text-decoration: none; }
+  #animasters-room-directions .room-main { width: calc(100% - 48px); max-width: 880px; margin: 24px auto 0; }
+  #animasters-room-directions .room-eyebrow { color: var(--room-accent); text-transform: uppercase; font-size: 11px; font-weight: 700; letter-spacing: 1.6px; margin-bottom: 12px; }
+  #animasters-room-directions h1 { font-size: 35px; line-height: 1.15; letter-spacing: -1.2px; font-weight: 650; }
+  #animasters-room-directions .room-intro p { color: #d3e0e0; margin-top: 14px; max-width: 360px; }
+  #animasters-room-directions .room-form { background: var(--room-panel); border: 1px solid var(--room-line); border-radius: var(--room-radius); padding: 26px; }
+  #animasters-room-directions .room-modes { display: flex; gap: 4px; background: #111e26; padding: 4px; border-radius: 10px; margin-bottom: 25px; }
+  #animasters-room-directions button { font: inherit; }
+  #animasters-room-directions .room-modes button { flex: 1; min-height: 44px; border: 0; border-radius: 7px; background: transparent; color: var(--room-muted); font-size: 14px; }
+  #animasters-room-directions .room-modes [aria-pressed="true"] { background: #32474c; color: var(--room-text); }
+  #animasters-room-directions .room-fields { display: grid; gap: 20px; }
+  #animasters-room-directions .room-field { display: grid; gap: 8px; font-size: 14px; font-weight: 600; }
+  #animasters-room-directions .room-field input { min-width: 0; width: 100%; border: 1px solid #62767c; border-radius: 9px; background: #12232b; color: var(--room-text); padding: 13px 14px; font: 16px/1.4 Arial, sans-serif; }
+  #animasters-room-directions .room-field input::placeholder { color: #a8bbbf; }
+  #animasters-room-directions .room-code input { letter-spacing: 6px; }
+  #animasters-room-directions .room-field small { font-size: 12px; font-weight: 400; color: var(--room-muted); }
+  #animasters-room-directions .room-submit { display: flex; justify-content: center; gap: 12px; min-height: 48px; align-items: center; border: 0; border-radius: 9px; background: var(--room-accent); color: #123e34; font-weight: 700; }
+  #animasters-room-directions .room-form .room-next { margin-top: 18px; color: var(--room-muted); font-size: 12px; }
+  #animasters-room-directions .room-form .room-status { margin-top: 14px; color: var(--room-accent); font-size: 13px; }
+  #animasters-room-directions .room-main .room-footnote { margin-top: 20px; color: #d3e0e0; font-size: 12px; text-align: center; }
+
+  /* Centered entry is the smallest departure from the existing room flow. */
+  #animasters-room-directions .room-centered .room-main { max-width: 420px; }
+  #animasters-room-directions .room-centered .room-intro { text-align: center; margin-bottom: 25px; }
+  #animasters-room-directions .room-centered .room-intro p { margin-left: auto; margin-right: auto; }
+
+  /* The split arrangement makes the invitation story part of the entry screen. */
+  #animasters-room-directions .room-split .room-main { display: grid; grid-template-columns: 1fr 1.12fr; gap: 52px; align-items: center; margin-top: 55px; }
+  #animasters-room-directions .room-split h1 { font-size: 44px; }
+  #animasters-room-directions .room-steps { list-style: none; padding: 0; margin: 28px 0 0; display: grid; gap: 18px; }
+  #animasters-room-directions .room-steps li { display: flex; gap: 12px; align-items: center; font-size: 13px; }
+  #animasters-room-directions .room-step-number { display: grid; place-items: center; border: 1px solid #73918e; border-radius: 50%; width: 26px; height: 26px; color: var(--room-accent); flex-shrink: 0; }
+
+  /* The counter keeps the café unobscured above a broad, low entry panel. */
+  #animasters-room-directions .room-counter .room-main { max-width: 780px; margin-top: 42px; }
+  #animasters-room-directions .room-counter .room-intro { text-align: center; margin-bottom: 48px; }
+  #animasters-room-directions .room-counter h1 { font-size: 43px; }
+  #animasters-room-directions .room-counter .room-intro p { margin-left: auto; margin-right: auto; max-width: none; }
+  #animasters-room-directions .room-counter .room-modes { max-width: 300px; }
+  #animasters-room-directions .room-counter .room-fields { grid-template-columns: 1fr 220px; align-items: start; }
+  #animasters-room-directions .room-counter .room-submit { margin-top: 29px; }
+  #animasters-room-directions .room-counter .room-form[data-joining] .room-fields { grid-template-columns: 1fr 150px 180px; }
+
+  @media (max-width: 700px) {
+    #animasters-room-directions .room-scene { min-height: 1060px; }
+    #animasters-room-directions .room-scene::before { height: max(610px, 56.25cqw); background-position: 62% 50%; }
+    #animasters-room-directions .room-header { padding: 22px 20px 0; }
+    #animasters-room-directions .room-back { padding: 0 20px; margin-top: 16px; }
+    #animasters-room-directions .room-main { width: calc(100% - 32px); }
+    #animasters-room-directions .room-form { padding: 20px; }
+    #animasters-room-directions .room-split .room-main { grid-template-columns: 1fr; gap: 24px; margin-top: 20px; max-width: 420px; }
+    #animasters-room-directions .room-split h1,
+    #animasters-room-directions .room-counter h1 { font-size: 34px; }
+    #animasters-room-directions .room-steps { margin-top: 20px; gap: 10px; }
+    #animasters-room-directions .room-counter .room-main { margin-top: 35px; max-width: 420px; }
+    #animasters-room-directions .room-counter .room-intro { margin-bottom: 65px; }
+    #animasters-room-directions .room-counter .room-fields,
+    #animasters-room-directions .room-counter .room-form[data-joining] .room-fields { grid-template-columns: 1fr; }
+    #animasters-room-directions .room-counter .room-submit { margin-top: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #animasters-room-directions .room-scene::before { background-image: none; }
+  }
+</style>
+
+<script>
+  (() => {
+    const root = document.getElementById('animasters-room-directions');
+    const headerTemplate = document.getElementById('room-sketch-header');
+    const formTemplate = document.getElementById('room-sketch-form');
+    const copy = {
+      centered: ['Bring your friends', 'Your next anime night.', 'Pick a nickname. We’ll save you a seat.'],
+      split: ['Good songs. Better company.', 'Your friends.<br>Your anime night.', 'Open a room, share the code, and find out who knows the opening first.'],
+      counter: ['Make yourself at home', 'A table for your whole crew.', 'Up to 10 players. One shared soundtrack. Everyone on their own device.'],
+    };
+
+    function setEntryMode(form, mode) {
+      const joining = mode === 'join';
+      form.toggleAttribute('data-joining', joining);
+      form.querySelector('.room-code').hidden = !joining;
+      form.elements.code.disabled = !joining;
+      form.elements.code.required = joining;
+      form.querySelector('.room-submit').textContent = joining ? 'Join this room →' : 'Create my room →';
+      form.querySelector('.room-next').textContent = joining
+        ? 'Join your friends in the lobby. The match starts when everyone is ready.'
+        : 'You’ll get a code to share and can choose the match settings in the lobby.';
+      form.querySelector('.room-status').hidden = true;
+
+      for (const button of form.querySelectorAll('[data-mode]')) {
+        button.setAttribute('aria-pressed', String(button.dataset.mode === mode));
+      }
+    }
+
+    function connectForm(form) {
+      for (const button of form.querySelectorAll('[data-mode]')) {
+        button.addEventListener('click', () => setEntryMode(form, button.dataset.mode));
+      }
+
+      form.elements.code.addEventListener('input', event => {
+        event.target.value = event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
+      });
+
+      // The preview sandbox blocks form submissions. Validate explicitly and
+      // display a local result; never create a real room or navigate away.
+      function showNextStep() {
+        if (!form.reportValidity()) return;
+        const status = form.querySelector('.room-status');
+        const joining = form.hasAttribute('data-joining');
+        status.textContent = joining
+          ? `Preview: ${form.elements.nickname.value.trim()} would enter room ${form.elements.code.value}.`
+          : 'Preview: next comes your lobby, with a shareable room code and match settings.';
+        status.hidden = false;
+      }
+
+      form.querySelector('.room-submit').addEventListener('click', showNextStep);
+      form.addEventListener('keydown', event => {
+        if (event.key !== 'Enter' || event.target.tagName !== 'INPUT') return;
+        event.preventDefault();
+        showNextStep();
+      });
+      form.addEventListener('submit', event => event.preventDefault());
+    }
+
+    for (const scene of root.querySelectorAll('.room-scene')) {
+      scene.append(headerTemplate.content.cloneNode(true));
+      const main = document.createElement('main');
+      main.className = 'room-main';
+      const [eyebrow, title, description] = copy[scene.dataset.layout];
+      const intro = document.createElement('div');
+      intro.className = 'room-intro';
+      // Only fixed sketch copy is rendered as markup; typed names use textContent.
+      intro.innerHTML = `<div class="room-eyebrow">${eyebrow}</div><h1>${title}</h1><p>${description}</p>`;
+
+      if (scene.dataset.layout === 'split') {
+        intro.innerHTML += '<ol class="room-steps"><li><span class="room-step-number">1</span>Pick your nickname</li><li><span class="room-step-number">2</span>Share your room code</li><li><span class="room-step-number">3</span>Ready up together</li></ol>';
+      }
+
+      main.append(intro, formTemplate.content.cloneNode(true));
+      scene.append(main);
+      const form = main.querySelector('form');
+      connectForm(form);
+
+      if (scene.dataset.layout !== 'split') {
+        const footnote = document.createElement('p');
+        footnote.className = 'room-footnote';
+        footnote.textContent = 'Just your friends · No account needed';
+        main.append(footnote);
+      }
+
+      if (globalThis.Tweak) {
+        const style = { cornerRadius: 18 };
+        const tweak = new Tweak({ container: scene, onChange: () => scene.style.setProperty('--room-radius', `${style.cornerRadius}px`) });
+        tweak.addSlider(style, 'cornerRadius', { label: 'Panel corners', min: 8, max: 28, unit: 'px' });
+      }
+    }
+
+    if (globalThis.lucide) lucide.createIcons();
+  })();
+</script>
