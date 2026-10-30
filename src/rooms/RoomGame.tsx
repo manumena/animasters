@@ -1,34 +1,82 @@
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import { Alert, Box, Button, Slider, Stack, Typography } from '@mui/material';
 import { CatalogClient } from '../catalog/client';
 import AnimeAutocomplete from '../components/AnimeAutocomplete';
 import type { AnimeOption } from '../catalog/types';
-import { watchRoom, type GameAction, type RoomSession, type RoomSnapshot } from './client';
+import {
+  watchRoom,
+  type GameAction,
+  type RoomSession,
+  type RoomSnapshot,
+} from './client';
 import RoomPreferences from './RoomPreferences';
 import { RoomAudio } from './audio';
+import RoomLobby from './RoomLobby';
+import { RoomPreferencesController } from './preferences';
+import { Link as RouterLink } from 'react-router-dom';
 
-export default function RoomGame({ session, onBack }: { session: RoomSession; onBack: () => void }) {
+export default function RoomGame({
+  session,
+  onBack,
+}: {
+  session: RoomSession;
+  onBack: () => void;
+}) {
   const [room, setRoom] = useState(session.room);
   const [status, setStatus] = useState('Connecting…');
   const [error, setError] = useState('');
-  const [copyStatus, setCopyStatus] = useState('');
+  const [readyBusy, setReadyBusy] = useState(false);
   const [clockReady, setClockReady] = useState(false);
   const [now, setNow] = useState(0);
   const [audio] = useState(() => new RoomAudio());
   const audioState = useSyncExternalStore(audio.subscribe, audio.getSnapshot);
   const clock = useRef<number | undefined>(undefined);
   const send = useRef<(action: GameAction) => boolean>(() => false);
+  const [preferences] = useState(
+    () =>
+      new RoomPreferencesController(
+        session.room,
+        session.playerId,
+        (action) => {
+          setError('');
+          return send.current(action);
+        },
+      ),
+  );
+  const preferencesState = useSyncExternalStore(
+    preferences.subscribe,
+    preferences.getSnapshot,
+  );
   const pending = useRef<GameAction | undefined>(undefined);
   const [pendingGuess, setPendingGuess] = useState(false);
-  const serverNow = useMemo(() => () => performance.now() + (clock.current ?? 0), []);
+  const serverNow = useMemo(
+    () => () => performance.now() + (clock.current ?? 0),
+    [],
+  );
 
   // Each room pins its catalog revision. Navigation to the standalone catalog
   // cannot switch this game's accepted answers midway through a match.
-  const catalog = useMemo(() => new CatalogClient(
-    () => new Worker(new URL('../catalog/catalog.worker.ts', import.meta.url), { type: 'module' }),
-    room.catalogVersion,
-  ), [room.catalogVersion]);
-  const catalogState = useSyncExternalStore(catalog.subscribe, catalog.getSnapshot);
+  const catalog = useMemo(
+    () =>
+      new CatalogClient(
+        () =>
+          new Worker(new URL('../catalog/catalog.worker.ts', import.meta.url), {
+            type: 'module',
+          }),
+        room.catalogVersion,
+      ),
+    [room.catalogVersion],
+  );
+  const catalogState = useSyncExternalStore(
+    catalog.subscribe,
+    catalog.getSnapshot,
+  );
 
   useEffect(() => {
     if (room.catalogVersion) catalog.start();
@@ -40,29 +88,50 @@ export default function RoomGame({ session, onBack }: { session: RoomSession; on
     return () => clearInterval(timer);
   }, [serverNow]);
 
-  useEffect(() => watchRoom(session, snapshot => {
-    setRoom(snapshot);
-    const action = pending.current;
-    if (action?.type === 'guess' && (snapshot.submission?.actionId === action.actionId || snapshot.round?.id !== action.roundId)) {
-      pending.current = undefined;
-      setPendingGuess(false);
-    }
-  }, value => {
-    setStatus(value);
-    if (value === 'Connected' && pending.current) send.current(pending.current);
-  }, {
-    onSender: sender => { send.current = sender; },
-    onClock: offset => {
-      clock.current = offset;
-      setClockReady(true);
-      setNow(performance.now() + offset);
-    },
-    onError: message => {
-      setError(message);
-      pending.current = undefined;
-      setPendingGuess(false);
-    },
-  }), [session]);
+  useEffect(() => {
+    const stop = watchRoom(
+      session,
+      (snapshot) => {
+        preferences.receive(snapshot);
+        setRoom(snapshot);
+        const action = pending.current;
+        if (
+          action?.type === 'guess' &&
+          (snapshot.submission?.actionId === action.actionId ||
+            snapshot.round?.id !== action.roundId)
+        ) {
+          pending.current = undefined;
+          setPendingGuess(false);
+        }
+      },
+      (value) => {
+        setStatus(value);
+        preferences.setConnection(value === 'Connected');
+        if (value === 'Connected' && pending.current)
+          send.current(pending.current);
+      },
+      {
+        onSender: (sender) => {
+          send.current = sender;
+        },
+        onClock: (offset) => {
+          clock.current = offset;
+          setClockReady(true);
+          setNow(performance.now() + offset);
+        },
+        onError: (message) => {
+          setError(message);
+          preferences.reject(message);
+          pending.current = undefined;
+          setPendingGuess(false);
+        },
+      },
+    );
+    return () => {
+      stop();
+      preferences.dispose();
+    };
+  }, [session, preferences]);
 
   useEffect(() => {
     if (room.phase === 'completed') audio.pause();
@@ -70,171 +139,369 @@ export default function RoomGame({ session, onBack }: { session: RoomSession; on
     if (room.round && clockReady) void audio.prepare(room.round, serverNow);
   }, [audio, room.round, room.phase, clockReady, serverNow]);
 
-  const me = room.players.find(player => player.id === session.playerId);
+  const me = room.players.find((player) => player.id === session.playerId);
   const connected = status === 'Connected';
   const ready = connected && clockReady && catalogState.phase === 'ready';
   const round = room.round;
-  const guessing = Boolean(round && (room.phase === 'guessing' || (room.phase === 'countdown' && now >= (round.startsAt ?? Infinity))));
-  const deadline = round?.deadline ?? (round?.startsAt ? round.startsAt + 90_000 : Infinity);
-  const canGuess = ready && guessing && now < deadline && !room.submission && !pendingGuess;
-  const shareLink = `${window.location.origin}/rooms/${room.code}`;
+  const guessing = Boolean(
+    round &&
+      (room.phase === 'guessing' ||
+        (room.phase === 'countdown' && now >= (round.startsAt ?? Infinity))),
+  );
+  const deadline =
+    round?.deadline ?? (round?.startsAt ? round.startsAt + 90_000 : Infinity);
+  const canGuess =
+    ready && guessing && now < deadline && !room.submission && !pendingGuess;
+  const isHost = session.playerId === room.hostId;
+  const isReady = Boolean(me?.ready);
 
   async function becomeReady() {
+    const betweenMatches = room.phase === 'lobby' || room.phase === 'completed';
+    if (readyBusy || (betweenMatches && preferences.getSnapshot().blocked))
+      return;
+    setReadyBusy(true);
     setError('');
     try {
       await audio.enable();
+      // Audio activation is asynchronous. Do not ready an old draft if the host
+      // changed preferences while the browser was enabling playback.
+      if (betweenMatches && preferences.getSnapshot().blocked) return;
       // Rematch readiness is tied to the final result, separate from round Ready.
       // A delayed click from an earlier match cannot start another one.
-      const action: GameAction = room.phase === 'completed' && room.result
-        ? {
-          type: 'ready-next-match',
-          completedRoundId: room.result.roundId,
-          catalogVersion: room.catalogVersion,
-          settingsRevision: room.settingsRevision ?? 0,
-        }
-        : {
-          type: 'ready',
-          catalogVersion: room.catalogVersion,
-          roundId: round?.id,
-          settingsRevision: room.settingsRevision ?? 0,
-        };
+      const action: GameAction =
+        room.phase === 'completed' && room.result
+          ? {
+              type: 'ready-next-match',
+              completedRoundId: room.result.roundId,
+              catalogVersion: room.catalogVersion,
+              settingsRevision: room.settingsRevision ?? 0,
+            }
+          : {
+              type: 'ready',
+              catalogVersion: room.catalogVersion,
+              roundId: round?.id,
+              settingsRevision: room.settingsRevision ?? 0,
+            };
       if (!send.current(action)) {
         setError('Reconnect before becoming ready.');
       }
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Audio could not be enabled.');
+      setError(
+        cause instanceof Error ? cause.message : 'Audio could not be enabled.',
+      );
+    } finally {
+      setReadyBusy(false);
     }
   }
 
   function guess(animeId: number | null) {
     if (!round || !canGuess) return;
-    const action: GameAction = { type: 'guess', roundId: round.id, animeId, actionId: crypto.randomUUID() };
+    const action: GameAction = {
+      type: 'guess',
+      roundId: round.id,
+      animeId,
+      actionId: crypto.randomUUID(),
+    };
     pending.current = action;
     setPendingGuess(true);
     setError('');
-    if (!send.current(action)) setError('Reconnecting. Your answer will be retried if the round is still open.');
+    if (!send.current(action))
+      setError(
+        'Reconnecting. Your answer will be retried if the round is still open.',
+      );
   }
 
-  async function copy(value: string) {
-    try {
-      await navigator.clipboard.writeText(value);
-      setCopyStatus('Copied!');
-    } catch {
-      setCopyStatus('Select and copy the code or link below.');
-    }
-  }
+  const preparation = catalogState.phase !== 'ready' && (
+    <Box>
+      <Typography>{catalogState.error ?? 'Preparing anime search…'}</Typography>
+      {catalogState.phase === 'error' && (
+        <Button onClick={catalog.retry}>Retry search</Button>
+      )}
+    </Box>
+  );
 
-  // Reuse the lobby controls after the standings, with the same host-only edits
-  // and revision acknowledgement. Score snapshots leave unsaved drafts intact.
-  const matchPreferences = <RoomPreferences
-    key={room.settingsRevision ?? 0}
-    settings={room.settings}
-    isHost={session.playerId === room.hostId}
-    connected={connected}
-    canReady={ready}
-    isReady={Boolean(me?.ready)}
-    isRematch={room.phase === 'completed'}
-    onReady={becomeReady}
-    onUnready={() => send.current({ type: 'unready' })}
-    onSave={settings => {
-      setError('');
-      if (!send.current({ type: 'settings', settings, settingsRevision: room.settingsRevision ?? 0 })) {
-        setError('Reconnect before saving match settings.');
-      }
-    }}
-  />;
+  if (room.phase === 'lobby') {
+    return (
+      <RoomLobby
+        room={room}
+        playerId={session.playerId}
+        status={status}
+        error={error || room.error || ''}
+        // Keep the lobby steady while its catalog loads; only failures need a panel.
+        preparation={catalogState.phase === 'error' ? preparation : null}
+        preferences={preferences}
+        canReady={ready && Boolean(room.settings)}
+        readyBusy={readyBusy}
+        onReady={() => void becomeReady()}
+        onUnready={() => send.current({ type: 'unready' })}
+        onBack={onBack}
+      />
+    );
+  }
 
   return (
-    <Stack spacing={2}>
-      <Typography component="h1" variant="h4">{room.phase === 'lobby' ? 'Your room' : room.phase === 'completed' ? 'Final standings' : 'AniMasters'}</Typography>
-      <Typography sx={{ fontSize: room.phase === 'lobby' ? '3rem' : '1.3rem', letterSpacing: '.25em', fontWeight: 700 }}>{room.code}</Typography>
-      {room.phase === 'lobby' && <>
-        <Stack direction="row" spacing={2}>
-          <Button variant="outlined" onClick={() => copy(room.code)}>Copy code</Button>
-          <Button variant="outlined" onClick={() => copy(shareLink)}>Copy invite link</Button>
-        </Stack>
-        <Typography sx={{ overflowWrap: 'anywhere' }}>{shareLink}</Typography>
-        {matchPreferences}
-      </>}
-      <Typography role="status">{status}{copyStatus ? ` · ${copyStatus}` : ''}</Typography>
-      {(error || room.error) && <Alert severity="error">{error || room.error}</Alert>}
-      {catalogState.phase !== 'ready' && <Box>
-        <Typography>{catalogState.error ?? 'Preparing anime search…'}</Typography>
-        {catalogState.phase === 'error' && <Button onClick={catalog.retry}>Retry search</Button>}
-      </Box>}
-      {room.phase === 'preparing' && <Typography role="status">Choosing songs…</Typography>}
-      {room.phase === 'paused' && <Typography>Waiting to resume the next round…</Typography>}
+    <Box
+      component="main"
+      sx={{
+        width: 'min(560px, 100%)',
+        mx: 'auto',
+        px: 2,
+        py: { xs: 3, sm: 8 },
+      }}
+    >
+      <Button component={RouterLink} to="/" variant="outlined" sx={{ mb: 3 }}>
+        Back to game
+      </Button>
+      <Box
+        sx={{
+          p: 3,
+          bgcolor: '#101820ed',
+          borderRadius: 2,
+          border: '1px solid #ffffff33',
+        }}
+      >
+        <Stack spacing={2}>
+          <Typography component="h1" variant="h4">
+            {room.phase === 'completed' ? 'Final standings' : 'AniMasters'}
+          </Typography>
+          <Typography
+            sx={{ fontSize: '1.3rem', letterSpacing: '.25em', fontWeight: 700 }}
+          >
+            {room.code}
+          </Typography>
+          <Typography role="status">{status}</Typography>
+          {(error || room.error) && (
+            <Alert severity="error">{error || room.error}</Alert>
+          )}
+          {preparation}
+          {room.phase === 'preparing' && (
+            <Typography role="status">Choosing songs…</Typography>
+          )}
+          {room.phase === 'paused' && (
+            <Typography>Waiting to resume the next round…</Typography>
+          )}
 
-      {round && <>
-        <Typography component="h2" variant="h6">Song {round.number} / {round.total}</Typography>
-        <Typography role="timer">
-          {guessing ? `${Math.max(0, Math.ceil((deadline - now) / 1000))} seconds left` :
-            round.startsAt ? `Starts in ${Math.max(0, Math.ceil((round.startsAt - now) / 1000))} seconds` : 'Paused'}
-        </Typography>
-        {audioState.loading && <Typography>Loading song…</Typography>}
-        {audioState.error && <Alert severity="warning">{audioState.error}</Alert>}
-        {!audioState.enabled && <Button variant="outlined" onClick={() => audio.enable().catch(cause => setError(String(cause)))}>Enable audio / Resume</Button>}
-        {guessing && <AudioControls audio={audio} disabled={!audioState.enabled || audioState.loading} />}
-        {room.phase === 'countdown' && room.result && <Button variant="outlined" disabled={!ready || me?.ready} onClick={becomeReady}>
-          {me?.ready ? 'Ready for next song' : 'Ready for next song now'}
-        </Button>}
-        <GuessInput key={round.id} catalog={catalog} disabled={!canGuess} onGuess={guess} />
-        {pendingGuess && <Typography role="status">Submitting answer…</Typography>}
-        {room.submission && <Typography role="status">{room.submission.animeId === null ? 'Passed.' : 'Answer submitted.'} Waiting for the reveal.</Typography>}
-      </>}
-      {room.result && !guessing && <RoundResult room={room} />}
-      <Typography component="h2" variant="h6">{room.phase === 'completed' ? 'Scores' : `Players (${room.players.length}/10)`}</Typography>
-      <Box component="ul" sx={{ pl: 3, my: 0 }}>
-        {[...room.players].sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).map(player => <li key={player.id}>
-          {player.nickname}{player.id === session.playerId ? ' (you)' : ''}{player.id === room.hostId ? ' · Host' : ''}
-          {' · '}{player.connected ? 'Connected' : 'Disconnected'}
-          {' · '}{player.score ?? 0} points{player.ready ? ' · Ready' : ''}{guessing && player.submitted ? ' · Finished' : ''}
-        </li>)}
+          {round && (
+            <>
+              <Typography component="h2" variant="h6">
+                Song {round.number} / {round.total}
+              </Typography>
+              <Typography role="timer">
+                {guessing
+                  ? `${Math.max(0, Math.ceil((deadline - now) / 1000))} seconds left`
+                  : round.startsAt
+                    ? `Starts in ${Math.max(0, Math.ceil((round.startsAt - now) / 1000))} seconds`
+                    : 'Paused'}
+              </Typography>
+              {audioState.loading && <Typography>Loading song…</Typography>}
+              {audioState.error && (
+                <Alert severity="warning">{audioState.error}</Alert>
+              )}
+              {!audioState.enabled && (
+                <Button
+                  variant="outlined"
+                  onClick={() =>
+                    audio.enable().catch((cause) => setError(String(cause)))
+                  }
+                >
+                  Enable audio / Resume
+                </Button>
+              )}
+              {guessing && (
+                <AudioControls
+                  audio={audio}
+                  disabled={!audioState.enabled || audioState.loading}
+                />
+              )}
+              {room.phase === 'countdown' && room.result && (
+                <Button
+                  variant="outlined"
+                  disabled={!ready || me?.ready}
+                  onClick={becomeReady}
+                >
+                  {me?.ready
+                    ? 'Ready for next song'
+                    : 'Ready for next song now'}
+                </Button>
+              )}
+              <GuessInput
+                key={round.id}
+                catalog={catalog}
+                disabled={!canGuess}
+                onGuess={guess}
+              />
+              {pendingGuess && (
+                <Typography role="status">Submitting answer…</Typography>
+              )}
+              {room.submission && (
+                <Typography role="status">
+                  {room.submission.animeId === null
+                    ? 'Passed.'
+                    : 'Answer submitted.'}{' '}
+                  Waiting for the reveal.
+                </Typography>
+              )}
+            </>
+          )}
+          {room.result && !guessing && <RoundResult room={room} />}
+          <Typography component="h2" variant="h6">
+            {room.phase === 'completed'
+              ? 'Scores'
+              : `Players (${room.players.length}/10)`}
+          </Typography>
+          <Box component="ul" sx={{ pl: 3, my: 0 }}>
+            {[...room.players]
+              .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+              .map((player) => (
+                <li key={player.id}>
+                  {player.nickname}
+                  {player.id === session.playerId ? ' (you)' : ''}
+                  {player.id === room.hostId ? ' · Host' : ''}
+                  {' · '}
+                  {player.connected ? 'Connected' : 'Disconnected'}
+                  {' · '}
+                  {player.score ?? 0} points{player.ready ? ' · Ready' : ''}
+                  {guessing && player.submitted ? ' · Finished' : ''}
+                </li>
+              ))}
+          </Box>
+          {room.phase === 'completed' && (
+            <>
+              <RoomPreferences
+                controller={preferences}
+                isHost={isHost}
+                isReady={isReady}
+                isRematch
+              />
+              <Typography>
+                The next match starts when everyone connected is ready. Scores
+                reset for the new match.
+              </Typography>
+              <Button
+                variant="outlined"
+                disabled={
+                  readyBusy ||
+                  (isReady ? !connected : !ready || preferencesState.blocked)
+                }
+                onClick={
+                  isReady
+                    ? () => send.current({ type: 'unready' })
+                    : becomeReady
+                }
+              >
+                {isReady ? 'Not ready' : 'Ready for next match'}
+              </Button>
+            </>
+          )}
+          <Button onClick={onBack}>Back to room entry</Button>
+        </Stack>
       </Box>
-      {room.phase === 'completed' && matchPreferences}
-      <Button onClick={onBack}>Back to room entry</Button>
+    </Box>
+  );
+}
+
+function GuessInput({
+  catalog,
+  disabled,
+  onGuess,
+}: {
+  catalog: CatalogClient;
+  disabled: boolean;
+  onGuess: (id: number | null) => void;
+}) {
+  const [selected, setSelected] = useState<AnimeOption | null>(null);
+  return (
+    <Stack spacing={2}>
+      <AnimeAutocomplete
+        client={catalog}
+        value={selected}
+        onChange={setSelected}
+        disabled={disabled}
+      />
+      <Stack direction="row" spacing={2}>
+        <Button
+          variant="outlined"
+          disabled={disabled || !selected}
+          onClick={() => onGuess(selected!.id)}
+        >
+          Submit guess
+        </Button>
+        <Button
+          variant="outlined"
+          disabled={disabled}
+          onClick={() => onGuess(null)}
+        >
+          Pass
+        </Button>
+      </Stack>
     </Stack>
   );
 }
 
-function GuessInput({ catalog, disabled, onGuess }: { catalog: CatalogClient; disabled: boolean; onGuess: (id: number | null) => void }) {
-  const [selected, setSelected] = useState<AnimeOption | null>(null);
-  return <Stack spacing={2}>
-    <AnimeAutocomplete client={catalog} value={selected} onChange={setSelected} disabled={disabled} />
-    <Stack direction="row" spacing={2}>
-      <Button variant="outlined" disabled={disabled || !selected} onClick={() => onGuess(selected!.id)}>Submit guess</Button>
-      <Button variant="outlined" disabled={disabled} onClick={() => onGuess(null)}>Pass</Button>
-    </Stack>
-  </Stack>;
-}
-
-function AudioControls({ audio, disabled }: { audio: RoomAudio; disabled: boolean }) {
+function AudioControls({
+  audio,
+  disabled,
+}: {
+  audio: RoomAudio;
+  disabled: boolean;
+}) {
   const state = useSyncExternalStore(audio.subscribe, audio.getSnapshot);
   const [position, setPosition] = useState(0);
   useEffect(() => {
     const timer = setInterval(() => setPosition(audio.position()), 250);
     return () => clearInterval(timer);
   }, [audio]);
-  return <Box>
-    <Stack direction="row" spacing={1}>
-      <Button disabled={disabled} onClick={() => audio.play()}>Play</Button>
-      <Button disabled={disabled} onClick={() => audio.pause()}>Pause</Button>
-      <Button disabled={disabled} onClick={() => audio.replay()}>Replay</Button>
-    </Stack>
-    <Slider aria-label="Song position" disabled={disabled} min={0} max={state.duration || 1} value={position} onChange={(_, value) => audio.seek(value as number)} />
-    <Typography variant="caption">Volume</Typography>
-    <Slider aria-label="Volume" min={0} max={1} step={0.01} defaultValue={1} onChange={(_, value) => audio.volume(value as number)} />
-  </Box>;
+  return (
+    <Box>
+      <Stack direction="row" spacing={1}>
+        <Button disabled={disabled} onClick={() => audio.play()}>
+          Play
+        </Button>
+        <Button disabled={disabled} onClick={() => audio.pause()}>
+          Pause
+        </Button>
+        <Button disabled={disabled} onClick={() => audio.replay()}>
+          Replay
+        </Button>
+      </Stack>
+      <Slider
+        aria-label="Song position"
+        disabled={disabled}
+        min={0}
+        max={state.duration || 1}
+        value={position}
+        onChange={(_, value) => audio.seek(value as number)}
+      />
+      <Typography variant="caption">Volume</Typography>
+      <Slider
+        aria-label="Volume"
+        min={0}
+        max={1}
+        step={0.01}
+        defaultValue={1}
+        onChange={(_, value) => audio.volume(value as number)}
+      />
+    </Box>
+  );
 }
 
 function RoundResult({ room }: { room: RoomSnapshot }) {
   const result = room.result!;
-  return <Box sx={{ border: '1px solid #ffffff44', p: 2, borderRadius: 1 }}>
-    <Typography component="h2" variant="h6">Song {result.number}: {result.anime}</Typography>
-    <Typography>{result.name}</Typography>
-    {result.players.map(player => <Typography key={player.id}>
-      {room.players.find(member => member.id === player.id)?.nickname}: {player.guess ?? 'Pass / no answer'}
-      {' · '}{player.points > 0 ? '+' : ''}{player.points} points
-    </Typography>)}
-  </Box>;
+  return (
+    <Box sx={{ border: '1px solid #ffffff44', p: 2, borderRadius: 1 }}>
+      <Typography component="h2" variant="h6">
+        Song {result.number}: {result.anime}
+      </Typography>
+      <Typography>{result.name}</Typography>
+      {result.players.map((player) => (
+        <Typography key={player.id}>
+          {room.players.find((member) => member.id === player.id)?.nickname}:{' '}
+          {player.guess ?? 'Pass / no answer'}
+          {' · '}
+          {player.points > 0 ? '+' : ''}
+          {player.points} points
+        </Typography>
+      ))}
+    </Box>
+  );
 }

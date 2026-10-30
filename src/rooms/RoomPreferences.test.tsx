@@ -1,71 +1,121 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { expect, it, vi } from 'vitest';
+import { afterEach, expect, it, vi } from 'vitest';
 import RoomPreferences from './RoomPreferences';
+import { RoomPreferencesController } from './preferences';
+import type { RoomSnapshot } from './client';
 
-const settings = { amount: 40, repeatAnimes: false, includeOpenings: true, includeEndings: true, includeSoundtracks: true };
-function setup(overrides = {}) {
-  const props = {
-    settings, isHost: true, connected: true, canReady: true, isReady: false,
-    onSave: vi.fn(), onReady: vi.fn(), onUnready: vi.fn(), ...overrides,
-  };
-  const view = render(<RoomPreferences {...props} />);
-  return { ...view, props, user: userEvent.setup() };
+const room: RoomSnapshot = {
+  code: 'A7B2',
+  hostId: 'host',
+  phase: 'lobby',
+  settingsRevision: 2,
+  settings: {
+    amount: 40,
+    repeatAnimes: false,
+    includeOpenings: true,
+    includeEndings: true,
+    includeSoundtracks: false,
+  },
+  players: [{ id: 'host', nickname: 'Manu', connected: true, ready: false }],
+};
+const controllers: RoomPreferencesController[] = [];
+
+afterEach(() =>
+  controllers.splice(0).forEach((controller) => controller.dispose()),
+);
+
+function setup(isHost = true) {
+  const send = vi.fn(() => true);
+  const controller = new RoomPreferencesController(
+    room,
+    isHost ? 'host' : 'guest',
+    send,
+  );
+  controllers.push(controller);
+  controller.setConnection(true);
+  controller.receive(room);
+  const view = render(
+    <RoomPreferences controller={controller} isHost={isHost} isReady={false} />,
+  );
+  return { ...view, controller, send, user: userEvent.setup() };
 }
 
-it('saves the same count/type preferences and blocks Ready while edits are unsaved', async () => {
-  const { user, props } = setup();
-  await user.clear(screen.getByLabelText('Songs per match'));
-  await user.type(screen.getByLabelText('Songs per match'), '10');
+it('autosaves a toggle without save labels and waits for server confirmation', async () => {
+  const { user, send, controller } = setup();
+  expect(
+    screen.queryByRole('button', { name: /Save|Cancel/ }),
+  ).not.toBeInTheDocument();
   await user.click(screen.getByLabelText('Include endings'));
-  await user.click(screen.getByLabelText('Include soundtracks'));
-  expect(screen.getByRole('button', { name: 'Enable audio & Ready' })).toBeDisabled();
-  await user.click(screen.getByRole('button', { name: 'Save settings' }));
-  expect(props.onSave).toHaveBeenCalledWith({ ...settings, amount: 10, includeEndings: false, includeSoundtracks: false });
+  expect(send).toHaveBeenCalledWith({
+    type: 'settings',
+    settings: { ...room.settings, includeEndings: false },
+    settingsRevision: 2,
+  });
+  expect(
+    screen.queryByText(/Saved|Saving|Changes save automatically/),
+  ).not.toBeInTheDocument();
+  expect(controller.getSnapshot().blocked).toBe(true);
+  act(() =>
+    controller.receive({
+      ...room,
+      settings: { ...room.settings!, includeEndings: false },
+      settingsRevision: 3,
+    }),
+  );
+  expect(controller.getSnapshot().blocked).toBe(false);
 });
 
-it('shows guests the saved preferences without editing controls', () => {
-  setup({ isHost: false, settings: { ...settings, amount: 7, includeOpenings: false, includeEndings: false } });
-  expect(screen.getByText('7 songs · Soundtracks · No repeated anime')).toBeVisible();
+it('offers four presets, saves immediately and preserves the choice when remounting', async () => {
+  const { user, send, controller, unmount } = setup();
   expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument();
-  expect(screen.queryByRole('button', { name: 'Save settings' })).not.toBeInTheDocument();
+  for (const amount of [5, 10, 20, 50]) {
+    expect(
+      screen.getByRole('button', { name: `${amount} songs` }),
+    ).toBeVisible();
+  }
+  await user.click(screen.getByRole('button', { name: '20 songs' }));
+  expect(send).toHaveBeenCalledWith({
+    type: 'settings',
+    settings: { ...room.settings, amount: 20 },
+    settingsRevision: 2,
+  });
+  // A second click on the active choice cannot deselect it or send an empty count.
+  await user.click(screen.getByRole('button', { name: '20 songs' }));
+  expect(send).toHaveBeenCalledTimes(1);
+  unmount();
+  render(<RoomPreferences controller={controller} isHost isReady={false} />);
+  expect(screen.getByRole('button', { name: '20 songs' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  expect(controller.getSnapshot().blocked).toBe(true);
 });
 
-it('rejects invalid counts and lets a ready host withdraw before editing', async () => {
-  const { user, props, rerender } = setup();
-  await user.clear(screen.getByLabelText('Songs per match'));
-  await user.type(screen.getByLabelText('Songs per match'), '0');
-  expect(screen.getByRole('button', { name: 'Save settings' })).toBeDisabled();
-  expect(screen.getByRole('button', { name: 'Enable audio & Ready' })).toBeDisabled();
-  rerender(<RoomPreferences {...props} isReady />);
-  expect(screen.getByLabelText('Songs per match')).toBeDisabled();
-  await user.click(screen.getByRole('button', { name: 'Not ready' }));
-  expect(props.onUnready).toHaveBeenCalledOnce();
+it('shows guests a read-only summary', () => {
+  setup(false);
+  expect(
+    screen.getByText('40 songs · Openings · Endings · No repeated anime'),
+  ).toBeVisible();
+  expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument();
+  expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+  expect(
+    screen.getByText('Only the host can change these settings.'),
+  ).toBeVisible();
 });
 
-it('preserves drafts on unrelated snapshots and resets them on a server revision', async () => {
-  const { user, props, rerender } = setup();
-  await user.clear(screen.getByLabelText('Songs per match'));
-  await user.type(screen.getByLabelText('Songs per match'), '5');
-  rerender(<RoomPreferences {...props} settings={{ ...settings }} />);
-  expect(screen.getByLabelText('Songs per match')).toHaveValue(5);
-  rerender(<RoomPreferences key={1} {...props} settings={{ ...settings, amount: 5 }} />);
-  expect(screen.getByRole('button', { name: 'Save settings' })).toBeDisabled();
-  expect(screen.getByRole('button', { name: 'Enable audio & Ready' })).toBeEnabled();
-});
-
-it('explains that no selected types includes every song type', () => {
-  setup({ isHost: false, settings: { ...settings, includeOpenings: false, includeEndings: false, includeSoundtracks: false } });
-  expect(screen.getByText('40 songs · All song types · No repeated anime')).toBeVisible();
-});
-
-it('offers rematch readiness and keeps host edits subject to saving first', async () => {
-  const { user, props } = setup({ isRematch: true });
-  expect(screen.getByRole('heading', { name: 'Next match preferences' })).toBeVisible();
-  await user.click(screen.getByRole('button', { name: 'Ready for next match' }));
-  expect(props.onReady).toHaveBeenCalledOnce();
-  await user.click(screen.getByLabelText('Include endings'));
-  expect(screen.getByRole('button', { name: 'Ready for next match' })).toBeDisabled();
-  await user.click(screen.getByRole('button', { name: 'Save settings' }));
-  expect(props.onSave).toHaveBeenCalledWith({ ...settings, includeEndings: false });
+it('locks ready hosts and explains how to return to editing', () => {
+  const { controller, rerender } = setup();
+  act(() =>
+    controller.receive({
+      ...room,
+      players: [{ ...room.players[0], ready: true }],
+    }),
+  );
+  rerender(<RoomPreferences controller={controller} isHost isReady />);
+  expect(screen.getByRole('button', { name: '20 songs' })).toBeDisabled();
+  expect(screen.getByLabelText('Include endings')).toBeDisabled();
+  expect(
+    screen.getByText(/Return to the lobby and click Not ready/),
+  ).toBeVisible();
 });

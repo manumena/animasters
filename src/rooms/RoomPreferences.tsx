@@ -1,100 +1,166 @@
-import { useState } from 'react';
-import { Box, Button, Checkbox, FormControlLabel, Stack, TextField, Typography } from '@mui/material';
-import type { RoomSettings } from './client';
+import { useSyncExternalStore } from 'react';
+import {
+  Alert,
+  Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Stack,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+} from '@mui/material';
+import { RoomPreferencesController, songTypes } from './preferences';
 
 interface Props {
-  settings?: RoomSettings;
+  controller: RoomPreferencesController;
   isHost: boolean;
-  connected: boolean;
-  canReady: boolean;
   isReady: boolean;
   isRematch?: boolean;
-  onSave: (settings: RoomSettings) => void;
-  onReady: () => void;
-  onUnready: () => void;
 }
 
-/** Remounted only when the server's settings revision changes. Clock/presence
- * snapshots leave an unsaved draft intact; server acknowledgement replaces it. */
-export default function RoomPreferences(props: Props) {
-  if (!props.settings) return <Typography>Loading match settings…</Typography>;
-  return <PreferencesForm {...props} settings={props.settings} />;
-}
+/** The controller belongs to RoomGame, so leaving this screen neither discards
+ * a draft nor cancels an outstanding save. Server snapshots confirm changes. */
+export default function RoomPreferences({
+  controller,
+  isHost,
+  isReady,
+  isRematch = false,
+}: Props) {
+  const state = useSyncExternalStore(
+    controller.subscribe,
+    controller.getSnapshot,
+  );
+  if (!state.draft)
+    return <Typography role="status">Loading match settings…</Typography>;
 
-function PreferencesForm({ settings, isHost, connected, canReady, isReady, isRematch = false, onSave, onReady, onUnready }: Props & { settings: RoomSettings }) {
-  const [amount, setAmount] = useState(String(settings.amount));
-  const [draft, setDraft] = useState(settings);
-  const count = Number(amount);
-  const validCount = amount.trim() !== '' && Number.isInteger(count) && count >= 1 && count <= 999;
-  const changed = count !== settings.amount ||
-    draft.includeOpenings !== settings.includeOpenings ||
-    draft.includeEndings !== settings.includeEndings ||
-    draft.includeSoundtracks !== settings.includeSoundtracks;
-  const editable = connected && !isReady;
-  const types = [
-    settings.includeOpenings && 'Openings',
-    settings.includeEndings && 'Endings',
-    settings.includeSoundtracks && 'Soundtracks',
-  ].filter(Boolean);
+  return (
+    <Stack spacing={2} className="room-preferences">
+      <div className="room-preferences-heading">
+        <Typography component="h2" variant="h6">
+          {isRematch ? 'Next match preferences' : 'Song selection'}
+        </Typography>
+      </div>
 
-  return <Stack spacing={2}>
-    <Typography component="h2" variant="h6">{isRematch ? 'Next match preferences' : 'Match preferences'}</Typography>
-    <Typography>{settings.amount} songs · {types.length ? types.join(', ') : 'All song types'} · No repeated anime</Typography>
-    {isHost ? <Stack
-      component="form"
-      spacing={1}
-      onSubmit={event => {
-        event.preventDefault();
-        if (editable && validCount && changed) onSave({ ...draft, amount: count });
-      }}
-    >
-      <TextField
-        label="Songs per match"
-        type="number"
-        value={amount}
-        disabled={!editable}
-        error={!validCount}
-        helperText={validCount ? 'Choose how many songs to play.' : 'Enter a whole number from 1 to 999.'}
-        onChange={event => setAmount(event.target.value)}
-        slotProps={{
-          htmlInput: { min: 1, max: 999, step: 1 },
-          inputLabel: { sx: { color: '#d5dbe1' } },
-          formHelperText: { sx: { color: '#d5dbe1' } },
-        }}
-      />
-      <Box>
-        {([
-          ['includeOpenings', 'Include openings'],
-          ['includeEndings', 'Include endings'],
-          ['includeSoundtracks', 'Include soundtracks'],
-        ] as const).map(([field, label]) => <FormControlLabel
-          key={field}
-          label={label}
-          sx={{ display: 'flex', '& .Mui-disabled': { color: '#adb5bd' } }}
-          control={<Checkbox
-            sx={{ color: '#c1c9d2' }}
-            checked={draft[field]}
-            disabled={!editable}
-            onChange={event => setDraft({ ...draft, [field]: event.target.checked })}
-          />}
-        />)}
-      </Box>
-      <Typography variant="body2">If no song types are checked, all types are included.</Typography>
-      <Button type="submit" variant="outlined" disabled={!editable || !validCount || !changed}>Save settings</Button>
-      <Typography variant="body2">
-        {isReady ? 'Click Not ready to edit preferences.' : changed ? 'Save your changes before becoming ready.' : 'Saving changes clears everyone’s Ready status.'}
-      </Typography>
-    </Stack> : <Typography>Only the host can change these settings.</Typography>}
-    <Typography>{isRematch
-      ? 'The next match starts when everyone connected is ready. Scores reset for the new match.'
-      : 'Invite your friends before pressing Ready. The match starts when everyone connected is ready.'}</Typography>
-    <Button
-      variant="outlined"
-      disabled={isReady ? !connected : !canReady || (isHost && (changed || !validCount))}
-      onClick={isReady ? onUnready : onReady}
-    >
-      {isReady ? 'Not ready' : isRematch ? 'Ready for next match' : 'Enable audio & Ready'}
-    </Button>
-    {isReady && <Typography role="status">Ready — waiting for players</Typography>}
-  </Stack>;
+      {isHost ? (
+        <>
+          <Box component="fieldset" sx={{ border: 0, p: 0, m: 0, minWidth: 0 }}>
+            <Typography component="legend" variant="body2" sx={{ mb: 1 }}>
+              Songs per match
+            </Typography>
+            <ToggleButtonGroup
+              exclusive
+              fullWidth
+              aria-label="Songs per match"
+              value={Number(state.amount)}
+              disabled={!state.editable}
+              onChange={(_, amount: number | null) => {
+                // Clicking the selected option must not clear the song count.
+                if (amount !== null)
+                  controller.changeAmount(String(amount), true);
+              }}
+              sx={{
+                '& .MuiToggleButton-root': {
+                  minHeight: 48,
+                  color: '#d5e5e4',
+                  borderColor: '#62767c',
+                  fontSize: 16,
+                  '&.Mui-selected': {
+                    bgcolor: '#a7ecdb',
+                    color: '#123e34',
+                    '&:hover': { bgcolor: '#bdf5e7' },
+                  },
+                  '&.Mui-disabled': { color: '#adb5bd' },
+                },
+              }}
+            >
+              {[5, 10, 20, 50].map((amount) => (
+                <ToggleButton
+                  key={amount}
+                  value={amount}
+                  aria-label={`${amount} songs`}
+                >
+                  {amount}
+                </ToggleButton>
+              ))}
+            </ToggleButtonGroup>
+            {/* Existing rooms can retain older counts until the host chooses a preset. */}
+            {![5, 10, 20, 50].includes(Number(state.amount)) && (
+              <Typography variant="body2" sx={{ mt: 1 }}>
+                Current match: {state.amount} songs
+              </Typography>
+            )}
+          </Box>
+          <Box component="fieldset" sx={{ border: 0, p: 0, m: 0, minWidth: 0 }}>
+            <Typography component="legend" variant="body2">
+              Song types
+            </Typography>
+            {(
+              [
+                ['includeOpenings', 'Include openings'],
+                ['includeEndings', 'Include endings'],
+                ['includeSoundtracks', 'Include soundtracks'],
+              ] as const
+            ).map(([field, label]) => (
+              <FormControlLabel
+                key={field}
+                label={label}
+                sx={{
+                  display: 'flex',
+                  m: 0,
+                  mt: 1,
+                  p: 1,
+                  border: '1px solid #40585f',
+                  borderRadius: '10px',
+                  bgcolor: '#16272f',
+                  '& .Mui-disabled': { color: '#adb5bd' },
+                }}
+                control={
+                  <Checkbox
+                    sx={{
+                      color: '#b0c1c5',
+                      mr: 1,
+                      '&.Mui-checked': { color: '#a7ecdb' },
+                      // Override the lobby's compact icon size for these controls.
+                      '& .MuiSvgIcon-root': { width: 28, height: 28 },
+                    }}
+                    checked={state.draft![field]}
+                    disabled={!state.editable}
+                    onChange={(event) =>
+                      controller.changeType(field, event.target.checked)
+                    }
+                  />
+                }
+              />
+            ))}
+          </Box>
+          <Typography variant="body2">
+            If no song types are checked, all types are included.
+          </Typography>
+          <Typography variant="body2">No repeated anime.</Typography>
+          {isReady && (
+            <Typography variant="body2">
+              Return to the lobby and click Not ready to edit preferences.
+            </Typography>
+          )}
+          {state.error && (
+            <Alert
+              severity="warning"
+              action={<Button onClick={controller.retry}>Retry</Button>}
+            >
+              {state.error}
+            </Alert>
+          )}
+        </>
+      ) : (
+        <>
+          <Typography>
+            {state.draft.amount} songs · {songTypes(state.draft)} · No repeated
+            anime
+          </Typography>
+          <Typography>Only the host can change these settings.</Typography>
+        </>
+      )}
+    </Stack>
+  );
 }

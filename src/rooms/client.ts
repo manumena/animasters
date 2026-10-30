@@ -128,7 +128,8 @@ export function watchRoom(
       scheduleRetry();
       return;
     }
-    const url = new URL(`${api}/rooms/${session.room.code}/connect`);
+    // LAN development uses a relative /api proxy on the current HTTPS origin.
+    const url = new URL(`${api}/rooms/${session.room.code}/connect`, window.location.origin);
     url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
     socket = new WebSocket(url, ['animasters', `token.${session.token}`]);
     socket.onopen = () => {

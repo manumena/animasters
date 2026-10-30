@@ -20,6 +20,8 @@ Open a `preview.html` file in a browser and use its variant picker. Previews do 
 | Date | Sketch | Variants | Feedback |
 | --- | --- | --- | --- |
 | October 29, 2026 | [Room creation directions](2026-10-29-room-creation/README.md) · [Preview](2026-10-29-room-creation/preview.html) | Quick entry; Café welcome; Café counter | Owner selected Quick entry. Implemented with a shared homepage backdrop; Create/Join behavior retained. |
+| October 29, 2026 | [Lobby and match preferences](2026-10-29-lobby-preferences/README.md) · [Preview](2026-10-29-lobby-preferences/preview.html) | Side by side; One room card; Focused lobby; Lobby overview | Owner selected Focused lobby to allow settings to grow. Side by side feels unbalanced. Move players last and Ready near the code. |
+| October 30, 2026 | [Focused lobby Ready placement](2026-10-30-focused-lobby-ready/README.md) · [Preview](2026-10-30-focused-lobby-ready/preview.html) | Inside the card; Beside the code; Separate action strip | Implemented Inside the card, players last. Final refinements: preferences omit the code card and Save/Cancel, save automatically, and use “Ready to start” for the host / “Ready” for guests. |
 
 ## Current direction
 
@@ -28,3 +30,5 @@ Open a `preview.html` file in a browser and use its variant picker. Previews do 
 - Implement the selected Café backdrop while keeping text and controls readable on phones; omit the “Hide café” button.
 - Do not add deferred avatars, authentication or extra game modes to the current implementation solely because they appear in inspiration notes.
 - Save future sketches here and add them to this index.
+
+Focused lobby follow-up: implemented 5 / 10 / 20 / 50 song presets, padded 28px checkboxes, quiet autosave, and Back to room entry above the invitation card. New rooms default to 10 songs. Earlier sketches remain unchanged.

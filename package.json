@@ -16,6 +16,8 @@
   "scripts": {
     "start": "vite",
     "dev": "vite",
+    "dev:lan": "vite --mode lan",
+    "https:setup": "node scripts/setup-local-https.mjs",
     "build": "yarn typecheck && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",

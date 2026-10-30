@@ -23,6 +23,9 @@
 # Private local recovery archives
 /.local-backups/
 
+# Local HTTPS certificates and private keys
+/.certs/
+
 # Environment variables
 .env.local
 .env.development.local

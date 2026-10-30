@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link as RouterLink, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { Alert, Box, Button, TextField } from '@mui/material';
+import { Alert, Button, TextField } from '@mui/material';
 import { enterRoom, normalizeRoomCode, savedSession } from '../rooms/client';
 import RoomGame from '../rooms/RoomGame';
 import type { RoomSession } from '../rooms/client';
@@ -45,19 +45,12 @@ export default function Rooms() {
     }
   }
 
-  // Keep the existing lobby and match presentation outside the entry theme.
+  // RoomGame selects the lobby or match shell from live room state.
   if (session) {
-    return (
-      <Box component="main" sx={{ width: 'min(560px, 100%)', mx: 'auto', px: 2, py: { xs: 3, sm: 8 } }}>
-        <Button component={RouterLink} to="/" variant="outlined" sx={{ mb: 3 }}>Back to game</Button>
-        <Box sx={{ p: 3, bgcolor: '#101820ed', borderRadius: 2, border: '1px solid #ffffff33' }}>
-          <RoomGame session={session} onBack={() => {
-            setSession(null);
-            navigate('/rooms');
-          }} />
-        </Box>
-      </Box>
-    );
+    return <RoomGame session={session} onBack={() => {
+      setSession(null);
+      navigate('/rooms');
+    }} />;
   }
 
   const joining = mode === 'join';

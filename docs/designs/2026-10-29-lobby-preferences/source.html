@@ -1,0 +1,345 @@
+<div id="animasters-lobby-studies" class="viz-carousel" aria-label="Lobby and match preferences">
+  <section data-variant="Side by side" aria-label="Side by side"><div class="lobby-scene" data-layout="split"></div></section>
+  <section data-variant="One room card" aria-label="One room card" hidden><div class="lobby-scene" data-layout="stack"></div></section>
+  <section data-variant="Focused lobby" aria-label="Focused lobby" hidden><div class="lobby-scene" data-layout="focused"></div></section>
+  <section data-variant="Lobby overview" aria-label="Lobby overview" hidden><div class="lobby-scene" data-layout="overview"></div></section>
+</div>
+
+<template id="lobby-chrome-template">
+  <header class="lobby-header"><span class="lobby-brand"><span class="lobby-mark"><i data-lucide="headphones" aria-hidden="true"></i></span><strong>ani</strong>masters<small>BETA</small></span></header>
+  <main class="lobby-main">
+    <div class="lobby-heading"><div><p class="lobby-eyebrow">Your anime game night</p><h1>Your room</h1></div><span class="lobby-connected">● Connected</span></div>
+    <section class="lobby-invite" aria-label="Invite friends">
+      <div><span class="lobby-muted">Room code</span><strong class="lobby-code">A7B2</strong></div>
+      <div class="lobby-invite-actions"><button type="button" class="lobby-button cursor-interaction" data-action="invite"><i data-lucide="link" aria-hidden="true"></i> Invite friends</button><span class="lobby-small">Share the code or invite link.</span></div>
+      <div class="lobby-invite-detail" hidden><label>Example invite link<input readonly value="https://animasters.pages.dev/rooms/A7B2"></label><p class="lobby-small">Design preview only — this is an example room.</p></div>
+    </section>
+    <div class="lobby-body"></div>
+    <div class="lobby-feedback" role="status"></div>
+  </main>
+</template>
+
+<template id="lobby-players-template">
+  <section class="lobby-players lobby-panel">
+    <div class="lobby-section-heading"><h2>Players <span class="lobby-muted">4 / 10</span></h2><span class="lobby-ready-count">2 ready</span></div>
+    <ul class="lobby-player-list">
+      <li><span class="lobby-initial" aria-hidden="true">M</span><span class="lobby-name">Manu <small>You · Host</small></span><span class="lobby-player-status" data-player="0">Not ready</span></li>
+      <li><span class="lobby-initial" aria-hidden="true">A</span><span class="lobby-name">Alex</span><span class="lobby-player-status" data-player="1">Ready</span></li>
+      <li><span class="lobby-initial" aria-hidden="true">Y</span><span class="lobby-name">Yui</span><span class="lobby-player-status" data-player="2">Ready</span></li>
+      <li><span class="lobby-initial" aria-hidden="true">D</span><span class="lobby-name">Dani</span><span class="lobby-player-status" data-player="3">Not ready</span></li>
+    </ul>
+    <p class="lobby-small lobby-room-note">Room for 6 more. Invite your friends before you ready up.</p>
+  </section>
+</template>
+
+<template id="lobby-settings-template">
+  <section class="lobby-preferences lobby-panel">
+    <div class="lobby-section-heading"><h2>Match preferences</h2><span class="lobby-small lobby-host-label">Host controls</span></div>
+    <form class="lobby-settings-form">
+      <fieldset>
+        <label class="lobby-amount">Songs per match<input type="number" name="amount" value="40" min="1" max="999" step="1" required></label>
+        <div class="lobby-song-types"><p class="lobby-field-label">Song types</p><label><input name="openings" type="checkbox" checked> Openings</label><label><input name="endings" type="checkbox" checked> Endings</label><label><input name="soundtracks" type="checkbox"> Soundtracks</label></div>
+      </fieldset>
+      <p class="lobby-small lobby-types-note">No types selected means all types.</p>
+      <p class="lobby-repeat"><i data-lucide="list-music" aria-hidden="true"></i>No repeated anime</p>
+      <p class="lobby-small lobby-edit-note">Saving changes clears everyone’s Ready status.</p>
+      <div class="lobby-settings-actions"><button class="lobby-button cursor-interaction" type="button" data-action="cancel" hidden>Cancel</button><button class="lobby-button lobby-save cursor-interaction" type="button" disabled>Save settings</button></div>
+    </form>
+  </section>
+</template>
+
+<template id="lobby-summary-template">
+  <section class="lobby-summary lobby-panel"><div class="lobby-section-heading"><h2>The next match</h2><i data-lucide="music-2" aria-hidden="true"></i></div><strong class="lobby-song-count">40 songs</strong><p class="lobby-selected-types">Openings · Endings</p><p class="lobby-small">No repeated anime</p><button class="lobby-button cursor-interaction" type="button" data-action="settings"><i data-lucide="settings-2" aria-hidden="true"></i> Match preferences</button></section>
+</template>
+
+<template id="lobby-ready-template">
+  <div class="lobby-ready-area"><div><strong>Ready when you are.</strong><p class="lobby-small">The match starts when everyone connected is ready.</p></div><button class="lobby-button lobby-primary cursor-interaction" type="button" data-action="ready"><i data-lucide="headphones" aria-hidden="true"></i> Enable audio &amp; Ready</button></div>
+</template>
+
+<style>
+  /* Same palette and independent artwork frame as the implemented café shell. */
+  #animasters-lobby-studies .lobby-scene {
+    --lobby-bg: #111b21;
+    --lobby-panel: #1b2b32;
+    --lobby-line: #354950;
+    --lobby-text: #f2f7f4;
+    --lobby-muted: #b0c1c5;
+    --lobby-mint: #a7ecdb;
+    position: relative;
+    isolation: isolate;
+    container-type: inline-size;
+    min-height: 1220px;
+    padding-bottom: 44px;
+    background: var(--lobby-bg);
+    color: var(--lobby-text);
+    color-scheme: dark;
+    font: 15px/1.5 system-ui, sans-serif;
+  }
+  #animasters-lobby-studies .lobby-scene::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: 0 0 auto;
+    height: max(592px, 56.25cqw);
+    background-color: #122632;
+    background-image: linear-gradient(transparent calc(100% - 70px), #111b21), linear-gradient(#050f188c, #050f188c), url('https://cdn.jsdelivr.net/gh/manumena/animasters@4856ebff01ecec6fefe23093c02f0f043c65c0f8/src/assets/lofi-cafe.gif');
+    background-size: cover;
+    background-position: 50% 58%;
+    pointer-events: none;
+  }
+  #animasters-lobby-studies .lobby-scene * { box-sizing: border-box; }
+  #animasters-lobby-studies .lobby-scene [hidden] { display: none; }
+  #animasters-lobby-studies .lobby-scene h1,
+  #animasters-lobby-studies .lobby-scene h2,
+  #animasters-lobby-studies .lobby-scene p { margin: 0; }
+  #animasters-lobby-studies .lobby-scene svg { width: 18px; height: 18px; flex-shrink: 0; }
+  #animasters-lobby-studies .lobby-header { max-width: 1200px; margin: auto; padding: 25px 36px 0; }
+  #animasters-lobby-studies .lobby-brand { display: inline-flex; align-items: center; font-size: 23px; letter-spacing: -1px; }
+  #animasters-lobby-studies .lobby-brand small { font-size: 10px; letter-spacing: 1px; align-self: start; margin: 2px 0 0 8px; }
+  #animasters-lobby-studies .lobby-mark { display: grid; place-items: center; width: 33px; height: 33px; margin-right: 9px; border-radius: 10px; color: #123e34; background: var(--lobby-mint); }
+  #animasters-lobby-studies .lobby-main { max-width: 900px; width: calc(100% - 64px); margin: 38px auto 0; }
+  #animasters-lobby-studies .lobby-heading { display: flex; justify-content: space-between; align-items: end; gap: 15px; margin-bottom: 22px; }
+  #animasters-lobby-studies .lobby-eyebrow { color: var(--lobby-mint); text-transform: uppercase; font-size: 11px; letter-spacing: 1.6px; font-weight: 650; }
+  #animasters-lobby-studies .lobby-heading h1 { margin-top: 8px; font-size: 34px; line-height: 1.15; letter-spacing: -1px; }
+  #animasters-lobby-studies .lobby-connected { color: var(--lobby-mint); font-size: 12px; white-space: nowrap; }
+  #animasters-lobby-studies .lobby-muted { color: var(--lobby-muted); font-weight: 400; }
+  #animasters-lobby-studies .lobby-small { color: var(--lobby-muted); font-size: 12px; line-height: 1.55; }
+
+  /* Room identity stays in the same place while a dedicated editor is open. */
+  #animasters-lobby-studies .lobby-invite { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding: 18px 24px; margin-bottom: 20px; background: #16272f; border: 1px solid var(--lobby-line); border-radius: 18px; }
+  #animasters-lobby-studies .lobby-invite > div:first-child { display: flex; align-items: center; gap: 20px; }
+  #animasters-lobby-studies .lobby-invite .lobby-muted { font-size: 12px; }
+  #animasters-lobby-studies .lobby-code { font-size: 32px; font-weight: 650; letter-spacing: 7px; }
+  #animasters-lobby-studies .lobby-invite-actions { display: grid; justify-items: end; gap: 5px; }
+  #animasters-lobby-studies .lobby-invite-detail { width: 100%; }
+  #animasters-lobby-studies .lobby-invite-detail label { display: grid; gap: 5px; font-size: 12px; }
+  #animasters-lobby-studies .lobby-body { display: grid; grid-template-columns: 1.12fr 1fr; gap: 20px; align-items: start; }
+  #animasters-lobby-studies .lobby-panel { background: var(--lobby-panel); border: 1px solid var(--lobby-line); border-radius: 18px; padding: 24px; min-width: 0; }
+  #animasters-lobby-studies .lobby-section-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  #animasters-lobby-studies h2 { font-size: 18px; font-weight: 600; letter-spacing: -.35px; }
+  #animasters-lobby-studies h2 .lobby-muted { margin-left: 8px; font-size: 13px; }
+  #animasters-lobby-studies .lobby-ready-count { color: var(--lobby-mint); font-size: 12px; }
+
+  /* Initials are a simple placeholder identity, not the deferred avatar editor. */
+  #animasters-lobby-studies .lobby-player-list { padding: 0; margin: 0; list-style: none; }
+  #animasters-lobby-studies .lobby-player-list li { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--lobby-line); }
+  #animasters-lobby-studies .lobby-initial { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: #30474c; color: var(--lobby-mint); flex-shrink: 0; }
+  #animasters-lobby-studies .lobby-name { min-width: 0; overflow-wrap: anywhere; }
+  #animasters-lobby-studies .lobby-name small { display: block; color: var(--lobby-muted); font-size: 11px; }
+  #animasters-lobby-studies .lobby-player-status { margin-left: auto; font-size: 12px; color: var(--lobby-muted); white-space: nowrap; }
+  #animasters-lobby-studies .lobby-player-status[data-ready] { color: var(--lobby-mint); }
+  #animasters-lobby-studies .lobby-players .lobby-room-note { margin-top: 18px; }
+
+  /* Form controls mirror the current options and their save/readiness contract. */
+  #animasters-lobby-studies .lobby-settings-form { display: grid; gap: 15px; }
+  #animasters-lobby-studies fieldset { display: grid; gap: 18px; min-width: 0; border: 0; margin: 0; padding: 0; }
+  #animasters-lobby-studies .lobby-amount { display: grid; grid-template-columns: 1fr 82px; gap: 16px; align-items: center; font-size: 14px; }
+  #animasters-lobby-studies input[type='number'],
+  #animasters-lobby-studies input[readonly] { width: 100%; min-width: 0; padding: 10px; border: 1px solid #62767c; border-radius: 8px; background: #12232b; color: var(--lobby-text); font: 16px/1.5 system-ui, sans-serif; }
+  #animasters-lobby-studies input { font-size: 16px; }
+  #animasters-lobby-studies .lobby-field-label { font-size: 13px; color: var(--lobby-muted); }
+  #animasters-lobby-studies .lobby-song-types label { display: flex; align-items: center; gap: 9px; min-height: 44px; font-size: 14px; }
+  #animasters-lobby-studies input[type='checkbox'] { width: 18px; height: 18px; accent-color: var(--lobby-mint); margin: 0; }
+  #animasters-lobby-studies .lobby-repeat { display: flex; align-items: center; gap: 9px; padding-top: 13px; border-top: 1px solid var(--lobby-line); font-size: 13px; }
+  #animasters-lobby-studies .lobby-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 15px; border: 1px solid #6b858b; border-radius: 9px; background: #1b3039; color: var(--lobby-text); font: 600 13px/1.4 system-ui,sans-serif; }
+  #animasters-lobby-studies .lobby-button:hover { background: #29424b; }
+  #animasters-lobby-studies .lobby-button:disabled { opacity: .5; cursor: default; }
+  #animasters-lobby-studies .lobby-primary { background: var(--lobby-mint); color: #123e34; border-color: transparent; }
+  #animasters-lobby-studies .lobby-primary:hover { background: #bdf5e7; }
+  #animasters-lobby-studies .lobby-settings-actions { display: flex; gap: 10px; }
+  #animasters-lobby-studies .lobby-settings-actions .lobby-save { flex: 1; }
+  #animasters-lobby-studies .lobby-ready-area { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 24px; border: 1px solid var(--lobby-line); border-radius: 18px; background: #16272f; }
+  #animasters-lobby-studies .lobby-ready-area strong { font-size: 15px; }
+  #animasters-lobby-studies .lobby-ready-area .lobby-small { margin-top: 5px; }
+  #animasters-lobby-studies .lobby-ready-area button { flex-shrink: 0; }
+  #animasters-lobby-studies .lobby-feedback { margin-top: 14px; color: var(--lobby-mint); font-size: 13px; }
+  #animasters-lobby-studies .lobby-summary .lobby-song-count { display: block; color: var(--lobby-mint); font-size: 26px; font-weight: 550; }
+  #animasters-lobby-studies .lobby-summary .lobby-selected-types { margin: 7px 0; font-size: 14px; }
+  #animasters-lobby-studies .lobby-summary button { width: 100%; margin-top: 24px; }
+
+  /* The second embedded layout puts the compact settings below the guest list. */
+  #animasters-lobby-studies [data-layout='stack'] .lobby-main { max-width: 720px; }
+  #animasters-lobby-studies [data-layout='stack'] .lobby-body { display: block; border: 1px solid var(--lobby-line); border-radius: 18px; background: var(--lobby-panel); }
+  #animasters-lobby-studies [data-layout='stack'] .lobby-panel { border: 0; border-radius: 0; background: transparent; }
+  #animasters-lobby-studies [data-layout='stack'] .lobby-preferences { border-top: 1px solid var(--lobby-line); }
+  #animasters-lobby-studies [data-layout='stack'] fieldset { grid-template-columns: 150px 1fr; gap: 30px; }
+  #animasters-lobby-studies [data-layout='stack'] .lobby-amount { display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
+  #animasters-lobby-studies [data-layout='stack'] .lobby-song-types { display: flex; flex-wrap: wrap; gap: 0 16px; }
+  #animasters-lobby-studies [data-layout='stack'] .lobby-field-label { width: 100%; }
+  #animasters-lobby-studies [data-layout='stack'] .lobby-ready-area { border: 0; border-top: 1px solid var(--lobby-line); border-radius: 0 0 18px 18px; }
+
+  /* Dedicated screens share an editor; the lobby density is the comparison. */
+  #animasters-lobby-studies [data-layout='focused'] .lobby-main { max-width: 560px; }
+  #animasters-lobby-studies [data-layout='focused'] .lobby-body { grid-template-columns: 1fr; }
+  #animasters-lobby-studies [data-layout='focused'] .lobby-ready-area { flex-direction: column; align-items: stretch; }
+  #animasters-lobby-studies [data-layout='focused'] .lobby-summary { padding: 18px 24px; }
+  #animasters-lobby-studies [data-layout='focused'] .lobby-summary .lobby-song-count { font-size: 20px; }
+  #animasters-lobby-studies .lobby-settings-screen { grid-column: 1 / -1; width: 100%; max-width: 600px; margin: auto; }
+  #animasters-lobby-studies .lobby-settings-screen > .lobby-button { margin-bottom: 16px; }
+  #animasters-lobby-studies .lobby-settings-screen .lobby-preferences { padding: 28px; }
+
+  @media(max-width:700px) {
+    #animasters-lobby-studies .lobby-scene { min-height: 1690px; }
+    #animasters-lobby-studies .lobby-scene::before { height: max(610px,56.25cqw); background-position: 62% 50%; }
+    #animasters-lobby-studies .lobby-header { padding: 20px 20px 0; }
+    #animasters-lobby-studies .lobby-main { width: calc(100% - 32px); margin-top: 30px; }
+    #animasters-lobby-studies .lobby-heading h1 { font-size: 30px; }
+    #animasters-lobby-studies .lobby-heading { align-items: start; }
+    #animasters-lobby-studies .lobby-connected { margin-top: 6px; }
+    #animasters-lobby-studies .lobby-invite { padding: 18px; }
+    #animasters-lobby-studies .lobby-invite-actions { justify-items: start; }
+    #animasters-lobby-studies .lobby-body { grid-template-columns: 1fr; }
+    #animasters-lobby-studies .lobby-panel { padding: 20px; }
+    #animasters-lobby-studies .lobby-ready-area { flex-direction: column; align-items: stretch; padding: 20px; }
+    #animasters-lobby-studies [data-layout='stack'] fieldset { grid-template-columns: 1fr; gap: 18px; }
+    #animasters-lobby-studies [data-layout='stack'] .lobby-amount { display: grid; grid-template-columns: 1fr 82px; align-items: center; }
+    #animasters-lobby-studies .lobby-settings-screen .lobby-preferences { padding: 20px; }
+  }
+  @media(max-width:360px) {
+    #animasters-lobby-studies .lobby-scene::before { height: max(592px,56.25cqw); }
+    #animasters-lobby-studies .lobby-header { padding: 16px 16px 0; }
+    #animasters-lobby-studies .lobby-eyebrow { max-width: 155px; }
+  }
+  @media(prefers-reduced-motion:reduce) {
+    #animasters-lobby-studies .lobby-scene::before { background-image: none; background-color: transparent; }
+  }
+</style>
+
+<script>
+  (() => {
+    const root = document.getElementById('animasters-lobby-studies');
+    const clone = name => document.getElementById(`lobby-${name}-template`).content.cloneNode(true);
+
+    function createLobby(scene) {
+      const dedicated = ['focused', 'overview'].includes(scene.dataset.layout);
+      const state = {
+        host: true,
+        ready: [false, true, true, false],
+        settings: { amount: 40, openings: true, endings: true, soundtracks: false },
+      };
+      scene.append(clone('chrome'));
+      const body = scene.querySelector('.lobby-body');
+      body.append(clone('players'), clone(dedicated ? 'summary' : 'settings'), clone('ready'));
+
+      // Dedicated settings is a local screen, not a second connection or room.
+      const editor = document.createElement('section');
+      editor.className = 'lobby-settings-screen';
+      editor.hidden = true;
+      if (dedicated) {
+        const back = document.createElement('button');
+        back.type = 'button';
+        back.className = 'lobby-button cursor-interaction';
+        back.textContent = '← Back to lobby';
+        back.addEventListener('click', cancelSettings);
+        editor.append(back, clone('settings'));
+        body.append(editor);
+      }
+
+      const form = scene.querySelector('.lobby-settings-form');
+      const save = form.querySelector('.lobby-save');
+      const readyButton = scene.querySelector('[data-action="ready"]');
+      const feedback = scene.querySelector('.lobby-feedback');
+      const cancel = form.querySelector('[data-action="cancel"]');
+      cancel.hidden = !dedicated;
+
+      function draftSettings() {
+        return {
+          amount: Number(form.elements.amount.value),
+          openings: form.elements.openings.checked,
+          endings: form.elements.endings.checked,
+          soundtracks: form.elements.soundtracks.checked,
+        };
+      }
+
+      function dirty() {
+        return JSON.stringify(draftSettings()) !== JSON.stringify(state.settings);
+      }
+
+      function restoreDraft() {
+        form.elements.amount.value = state.settings.amount;
+        for (const name of ['openings', 'endings', 'soundtracks']) {
+          form.elements[name].checked = state.settings[name];
+        }
+      }
+
+      function showSettings(show) {
+        for (const child of body.children) child.hidden = show ? child !== editor : child === editor;
+        scene.querySelector('h1').textContent = show ? 'Match preferences' : 'Your room';
+        const focusTarget = show ? editor.querySelector('button') : scene.querySelector('[data-action="settings"]');
+        focusTarget?.focus();
+      }
+
+      function cancelSettings() {
+        restoreDraft();
+        showSettings(false);
+        render();
+      }
+
+      function render() {
+        const changed = dirty();
+        form.querySelector('fieldset').disabled = !state.host || state.ready[0];
+        save.disabled = !state.host || state.ready[0] || !changed || !form.checkValidity();
+        readyButton.disabled = state.host && changed;
+        readyButton.textContent = state.ready[0] ? 'Not ready' : 'Enable audio & Ready';
+        scene.querySelector('.lobby-host-label').textContent = state.host ? 'Host controls' : 'Read only';
+        scene.querySelector('.lobby-name small').textContent = state.host ? 'You · Host' : 'You';
+        form.querySelector('.lobby-edit-note').textContent = !state.host
+          ? 'Only the host can change these settings.'
+          : state.ready[0]
+            ? 'Click Not ready in the lobby to edit preferences.'
+            : changed
+              ? 'Unsaved changes. Save before becoming ready.'
+              : 'Saving changes clears everyone’s Ready status.';
+
+        const readyCount = state.ready.filter(Boolean).length;
+        scene.querySelector('.lobby-ready-count').textContent = `${readyCount} ready`;
+        for (const label of scene.querySelectorAll('[data-player]')) {
+          const isReady = state.ready[Number(label.dataset.player)];
+          label.textContent = isReady ? 'Ready' : 'Not ready';
+          label.toggleAttribute('data-ready', isReady);
+        }
+
+        if (dedicated) {
+          scene.querySelector('.lobby-song-count').textContent = `${state.settings.amount} songs`;
+          const types = ['openings', 'endings', 'soundtracks'].filter(name => state.settings[name]);
+          scene.querySelector('.lobby-selected-types').textContent = types.length
+            ? types.map(name => name[0].toUpperCase() + name.slice(1)).join(' · ')
+            : 'All song types';
+        }
+      }
+
+      form.addEventListener('input', render);
+      form.addEventListener('submit', event => event.preventDefault());
+      save.addEventListener('click', () => {
+        if (save.disabled || !form.reportValidity()) return;
+        state.settings = draftSettings();
+        state.ready.fill(false);
+        feedback.textContent = 'Preferences saved. Everyone needs to ready up again.';
+        if (dedicated) showSettings(false);
+        render();
+      });
+      cancel.addEventListener('click', cancelSettings);
+      scene.querySelector('[data-action="settings"]')?.addEventListener('click', () => showSettings(true));
+      readyButton.addEventListener('click', () => {
+        state.ready[0] = !state.ready[0];
+        feedback.textContent = state.ready[0] ? 'Ready — waiting for the other players. Preview only; no audio is played.' : 'You are not ready.';
+        render();
+      });
+      scene.querySelector('[data-action="invite"]').addEventListener('click', () => {
+        const detail = scene.querySelector('.lobby-invite-detail');
+        detail.hidden = !detail.hidden;
+        if (!detail.hidden) detail.querySelector('input').select();
+      });
+
+      // Preview role switching explores the guest's read-only presentation.
+      if (globalThis.Tweak) {
+        const tweak = new Tweak({ container: scene, onChange: () => { restoreDraft(); render(); } });
+        tweak.addToggle(state, 'host', { label: 'View as host' });
+      }
+      render();
+    }
+
+    for (const scene of root.querySelectorAll('.lobby-scene')) createLobby(scene);
+    if (globalThis.lucide) lucide.createIcons();
+  })();
+</script>
