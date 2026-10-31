@@ -37,7 +37,7 @@ export function useReadyShortcut(enabled: boolean, onReady: () => void) {
       if (
         target instanceof Element &&
         target.closest(
-          'button, a, input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="button"], [role="slider"], [role="combobox"], [role="textbox"]',
+          'button, a, input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="button"], [role="slider"], [role="combobox"], [role="textbox"], [role="dialog"]',
         )
       ) return;
 

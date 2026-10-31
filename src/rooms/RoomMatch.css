@@ -304,8 +304,8 @@
   font-size: 13px;
 }
 
-/* Reveals only use server-provided metadata. The music mark is a neutral
-   fallback until the reveal contract supplies show artwork. */
+/* Reveals only use server-provided metadata. The music mark remains the neutral
+   fallback for older rooms and missing or failed artwork. */
 .room-match-reveal-heading {
   display: flex;
   align-items: center;

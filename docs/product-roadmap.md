@@ -53,6 +53,8 @@ The owner likes AMQ's song information alongside its video. For AniMasters, use 
 - Show anime/season identity and song title, plus opening/ending/soundtrack type and sequence number where reliable.
 - Add artist/band information when catalog coverage supports it; revealing metadata and asking players to guess it are separate features.
 - Existing catalog imports already store release-level `picture` and `thumbnail` URLs. Choose artwork for the actual release where possible, with a representative image and a missing-image fallback.
+- Current artwork import scope: only anime represented in `public.songs`, sharing one image across songs from the same anime. Full answer-catalog artwork is deferred to iteration 3.
+- October 31: 67 approved portrait posters are stored in Supabase and mapped in Neon, covering all 125 playable songs. The owner selected option C: a sharp poster with a darkened blurred backdrop and click-to-enlarge. Prefer classic/early-series artwork for Naruto, Shippuden and Pokémon. Local research tooling and metadata were removed after import; originals and fallbacks remain in an ignored local archive.
 - Do not deliver or preload current-answer artwork before reveal. These URLs do not belong in the compact autocomplete payload.
 - Preserve the round's guesses, points and next-round readiness near the reveal.
 
@@ -172,6 +174,7 @@ These are ideas to evaluate; no delivery iteration or scoring change is approved
 - Allow guessing the anime, the song title and the band/artist.
 - Define separate answer fields or categories, aliases for artists/titles, partial credit, submission limits and whether one answer locks the others.
 - Audit and enrich song-title and artist metadata before relying on it for scoring.
+- Extend stored anime artwork beyond the songs table to the full answer catalog.
 - Decide whether the existing anime-only mode remains the default and how multi-part guessing interacts with hints, lives and timing-based scores.
 
 ## Suggested next decisions

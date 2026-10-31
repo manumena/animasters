@@ -522,6 +522,7 @@ it.each(['guess', 'pass'] as const)(
     );
 
     expect(screen.queryByText('Example song')).not.toBeInTheDocument();
+    expect(screen.queryByRole('img', { name: 'Example anime poster' })).not.toBeInTheDocument();
     expect(screen.queryByRole('status', { name: 'Your round result' })).not.toBeInTheDocument();
     expect(
       screen.queryByRole('region', { name: 'Round reveal' }),
@@ -559,6 +560,7 @@ it.each(['guess', 'pass'] as const)(
         number: 2,
         anime: 'Example anime',
         name: 'Example song',
+        artworkUrl: 'https://images.example/revealed-poster.jpg',
         players: [
           {
             id: 'host',
@@ -570,6 +572,7 @@ it.each(['guess', 'pass'] as const)(
       },
     };
     act(() => receive(revealed));
+    expect(screen.getByRole('img', { name: 'Example anime poster' })).toHaveAttribute('src', revealed.result.artworkUrl);
     expect(screen.getByRole('status', { name: 'Your round result' })).toHaveTextContent(action === 'guess' ? 'You got it!' : 'Pass / no answer');
     expect(
       screen.getByRole('region', { name: 'Round reveal' }),
@@ -592,6 +595,7 @@ it.each(['guess', 'pass'] as const)(
       }),
     );
     expect(screen.queryByText('Example song')).not.toBeInTheDocument();
+    expect(screen.queryByRole('img', { name: 'Example anime poster' })).not.toBeInTheDocument();
     expect(screen.queryByRole('status', { name: 'Your round result' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Pass' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Submit guess' })).toBeDisabled();

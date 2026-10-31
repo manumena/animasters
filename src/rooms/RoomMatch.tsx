@@ -5,10 +5,7 @@ import {
   FiArrowLeft,
   FiAward,
   FiCheck,
-  FiMinus,
-  FiMusic,
   FiSettings,
-  FiX,
 } from 'react-icons/fi';
 import CafePage, { CafeHeader } from '../components/CafePage';
 import AnimeAutocomplete from '../components/AnimeAutocomplete';
@@ -25,6 +22,7 @@ import { ShortcutKeycaps, useReadyShortcut } from './KeyboardShortcuts';
 import MatchCountdown from './MatchCountdown';
 import GuessResultBanner from './GuessResultBanner';
 import NextSongCountdown from './NextSongCountdown';
+import RoundReveal from './RoundReveal';
 
 interface Props {
   room: RoomSnapshot;
@@ -215,11 +213,11 @@ export default function RoomMatch(props: Props) {
             )}
 
             {showResult && (
-              <section
-                className="room-match-panel room-match-reveal"
-                aria-label="Round reveal"
+              <RoundReveal
+                key={`${room.result!.roundId}:${room.result!.artworkUrl ?? ''}`}
+                result={room.result!}
+                playerId={playerId}
               >
-                <RoundResult room={room} playerId={playerId} />
                 {room.phase === 'countdown' && round && (
                   <div className="room-match-next">
                     <NextSongCountdown startsAt={round.startsAt} now={props.now} />
@@ -253,7 +251,7 @@ export default function RoomMatch(props: Props) {
                     </div>
                   </div>
                 )}
-              </section>
+              </RoundReveal>
             )}
           </div>
 
@@ -375,43 +373,6 @@ function GuessInput({
         </Button>
       </div>
     </div>
-  );
-}
-
-function RoundResult({ room, playerId }: Pick<Props, 'room' | 'playerId'>) {
-  const result = room.result!;
-  const mine = result.players.find((player) => player.id === playerId);
-  return (
-    <>
-      <div className="room-match-reveal-heading">
-        <p className="room-match-eyebrow">Song {result.number} · The answer</p>
-      </div>
-      <div className="room-match-song">
-        <span className="room-match-song-mark" aria-hidden="true">
-          <FiMusic />
-        </span>
-        <div>
-          <h2>{result.anime}</h2>
-          <p>{result.name}</p>
-        </div>
-      </div>
-      {mine && (
-        <div className="room-match-personal-result">
-          {mine.correct ? (
-            <FiCheck aria-hidden="true" />
-          ) : mine.guess ? (
-            <FiX aria-hidden="true" />
-          ) : (
-            <FiMinus aria-hidden="true" />
-          )}
-          <span>
-            {mine.guess
-              ? `You answered ${mine.guess}`
-              : 'You passed or did not answer.'}
-          </span>
-        </div>
-      )}
-    </>
   );
 }
 

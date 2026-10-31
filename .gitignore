@@ -23,6 +23,9 @@
 # Private local recovery archives
 /.local-backups/
 
+# Local artwork research and downloads; live artwork is served by Supabase
+/data/artwork/
+
 # Local HTTPS certificates and private keys
 /.certs/
 

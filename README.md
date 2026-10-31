@@ -107,6 +107,16 @@ In the room, wait for anime search to load, then click **Ready to start** (host)
 
 New rooms default to 10 songs, all three song types, no repeated canonical anime. Subsequent rounds start after ten seconds or everyone connected clicking Ready. The first guess caps remaining time at twenty seconds, within a ninety-second maximum. A disconnected player keeps their slot; a full refresh requires enabling audio again. This flow uses the existing public audio files: filenames currently expose titles in network inspection, pending the planned opaque-path/metadata migration.
 
+Revealed results can include an optional `artworkUrl`. The answer card shows the
+full poster with a blurred, darkened backdrop; clicking it opens an enlarged
+view. Phones stack the poster above the title. Missing or failed images use the
+existing music icon, so older rooms remain compatible. URLs are consumed only
+from revealed results, and the card and enlarged view disappear when guessing
+starts. The backend must load `catalog.artwork_assets.public_url` during match
+preparation and copy it into the result at reveal time; it must keep artwork
+out of the upcoming round payload. Existing prepared matches without artwork
+keep the fallback until a new match is generated.
+
 Implementation: `src/rooms/RoomGame.tsx` renders the match, `audio.ts` schedules decoded audio and local controls, and `client.ts` carries versioned commands and estimates the server clock using low-round-trip samples. The room owns a catalog worker pinned to the backend's published revision. The backend must be deployed before this frontend revision. Physical-device audio skew and mobile suspension behavior still need real-phone testing.
 
 ### Match preferences

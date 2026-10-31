@@ -26,6 +26,7 @@ export interface RoomSnapshot {
   submission?: { actionId: string; animeId: number | null };
   result?: {
     roundId: string; number: number; anime: string; name: string;
+    artworkUrl?: string;
     players: { id: string; guess: string | null; points: number; correct: boolean }[];
   };
   error?: string;

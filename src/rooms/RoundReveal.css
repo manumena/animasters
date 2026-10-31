@@ -1,0 +1,109 @@
+.room-match-reveal {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* The blurred copy is decorative. It appears only after the sharp poster has
+   loaded, so failed artwork keeps the existing neutral reveal presentation. */
+.round-reveal-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.round-reveal-backdrop img {
+  position: absolute;
+  inset: -40px;
+  width: calc(100% + 80px);
+  height: calc(100% + 80px);
+  object-fit: cover;
+  filter: blur(28px);
+  opacity: 0.35;
+}
+
+.round-reveal-backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, #10202a40, #10202aeb 80%);
+}
+
+.room-match-reveal[data-artwork] .room-match-song {
+  display: grid;
+  grid-template-columns: 215px minmax(0, 1fr);
+  gap: 28px;
+}
+
+.round-reveal-poster-button {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #12222a;
+  color: inherit;
+  cursor: zoom-in;
+  box-shadow: 0 12px 30px #030a103d;
+}
+
+.round-reveal-poster-button:hover {
+  outline: 1px solid var(--home-accent);
+}
+
+.round-reveal-poster-button:focus-visible {
+  outline: 2px solid var(--home-accent);
+  outline-offset: 4px;
+}
+
+.round-reveal-poster {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.room-match-song .round-reveal-hint {
+  margin-top: 20px;
+  color: var(--home-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.round-reveal-dialog .MuiDialog-paper {
+  background: #14242c;
+  color: #f2f7f4;
+  border: 1px solid #354950;
+  border-radius: 14px;
+}
+
+.round-reveal-full-poster {
+  display: block;
+  max-width: 100%;
+  max-height: 70dvh;
+  width: auto;
+  height: auto;
+  margin: auto;
+  object-fit: contain;
+}
+
+@media (max-width: 700px) {
+  .room-match-reveal[data-artwork] .room-match-song {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+    text-align: center;
+  }
+
+  .round-reveal-poster-button {
+    width: min(204px, 100%);
+    margin-inline: auto;
+  }
+
+  .round-reveal-backdrop::after {
+    background: linear-gradient(#10202a40, #10202af2 75%);
+  }
+}
