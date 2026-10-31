@@ -339,6 +339,7 @@ function GuessInput({
   return (
     <div className="room-match-guess">
       <AnimeAutocomplete
+        autoFocus
         client={catalog}
         value={selected}
         onChange={setSelected}

@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import {
   Alert,
   Autocomplete,
@@ -17,13 +17,15 @@ interface Props {
   onChange: (value: AnimeOption | null) => void;
   client?: CatalogClient;
   disabled?: boolean;
+  autoFocus?: boolean;
   appearance?: 'default' | 'cafe';
   onSubmit?: (anime: AnimeOption) => void;
 }
 
-export default function AnimeAutocomplete({ value, onChange, client = catalogClient, disabled = false, appearance = 'default', onSubmit }: Props) {
+export default function AnimeAutocomplete({ value, onChange, client = catalogClient, disabled = false, autoFocus = false, appearance = 'default', onSubmit }: Props) {
   // React subscribes to loading state; the complete catalog stays in the worker.
   const state = useSyncExternalStore(client.subscribe, client.getSnapshot);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [popupOpen, setPopupOpen] = useState(false);
   const [query, setQuery] = useState(value?.title ?? '');
   const [response, setResponse] = useState<{ query: string; options: AnimeOption[] }>({
@@ -35,6 +37,14 @@ export default function AnimeAutocomplete({ value, onChange, client = catalogCli
   const searching = ready && !value && enoughCharacters && response.query !== query;
   const options =
     ready && !value && enoughCharacters && response.query === query ? response.options : [];
+
+  // Round inputs mount during the countdown, while disabled. Wait until both
+  // guessing and the catalog are ready before moving focus to the input.
+  useEffect(() => {
+    if (autoFocus && ready && !disabled) {
+      inputRef.current?.focus({ preventScroll: true });
+    }
+  }, [autoFocus, ready, disabled]);
 
   // Start lazily when search is mounted, and keep the shared worker for later visits.
   useEffect(() => {
@@ -154,6 +164,7 @@ export default function AnimeAutocomplete({ value, onChange, client = catalogCli
         renderInput={(params) => (
           <TextField
             {...params}
+            inputRef={inputRef}
             label="Search anime"
             placeholder="Title or alternate name…"
             helperText={

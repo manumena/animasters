@@ -39,8 +39,8 @@ function setup(onSubmit?: (anime: AnimeOption) => void) {
       </>
     );
   }
-  render(<Harness />);
-  return { client, send };
+  const { unmount } = render(<Harness />);
+  return { client, send, unmount };
 }
 
 it('selects a real ID using the keyboard and clears it when free text is edited', async () => {
@@ -66,6 +66,64 @@ it('provides a retry path after download failure', async () => {
   expect(screen.getByText('Loading anime catalog…')).toBeVisible();
   act(() => send({ type: 'state', state: { phase: 'ready' } }));
   expect(screen.getByRole('combobox')).toBeEnabled();
+});
+
+it('focuses each round when enabled and ready without stealing focus on updates', async () => {
+  const user = userEvent.setup();
+  const { client, send, unmount } = setup();
+  unmount();
+  const renderRound = (roundId: string, disabled: boolean) => (
+    <>
+      <AnimeAutocomplete
+        key={roundId}
+        autoFocus
+        client={client}
+        value={null}
+        onChange={vi.fn()}
+        disabled={disabled}
+      />
+      <button>Other control</button>
+    </>
+  );
+  const { rerender } = render(renderRound('first', true));
+  const roundInput = screen.getByRole('combobox');
+
+  expect(roundInput).not.toHaveFocus();
+  rerender(renderRound('first', false));
+  expect(roundInput).not.toHaveFocus();
+  act(() => send({ type: 'state', state: { phase: 'ready' } }));
+  expect(roundInput).toHaveFocus();
+
+  await user.click(screen.getByRole('button', { name: 'Other control' }));
+  rerender(renderRound('first', false));
+  expect(roundInput).not.toHaveFocus();
+
+  rerender(renderRound('second', true));
+  const nextRoundInput = screen.getByRole('combobox');
+  expect(nextRoundInput).not.toHaveFocus();
+  rerender(renderRound('second', false));
+  expect(nextRoundInput).toHaveFocus();
+});
+
+it('accepts typing immediately when the first song mounts with a ready catalog', async () => {
+  const user = userEvent.setup();
+  const { client, send, unmount } = setup();
+  act(() => send({ type: 'state', state: { phase: 'ready' } }));
+  unmount();
+
+  render(
+    <AnimeAutocomplete
+      autoFocus
+      client={client}
+      value={null}
+      onChange={vi.fn()}
+    />,
+  );
+
+  expect(screen.getByRole('combobox')).toHaveFocus();
+  await user.keyboard('naru');
+  expect(screen.getByRole('combobox')).toHaveValue('naru');
+  expect(await screen.findByRole('option', { name: /Naruto/ })).toBeVisible();
 });
 
 it('shows the matched alternate name rather than repeating the canonical title', async () => {
