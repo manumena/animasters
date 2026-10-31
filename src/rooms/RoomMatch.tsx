@@ -344,6 +344,7 @@ function GuessInput({
         onChange={setSelected}
         disabled={disabled}
         appearance="cafe"
+        onSubmit={(anime) => onGuess(anime.id)}
       />
       <div className="room-match-guess-actions">
         <Button

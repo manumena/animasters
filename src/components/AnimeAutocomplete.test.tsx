@@ -7,7 +7,7 @@ import { CatalogClient, type CatalogWorker } from '../catalog/client';
 import type { AnimeOption, WorkerReply } from '../catalog/types';
 
 const naruto = { id: 42, title: 'Naruto', matchedAlias: 'Naruto', detail: 'TV series · 2002' };
-function setup() {
+function setup(onSubmit?: (anime: AnimeOption) => void) {
   const worker: CatalogWorker = {
     onmessage: null,
     onerror: null,
@@ -34,7 +34,7 @@ function setup() {
     const [value, setValue] = useState<AnimeOption | null>(null);
     return (
       <>
-        <AnimeAutocomplete client={client} value={value} onChange={setValue} />
+        <AnimeAutocomplete client={client} value={value} onChange={setValue} onSubmit={onSubmit} />
         <output aria-label="Selected anime ID">{value?.id ?? 'none'}</output>
       </>
     );
@@ -75,4 +75,23 @@ it('shows the matched alternate name rather than repeating the canonical title',
   await user.type(screen.getByRole('combobox'), 'alternate');
   const option = await screen.findByRole('option', { name: /Alternate name/ });
   expect(option.textContent?.match(/Naruto/g)).toHaveLength(1);
+});
+
+
+it('uses one Enter to select and a separate Enter to submit a committed answer', async () => {
+  const user = userEvent.setup();
+  const onSubmit = vi.fn();
+  const { send } = setup(onSubmit);
+  act(() => send({ type: 'state', state: { phase: 'ready' } }));
+  const input = screen.getByRole('combobox');
+  await user.type(input, 'naru');
+  await screen.findByRole('option');
+  await user.keyboard('{ArrowDown}{Enter}');
+  expect(screen.getByLabelText('Selected anime ID')).toHaveTextContent('42');
+  expect(onSubmit).not.toHaveBeenCalled();
+  await user.keyboard('{Enter}');
+  expect(onSubmit).toHaveBeenCalledExactlyOnceWith(naruto);
+  await user.type(input, 'x');
+  await user.keyboard('{Enter}');
+  expect(onSubmit).toHaveBeenCalledTimes(1);
 });

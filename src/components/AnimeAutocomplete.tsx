@@ -18,11 +18,13 @@ interface Props {
   client?: CatalogClient;
   disabled?: boolean;
   appearance?: 'default' | 'cafe';
+  onSubmit?: (anime: AnimeOption) => void;
 }
 
-export default function AnimeAutocomplete({ value, onChange, client = catalogClient, disabled = false, appearance = 'default' }: Props) {
+export default function AnimeAutocomplete({ value, onChange, client = catalogClient, disabled = false, appearance = 'default', onSubmit }: Props) {
   // React subscribes to loading state; the complete catalog stays in the worker.
   const state = useSyncExternalStore(client.subscribe, client.getSnapshot);
+  const [popupOpen, setPopupOpen] = useState(false);
   const [query, setQuery] = useState(value?.title ?? '');
   const [response, setResponse] = useState<{ query: string; options: AnimeOption[] }>({
     query: '',
@@ -79,6 +81,16 @@ export default function AnimeAutocomplete({ value, onChange, client = catalogCli
       )}
       <Autocomplete<AnimeOption>
         value={value}
+        onOpen={() => setPopupOpen(true)}
+        onClose={() => setPopupOpen(false)}
+        onKeyDown={(event) => {
+          // Enter first selects a suggestion through MUI. A subsequent press
+          // submits the committed selection, never free text or an IME candidate.
+          if (event.key !== 'Enter' || event.repeat || event.nativeEvent.isComposing || event.keyCode === 229) return;
+          if (!onSubmit || !ready || disabled || !value || popupOpen) return;
+          event.preventDefault();
+          onSubmit(value);
+        }}
         inputValue={query}
         options={options}
         disabled={!ready || disabled}
