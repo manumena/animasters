@@ -60,7 +60,7 @@ export default function Rooms() {
     <CafePage className="room-entry-page">
       <CafeHeader />
       <nav className="room-entry-back" aria-label="Back to homepage">
-        <Button component={RouterLink} to="/" startIcon={<FiArrowLeft aria-hidden="true" />}>
+        <Button className="cafe-secondary-action" component={RouterLink} to="/" startIcon={<FiArrowLeft aria-hidden="true" />}>
           Back home
         </Button>
       </nav>

@@ -35,7 +35,7 @@ function RoundPreview() {
           <span className="home-enter" aria-hidden="true">↵</span>
         </div>
         <Button
-          className="home-reveal"
+          className="home-reveal cafe-secondary-action"
           endIcon={<FiArrowRight aria-hidden="true" />}
           onClick={() => setRevealed(previous => !previous)}
         >

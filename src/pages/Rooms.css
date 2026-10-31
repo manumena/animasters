@@ -6,8 +6,6 @@
 }
 
 .room-entry-back .MuiButton-root {
-  min-height: 44px;
-  padding: 0;
   color: var(--home-text);
   font-size: 13px;
   font-weight: 400;

@@ -180,8 +180,6 @@
 .home-enter { margin-left: auto; }
 
 .home-answer .home-reveal {
-  min-height: 44px;
-  padding: 9px 0;
   color: var(--home-text);
   font-size: 12px;
   font-weight: 400;

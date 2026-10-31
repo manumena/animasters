@@ -145,7 +145,6 @@
 .room-lobby .room-back {
   justify-self: start;
   color: var(--home-text);
-  padding: 0;
 }
 
 /* The summary is server-confirmed. The editor can be much longer without

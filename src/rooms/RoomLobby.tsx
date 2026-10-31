@@ -101,7 +101,7 @@ export default function RoomLobby({
         {editing ? (
           <>
             <Button
-              className="room-back"
+              className="room-back cafe-secondary-action"
               startIcon={<FiArrowLeft />}
               onClick={() => setEditing(false)}
             >
@@ -121,7 +121,7 @@ export default function RoomLobby({
         ) : (
           <>
             <Button
-              className="room-back"
+              className="room-back cafe-secondary-action"
               startIcon={<FiArrowLeft />}
               onClick={onBack}
             >

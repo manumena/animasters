@@ -80,6 +80,34 @@
   height: 18px;
 }
 
+/* Keep secondary action backgrounds comfortably clear of labels and icons.
+   The explicit MUI class also keeps these states above the theme defaults. */
+.cafe-page .MuiButton-root.cafe-secondary-action {
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+}
+.cafe-page .MuiButton-root.cafe-secondary-action:hover {
+  background: #293e45;
+}
+.cafe-page .MuiButton-root.cafe-secondary-action:active {
+  background: #365159;
+}
+.cafe-page .MuiButton-root.cafe-secondary-action:focus-visible {
+  outline: 2px solid var(--home-accent);
+  outline-offset: 3px;
+}
+.cafe-secondary-action .MuiButton-startIcon {
+  margin-left: 0;
+  margin-right: 8px;
+}
+.cafe-secondary-action .MuiButton-endIcon {
+  margin-left: 8px;
+  margin-right: 0;
+}
+
 @media (max-width: 700px) {
   .cafe-page {
     --cafe-frame-height: 610px;
