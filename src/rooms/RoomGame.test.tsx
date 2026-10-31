@@ -388,7 +388,7 @@ function playingSession(): RoomSession {
         number: 2,
         total: 5,
         startsAt: Date.now() - 10_000,
-        deadline: Date.now() + 80_000,
+        deadline: Date.now() + 50_000,
         audioUrl: 'https://audio.example/current',
       },
     },

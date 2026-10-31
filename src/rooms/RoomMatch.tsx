@@ -313,10 +313,9 @@ function DeadlineBar({
   guessing,
 }: Pick<Props, 'room' | 'now' | 'deadline' | 'guessing'>) {
   const startsAt = room.round?.startsAt;
-  // Use the deadline sent by the server. Local pause, seek or pass never
-  // changes the clock, and a shortened deadline never restarts its animation.
-  const shortened = startsAt !== undefined && deadline < startsAt + 90_000;
-  const windowSeconds = guessing ? (shortened ? 20 : 90) : 10;
+  // Keep the full-round scale when the server shortens the deadline after a
+  // guess or pass, so the bar reflects the time removed without refilling.
+  const windowSeconds = guessing ? 60 : 10;
   const remaining =
     startsAt === undefined || !now
       ? 0

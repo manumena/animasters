@@ -140,7 +140,7 @@ export default function RoomGame({
         (room.phase === 'countdown' && now >= (round.startsAt ?? Infinity))),
   );
   const deadline =
-    round?.deadline ?? (round?.startsAt ? round.startsAt + 90_000 : Infinity);
+    round?.deadline ?? (round?.startsAt ? round.startsAt + 60_000 : Infinity);
   const canGuess =
     ready && guessing && now < deadline && !room.submission && !pendingGuess;
   const isReady = Boolean(me?.ready);
