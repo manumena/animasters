@@ -1,6 +1,6 @@
 # AniMasters product roadmap and ideas
 
-Updated: October 29, 2026
+Updated: October 30, 2026
 
 This document records the owner's inspiration and future feature ideas. It is a planning backlog, not a promise that every feature ships in the next release. The [multiplayer architecture](multiplayer-architecture.md) remains the source of truth for implemented game rules.
 
@@ -9,7 +9,7 @@ This document records the owner's inspiration and future feature ideas. It is a 
 | Stage | Direction | Commitment |
 | --- | --- | --- |
 | Iteration 1: current MVP and presentation | Private multiplayer rooms, dependable gameplay, a welcoming homepage and clearer match UI. | Multiplayer and the selected café backdrop homepage are implemented. The remaining match polish items below are proposed next work. |
-| Iteration 2: identity and personalization | Mix-and-match anime avatars. Potential accounts, watched lists, public rooms and additional quiz options. | Avatars explicitly requested for iteration 2. Public rooms are tentative. Other placements are proposals pending prioritization. |
+| Iteration 2: identity, personalization and analytics | Mix-and-match anime avatars and some form of analytics. Potential accounts, watched lists, public rooms and additional quiz options. | Avatars and analytics explicitly requested for iteration 2. Analytics scope is still to be defined. Public rooms are tentative. Other placements are proposals pending prioritization. |
 | Iteration 3: expanded gameplay | Guess anime, song title and artist; potentially a cooperative/solo roguelike experience. | Title/artist answering explicitly requested for iteration 3. A Nexus-inspired experience is exploratory. |
 
 Features without a chosen iteration remain candidates. Recording inspiration does not change the current scoring, timers, answer rules or settings.
@@ -86,6 +86,14 @@ Proposed implementation direction:
 - Show the same avatar in the lobby, round results and final standings.
 - Keep editing quick with previous/next or randomize controls; a nickname and guest play remain accessible.
 - Decide guest persistence versus account-linked avatars, which slots can coexist, and how parts remain recognizable at small mobile sizes.
+
+## Iteration 2: analytics
+
+**Explicitly requested for iteration 2.** Add some form of analytics; the audience, metrics and presentation are still to be defined.
+
+- Decide whether analytics should cover product usage, gameplay/player statistics, or both.
+- Previously deferred final scores and songs played per player are possible starting points, pending prioritization.
+- Define the data to collect, persistence and any identity requirements once the scope is chosen.
 
 ## Identity and catalog personalization candidates
 
