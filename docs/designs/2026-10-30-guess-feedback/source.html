@@ -1,0 +1,59 @@
+<style>
+#guess-feedback .scene{--mint:#9ae1d0;--ink:#f2f7f4;--muted:#b0c1c5;--panel:#1b2b32;--line:#354950;color:var(--ink);font:15px/1.5 system-ui,sans-serif;background:#111b21;position:relative;isolation:isolate;min-height:780px;padding:28px 32px 42px;box-sizing:border-box}
+#guess-feedback .scene:before{content:'';position:absolute;inset:0 0 auto;height:max(592px,56.25cqw);z-index:-1;background:linear-gradient(#050f188c,#050f188c),url('https://cdn.jsdelivr.net/gh/manumena/animasters@4856ebff01ecec6fefe23093c02f0f043c65c0f8/src/assets/lofi-cafe.gif') 50% 58%/cover;mask-image:linear-gradient(#000 calc(100% - 70px),transparent)}
+#guess-feedback .scene{container-type:inline-size}#guess-feedback *{box-sizing:border-box}#guess-feedback h1,#guess-feedback h2,#guess-feedback p{margin:0}#guess-feedback h1{font-size:28px;margin:22px 0 20px}#guess-feedback h2{font-size:23px;line-height:1.3}#guess-feedback header{display:flex;justify-content:space-between;gap:16px;align-items:center}#guess-feedback .brand{font-size:23px;font-weight:700}#guess-feedback .meta,#guess-feedback small{color:var(--muted);font-size:12px}#guess-feedback .layout{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:18px}#guess-feedback .stage{display:grid;gap:16px;align-content:start}#guess-feedback .panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px;min-width:0}#guess-feedback .eyebrow{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mint);margin-bottom:12px}#guess-feedback .result{--tone:var(--mint);display:flex;align-items:center;gap:16px;background:#203d3c;border-radius:14px;padding:22px;color:var(--tone)}#guess-feedback [data-result=Wrong]{--tone:#efaaa2;background:#402f35}#guess-feedback [data-result=Passed]{--tone:#c0ced2;background:#2a3941}#guess-feedback .result svg{width:34px;height:34px;flex-shrink:0}#guess-feedback .points{font-size:28px;font-weight:700;margin-left:auto;white-space:nowrap}#guess-feedback .result small{display:block;color:var(--tone)}#guess-feedback .song{display:flex;align-items:center;gap:18px;margin:22px 0}#guess-feedback .art{width:74px;height:98px;display:grid;place-items:center;background:#30474c;border-radius:10px;color:var(--mint);flex-shrink:0}#guess-feedback .art svg{width:30px;height:30px}#guess-feedback .song div{min-width:0;overflow-wrap:anywhere}#guess-feedback .song p{color:var(--muted);margin-top:8px}#guess-feedback .answer{display:grid;gap:4px;padding:15px 0;border-top:1px solid var(--line)}#guess-feedback .answer strong{font-size:17px}#guess-feedback .next{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:22px}#guess-feedback button{font:600 13px system-ui;min-height:44px;border-radius:9px;padding:10px 16px;background:#a7ecdb;color:#123e34;border:1px solid transparent}#guess-feedback .secondary{background:#1b3039;color:var(--ink);border-color:#6b858b}#guess-feedback .roster{padding:0;list-style:none;margin:18px 0 0}#guess-feedback .roster li{display:flex;justify-content:space-between;gap:10px;padding:14px 0;border-bottom:1px solid var(--line)}#guess-feedback .roster small{display:block}#guess-feedback .mine{color:var(--mint)}#guess-feedback .comparison{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:20px 0}#guess-feedback .comparison .answer{border:0;padding:0}#guess-feedback .transformed{border-color:#668b83}#guess-feedback .compact-result{background:transparent;padding:0 0 20px;border-radius:0;border-bottom:1px solid var(--line)}#guess-feedback .burst{display:grid;justify-items:center;text-align:center;padding:26px 20px;gap:8px}#guess-feedback .burst .points{margin:0;font-size:48px}#guess-feedback .burst svg{width:48px;height:48px}#guess-feedback .animate .burst{animation:pop-in 600ms cubic-bezier(.16,1,.3,1) both}#guess-feedback .animate .burst .points{animation:points-in 800ms ease-out both}#guess-feedback .demo-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:24px}#guess-feedback select{background:#1b3039;color:var(--ink);border:1px solid #6b858b;border-radius:8px;padding:10px;font:16px system-ui;min-height:44px}#guess-feedback label{font-size:12px;color:var(--muted)}
+@keyframes pop-in{from{transform:translateY(18px) scale(.92)}to{transform:none}}@keyframes points-in{from{transform:translateY(12px);opacity:.3}to{transform:none;opacity:1}}
+@media(max-width:700px){#guess-feedback .scene{padding:20px 16px;min-height:1150px}#guess-feedback .scene:before{height:max(610px,56.25cqw);background-position:62% 50%}#guess-feedback .layout{grid-template-columns:1fr}#guess-feedback .panel{padding:20px}#guess-feedback .result{flex-wrap:wrap;padding:18px}#guess-feedback .points{font-size:25px}#guess-feedback .comparison{grid-template-columns:1fr}#guess-feedback header{flex-wrap:wrap}}@media(prefers-reduced-motion:reduce){#guess-feedback .scene:before{background-image:none}#guess-feedback .animate .burst,#guess-feedback .animate .burst .points{animation:none}}
+</style>
+<div id="guess-feedback">
+<div class="viz-carousel" aria-label="Guess result feedback">
+<section data-variant="Result banner"><div class="scene" data-design="banner" aria-label="Result banner preview"></div></section>
+<section data-variant="Answer card transformation" hidden><div class="scene" data-design="transform" aria-label="Answer card transformation preview"></div></section>
+<section data-variant="Brief celebration" hidden><div class="scene" data-design="celebrate" aria-label="Brief celebration preview"></div></section>
+</div>
+</div>
+<script>
+(() => {
+  const root = document.getElementById('guess-feedback');
+  const states = {};
+  const saved = window.openai?.widgetState?.modelContent?.results || {};
+  const outcomes = {
+    Correct: { title: 'You got it!', points: '+4', icon: 'circle-check', guess: 'Naruto Shippuden', detail: 'First correct answer', total: 16 },
+    Wrong: { title: 'Not this time', points: '−1', icon: 'circle-x', guess: 'Bleach', detail: 'Wrong answer', total: 11 },
+    Passed: { title: 'You passed', points: '0', icon: 'circle-minus', guess: 'No answer submitted', detail: 'No points lost', total: 12 }
+  };
+  function save() {
+    window.openai?.setWidgetState({modelContent:{results:Object.fromEntries(Object.entries(states).map(([key,value])=>[key,value.result]))}})?.catch(()=>{});
+  }
+  root.querySelectorAll('.scene').forEach(scene => {
+    const design = scene.dataset.design;
+    const state = states[design] = {result: outcomes[saved[design]] ? saved[design] : 'Correct', ready:false};
+    function render(animate = false) {
+      const outcome = outcomes[state.result];
+      const status = `<div class="result ${design==='transform'?'compact-result':''} ${design==='celebrate'?'burst':''}" data-result="${state.result}" role="status"><i data-lucide="${outcome.icon}" aria-hidden="true"></i><div><h2>${outcome.title}</h2><small>${outcome.detail}</small></div><strong class="points">${outcome.points}<small>points</small></strong></div>`;
+      const song = `<div class="song"><span class="art"><i data-lucide="music-2" aria-hidden="true"></i></span><div><h2>Naruto Shippuden</h2><p>Blue Bird</p></div></div>`;
+      const next = `<div class="next"><div><strong>Next song in 8s</strong><br><small>${state.ready?'3':'2'} of 4 players ready</small></div><button class="ready cursor-interaction" ${state.ready?'disabled':''}>${state.ready?'Ready for next song':'Ready for next song now'}</button></div>`;
+      let content;
+      if(design==='banner') content = `${status}<section class="panel"><p class="eyebrow">Song 3 · The answer</p>${song}<div class="answer"><small>Your answer</small><strong>${outcome.guess}</strong></div>${next}</section>`;
+      if(design==='transform') content = `<section class="panel transformed"><p class="eyebrow">Your answer · Result</p>${status}<div class="comparison"><div class="answer"><small>You answered</small><strong>${outcome.guess}</strong></div><div class="answer"><small>Correct answer</small><strong>Naruto Shippuden</strong></div></div>${song}${next}</section>`;
+      if(design==='celebrate') content = `<section class="panel">${status}<p class="eyebrow" style="margin-top:22px">Song 3 · The answer</p>${song}<div class="answer"><small>Your answer</small><strong>${outcome.guess}</strong></div>${next}</section>`;
+      scene.innerHTML = `<header><span class="brand">animasters <small>Beta</small></span><span class="meta">Room A7B2 · Connected</span></header><h1>Song 3 <small>/ 10</small></h1><div class="layout"><div class="stage ${animate?'animate':''}">${content}</div><aside class="panel"><h2>Players</h2><ul class="roster"><li class="mine"><div>Manu (you)<small>${state.result}</small></div><div>${outcome.total}<small>${outcome.points} points</small></div></li><li><div>Yui<small>Correct</small></div><div>10<small>+3 points</small></div></li><li><div>Alex<small>Passed</small></div><div>7<small>0 points</small></div></li><li><div>Dani<small>Wrong answer</small></div><div>5<small>−1 point</small></div></li></ul></aside></div><div class="demo-tools"><label>Preview result <select aria-label="Preview result"><option>Correct</option><option>Wrong</option><option>Passed</option></select></label><button class="secondary replay cursor-interaction">Replay reveal</button></div>`;
+      scene.querySelector('select').value=state.result;
+      scene.querySelector('select').onchange=event=>{state.result=event.target.value;state.ready=false;render(true);save();};
+      scene.querySelector('.replay').onclick=()=>{render(false);requestAnimationFrame(()=>render(true));};
+      scene.querySelector('.ready').onclick=()=>{state.ready=true;render();};
+      if(globalThis.lucide) lucide.createIcons();
+    }
+    render();
+    if(globalThis.Tweak) {
+      const tweak=new Tweak({container:scene,onChange:()=>{render();save();}});
+      tweak.addSelect(state,'result',{label:'Result',options:['Correct','Wrong','Passed']});
+    }
+    scene.restore=value=>{state.result=outcomes[value]?value:'Correct';render();};
+  });
+  window.addEventListener('openai:set_globals',event=>{
+    const results=event.detail?.globals?.widgetState?.modelContent?.results;
+    if(results)root.querySelectorAll('.scene').forEach(scene=>scene.restore(results[scene.dataset.design]));
+  });
+})();
+</script>

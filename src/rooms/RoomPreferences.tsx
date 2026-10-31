@@ -140,7 +140,9 @@ export default function RoomPreferences({
           <Typography variant="body2">No repeated anime.</Typography>
           {isReady && (
             <Typography variant="body2">
-              Return to the lobby and click Not ready to edit preferences.
+              {isRematch
+                ? 'Click Not ready above to edit preferences.'
+                : 'Return to the lobby and click Not ready to edit preferences.'}
             </Typography>
           )}
           {state.error && (

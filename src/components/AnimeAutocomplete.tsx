@@ -17,9 +17,10 @@ interface Props {
   onChange: (value: AnimeOption | null) => void;
   client?: CatalogClient;
   disabled?: boolean;
+  appearance?: 'default' | 'cafe';
 }
 
-export default function AnimeAutocomplete({ value, onChange, client = catalogClient, disabled = false }: Props) {
+export default function AnimeAutocomplete({ value, onChange, client = catalogClient, disabled = false, appearance = 'default' }: Props) {
   // React subscribes to loading state; the complete catalog stays in the worker.
   const state = useSyncExternalStore(client.subscribe, client.getSnapshot);
   const [query, setQuery] = useState(value?.title ?? '');
@@ -113,14 +114,14 @@ export default function AnimeAutocomplete({ value, onChange, client = catalogCli
               <Box sx={{ minWidth: 0, py: 0.4 }}>
                 <Typography sx={{ overflowWrap: 'anywhere' }}>{option.title}</Typography>
                 {option.detail && (
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="body2" color={appearance === 'cafe' ? '#b0c1c5' : 'text.secondary'}>
                     {option.detail}
                   </Typography>
                 )}
                 {normalizeTerm(option.matchedAlias) !== normalizeTerm(option.title) && (
                   <Typography
                     variant="body2"
-                    color="text.secondary"
+                    color={appearance === 'cafe' ? '#b0c1c5' : 'text.secondary'}
                     sx={{ overflowWrap: 'anywhere' }}
                   >
                     {option.matchedAlias}
@@ -131,7 +132,9 @@ export default function AnimeAutocomplete({ value, onChange, client = catalogCli
           );
         }}
         slotProps={{
-          paper: { sx: { bgcolor: '#f8f9fa', color: '#212529' } },
+          paper: { sx: appearance === 'cafe'
+            ? { bgcolor: '#243a43', color: '#f2f7f4', border: '1px solid #6b858b' }
+            : { bgcolor: '#f8f9fa', color: '#212529' } },
           listbox: { sx: { maxHeight: 'min(360px, 45vh)' } },
           clearIndicator: { sx: { color: 'inherit' } },
           popupIndicator: { sx: { color: 'inherit' } },

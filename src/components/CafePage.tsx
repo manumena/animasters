@@ -4,7 +4,7 @@ import { FiHeadphones } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import './CafePage.css';
 
-// Entry screens share the homepage palette without changing the match theme.
+// All café screens share the homepage palette and its independent artwork frame.
 const cafeTheme = createTheme({
   palette: {
     mode: 'dark',
@@ -16,7 +16,7 @@ const cafeTheme = createTheme({
   },
 });
 
-export function CafeHeader() {
+export function CafeHeader({ children }: { children?: ReactNode } = {}) {
   return (
     <header className="cafe-header">
       <Link to="/" className="cafe-brand" aria-label="AniMasters home">
@@ -24,6 +24,7 @@ export function CafeHeader() {
         <span>ani<span className="cafe-brand-light">masters</span></span>
         <small>Beta</small>
       </Link>
+      {children && <div className="cafe-header-extra">{children}</div>}
     </header>
   );
 }

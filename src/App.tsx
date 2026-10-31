@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom"
 import "./styles.css"
 import ScreenManager from './pages/ScreenManager';
 import Pochita from './pages/Pochita';
+import CafePage, { CafeHeader } from './components/CafePage';
 import { lazy, Suspense } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
@@ -74,7 +75,7 @@ function App() {
       <div className='main-container'>
         <Routes>
           <Route path="/" element={<ScreenManager />} />
-          <Route path="/rooms/:code?" element={<Suspense fallback={<p role="status">Loading room…</p>}><Rooms /></Suspense>} />
+          <Route path="/rooms/:code?" element={<Suspense fallback={<CafePage className="room-loading-page"><CafeHeader /><span className="room-loading-status" role="status">Loading room…</span></CafePage>}><Rooms /></Suspense>} />
           <Route path="/pochita" element={<Pochita />} />
           <Route path="/catalog" element={<Suspense fallback={<p role="status">Loading anime search…</p>}><Catalog /></Suspense>} />
         </Routes>

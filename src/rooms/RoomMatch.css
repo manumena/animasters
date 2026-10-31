@@ -1,0 +1,640 @@
+/* CafePage owns the backdrop: neither the scoreboard nor the match phase
+   changes its height, crop or position. These styles only arrange the content. */
+.room-match-page .cafe-header-extra {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  color: var(--home-muted);
+  font-size: 12px;
+}
+.room-match-code strong {
+  color: var(--home-text);
+  letter-spacing: 2px;
+  margin-left: 6px;
+}
+.room-match-connection {
+  overflow-wrap: anywhere;
+}
+.room-match-connection[data-connected='true'] {
+  color: var(--home-accent);
+}
+.room-match-connection[data-connected='true']::before {
+  content: '● ';
+}
+.room-match {
+  width: min(980px, calc(100% - 64px));
+  margin: 38px auto 0;
+}
+.room-match h1,
+.room-match h2,
+.room-match p {
+  margin: 0;
+}
+.room-match svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+.room-match-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 16px;
+}
+.room-match-eyebrow {
+  color: var(--home-accent);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 1.6px;
+  font-weight: 650;
+}
+.room-match-heading h1 {
+  margin-top: 8px;
+  font-size: 34px;
+  line-height: 1.15;
+  letter-spacing: -1px;
+}
+.room-match-heading h1 span {
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--home-muted);
+}
+.room-match-muted {
+  color: var(--home-muted);
+  font-size: 12px;
+}
+.room-match-progress {
+  display: block;
+  width: 100%;
+  height: 4px;
+  border: 0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 20px 0 24px;
+  background: #40545a;
+  color: var(--home-accent);
+  appearance: none;
+}
+.room-match-progress::-webkit-progress-bar {
+  background: #40545a;
+}
+.room-match-progress::-webkit-progress-value {
+  background: var(--home-accent);
+}
+.room-match-progress::-moz-progress-bar {
+  background: var(--home-accent);
+}
+.room-match > .MuiAlert-root {
+  margin: 18px 0;
+}
+
+/* Only the stage changes between play, reveal and final standings. On desktop
+   the ordered scoreboard stays beside it; on phones it follows the stage. */
+.room-match-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 270px;
+  gap: 18px;
+  margin-top: 24px;
+  align-items: start;
+}
+.room-match-stage {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+.room-match-audio-notice {
+  display: grid;
+  gap: 12px;
+}
+.room-match-panel {
+  padding: 24px;
+  border: 1px solid var(--home-line);
+  border-radius: 18px;
+  background: var(--home-panel);
+  min-width: 0;
+}
+.room-match-panel h2 {
+  font-size: 19px;
+  line-height: 1.3;
+  font-weight: 650;
+  letter-spacing: -0.4px;
+  overflow-wrap: anywhere;
+}
+.room-match .MuiButton-root {
+  min-height: 44px;
+  border-radius: 9px;
+  font-size: 13px;
+}
+.room-match .MuiButton-contained {
+  background: #a7ecdb;
+  color: #123e34;
+  font-weight: 700;
+}
+.room-match .MuiButton-contained:hover {
+  background: #bdf5e7;
+}
+.room-match .MuiButton-contained.Mui-disabled {
+  background: #32474c;
+  color: #b0c1c5;
+}
+.room-match .MuiButton-outlined {
+  background: #1b3039;
+  border-color: #6b858b;
+  color: var(--home-text);
+}
+.room-match .MuiButton-outlined:hover {
+  background: #29424b;
+  border-color: var(--home-accent);
+}
+.room-match .MuiButton-outlined.Mui-disabled {
+  color: #81979b;
+  border-color: var(--home-line);
+}
+.room-match .MuiSlider-root {
+  color: #a7ecdb;
+}
+
+/* Playback controls retain the existing independent play/pause/replay actions. */
+.room-playback {
+  background: #16272f;
+}
+.room-playback-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+.room-playback-heading h2 {
+  margin-top: 7px;
+}
+.room-playback-heading > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--home-muted);
+  font-size: 11px;
+}
+.room-match-spectrum {
+  height: 104px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 12px 0;
+}
+.room-match-spectrum span {
+  flex: 1;
+  max-width: 9px;
+  border-radius: 5px;
+  background: #a7ecdb;
+  opacity: 0.9;
+}
+.room-playback-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+}
+.room-playback-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+}
+.room-playback-seek {
+  min-width: 100px;
+  flex: 1;
+  display: grid;
+}
+.room-playback-seek .MuiSlider-root {
+  padding-block: 10px;
+}
+.room-playback-seek > span {
+  color: var(--home-muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.room-playback-volume {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100px;
+  color: var(--home-muted);
+}
+.room-playback .MuiAlert-root {
+  margin-bottom: 12px;
+}
+
+/* Room timers use the server clock; local playback position has its own slider. */
+.room-match-answer-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.room-match-clock {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.room-match-clock strong {
+  color: var(--home-accent);
+  font-size: 37px;
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
+}
+.room-match-clock strong span {
+  font-size: 17px;
+  margin-left: 3px;
+}
+.room-match-clock small {
+  color: var(--home-muted);
+  max-width: 60px;
+  font-size: 11px;
+  line-height: 1.4;
+}
+.room-match-deadline {
+  position: relative;
+  height: 7px;
+  border-radius: 5px;
+  overflow: hidden;
+  background: var(--home-line);
+  margin: 17px 0 9px;
+}
+.room-match-deadline > span {
+  display: block;
+  height: 100%;
+  background: var(--home-accent);
+}
+.room-match-deadline::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0,
+    transparent calc(25% - 2px),
+    #1b2b32 calc(25% - 2px),
+    #1b2b32 25%
+  );
+}
+.room-match-guess {
+  margin-top: 24px;
+}
+.room-match-guess .MuiOutlinedInput-root {
+  border-radius: 9px;
+}
+.room-match-guess-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+.room-match-guess-actions .MuiButton-contained {
+  flex: 1;
+}
+.room-match .room-match-submission {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--home-accent);
+  margin-top: 16px;
+  font-size: 13px;
+}
+
+/* Reveals only use server-provided metadata. The music mark is a neutral
+   fallback until the reveal contract supplies show artwork. */
+.room-match-reveal-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.room-match-song {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin: 24px 0;
+}
+.room-match-song > div {
+  min-width: 0;
+}
+.room-match-song h2 {
+  font-size: 27px;
+  margin-bottom: 12px;
+}
+.room-match-song p {
+  overflow-wrap: anywhere;
+}
+.room-match-song-mark {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 90px;
+  height: 120px;
+  border-radius: 10px;
+  background: #30474c;
+  color: var(--home-accent);
+}
+.room-match-song-mark svg {
+  width: 32px;
+  height: 32px;
+}
+.room-match-personal-result {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-block: 14px;
+  border-block: 1px solid var(--home-line);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.room-match-next {
+  display: grid;
+  gap: 16px;
+  margin-top: 22px;
+}
+.room-match-next > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.room-match-next strong {
+  font-size: 14px;
+}
+
+/* Scores stay ordered by the authoritative totals. Readiness and connection
+   remain visible even while the last round's answers are being shown. */
+.room-match-scores-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.room-match-scores ol {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.room-match-scores li {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--home-line);
+}
+.room-match-rank {
+  color: var(--home-muted);
+  font-size: 12px;
+}
+.room-match-player-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.room-match-player-name strong {
+  font-size: 13px;
+  font-weight: 550;
+}
+.room-match-player-name small {
+  display: block;
+  font-size: 11px;
+  color: var(--home-muted);
+  margin-top: 4px;
+}
+.room-match-scores li[data-me='true'] strong {
+  color: var(--home-accent);
+}
+.room-match-points {
+  text-align: right;
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+}
+.room-match-points > span {
+  display: block;
+}
+.room-match-points small {
+  font-size: 11px;
+  color: var(--home-muted);
+}
+.room-match-points .room-match-point-change {
+  color: var(--home-accent);
+  font-size: 12px;
+  margin-top: 4px;
+}
+.room-match-points .room-match-point-change[data-negative='true'] {
+  color: #efb2ad;
+}
+.room-match .room-match-score-note {
+  margin-top: 16px;
+}
+
+.room-match-finale {
+  text-align: center;
+}
+.room-match-finale .room-match-award {
+  display: block;
+  width: 40px;
+  height: 40px;
+  margin: 24px auto 14px;
+  color: var(--home-accent);
+}
+.room-match-finale h2 {
+  font-size: 29px;
+}
+.room-match .room-match-final-score {
+  display: grid;
+  gap: 8px;
+  padding: 20px 0;
+  margin: 23px 0;
+  border-block: 1px solid var(--home-line);
+  color: var(--home-muted);
+  font-size: 13px;
+}
+.room-match-final-score strong {
+  color: var(--home-accent);
+  font-size: 23px;
+}
+.room-match-rematch-actions {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.room-match-preferences {
+  text-align: left;
+  margin-top: 24px;
+  border-top: 1px solid var(--home-line);
+  padding-top: 24px;
+}
+.room-match-guest-settings {
+  display: grid;
+  gap: 10px;
+  margin-top: 20px;
+  font-size: 13px;
+}
+.room-match-navigation {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0 0 20px;
+}
+.room-match-navigation .MuiButton-root {
+  color: var(--home-text);
+}
+
+@media (max-width: 800px) {
+  .room-match {
+    max-width: 620px;
+  }
+  .room-match-layout {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 700px) {
+  .room-match {
+    width: calc(100% - 32px);
+    margin-top: 30px;
+  }
+  .room-match-page .cafe-header-extra {
+    flex-direction: column;
+    align-items: end;
+    gap: 4px;
+    max-width: 45%;
+  }
+  .room-match-heading h1 {
+    font-size: 30px;
+  }
+  .room-match-heading > .room-match-muted {
+    display: none;
+  }
+  .room-match-panel {
+    padding: 20px;
+  }
+  .room-playback-heading > span {
+    max-width: 78px;
+  }
+  .room-match-answer-heading {
+    align-items: start;
+  }
+  .room-match-answer-heading h2 {
+    font-size: 21px;
+    max-width: 150px;
+  }
+  .room-match-clock {
+    flex-direction: column;
+    align-items: end;
+    gap: 3px;
+  }
+  .room-match-clock small {
+    max-width: none;
+    white-space: nowrap;
+  }
+  .room-match-song {
+    gap: 16px;
+  }
+  .room-match-song-mark {
+    width: 70px;
+    height: 96px;
+  }
+  .room-match-song h2 {
+    font-size: 23px;
+  }
+}
+@media (max-width: 360px) {
+  .room-match-page .cafe-header-extra {
+    width: 100%;
+    max-width: none;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  .room-match-spectrum {
+    gap: 3px;
+  }
+  .room-playback-buttons .MuiButton-root {
+    padding-inline: 10px;
+  }
+}
+
+/* Repeat is a persistent device preference, visibly distinct from one-shot actions. */
+.room-playback-buttons .MuiButton-root[aria-pressed='true'] {
+  background: #304e50;
+  border-color: var(--home-accent);
+  color: var(--home-accent);
+}
+
+.room-match-finale-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  text-align: left;
+}
+
+/* The first-song countdown occupies the stage while audio preloads. */
+.match-countdown {
+  text-align: center;
+  padding-block: 40px;
+}
+.match-countdown > svg {
+  width: 32px;
+  height: 32px;
+  color: var(--home-accent);
+  margin-bottom: 16px;
+}
+.match-countdown h2 { margin-top: 12px; }
+.match-countdown-number {
+  display: block;
+  color: var(--home-accent);
+  font-size: 96px;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  margin: 24px 0;
+}
+
+/* Personal results remain visible throughout the shared reveal. Text and icons
+   carry the outcome as well as color, including zero-point unanswered rounds. */
+.guess-result-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 22px;
+  border-radius: 14px;
+  background: #203d3c;
+  color: #9ae1d0;
+}
+.guess-result-banner[data-outcome='wrong'] {
+  background: #402f35;
+  color: #efaaa2;
+}
+.guess-result-banner[data-outcome='unanswered'] {
+  background: #2a3941;
+  color: #c0ced2;
+}
+.guess-result-banner > svg {
+  width: 34px;
+  height: 34px;
+}
+.guess-result-message { min-width: 0; }
+.guess-result-message h2 { font-size: 23px; line-height: 1.3; }
+.guess-result-message p { font-size: 13px; margin-top: 4px; }
+.guess-result-points {
+  margin-left: auto;
+  display: grid;
+  text-align: right;
+  flex-shrink: 0;
+}
+.guess-result-points strong { font-size: 32px; line-height: 1.2; }
+.guess-result-points span { font-size: 12px; }
+@media (max-width: 400px) {
+  .guess-result-banner { padding: 18px; gap: 12px; flex-wrap: wrap; }
+  .guess-result-message { flex: 1; }
+  .guess-result-message h2 { font-size: 21px; }
+}

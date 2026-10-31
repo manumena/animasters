@@ -8,6 +8,7 @@ interface FakeSource {
   connect: ReturnType<typeof vi.fn>;
   disconnect: ReturnType<typeof vi.fn>;
   buffer: unknown;
+  loop?: boolean;
   onended?: () => void;
 }
 
@@ -143,5 +144,20 @@ it('updates the old song cutoff even while the next download is pending', async 
   await preparation;
   expect(sources).toHaveLength(1);
   expect(audio.getSnapshot().error).toContain('could not be loaded');
+  audio.dispose();
+});
+
+
+it('loops by default and preserves the toggle across round changes', async () => {
+  const audio = new RoomAudio();
+  await audio.enable();
+  await audio.prepare(round, () => 21_000);
+  expect(sources[0].loop).toBe(true);
+  audio.repeat(false);
+  expect(sources[0].loop).toBe(false);
+  await audio.prepare({ ...round, id: 'two', startsAt: 30_000 }, () => 25_000);
+  expect(sources.at(-1)?.loop).toBe(false);
+  audio.repeat(true);
+  expect(sources.at(-1)?.loop).toBe(true);
   audio.dispose();
 });

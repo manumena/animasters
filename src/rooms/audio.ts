@@ -28,6 +28,7 @@ export class RoomAudio {
   private startedAt = 0;
   private offset = 0;
   private playing = false;
+  private repeating = true;
   private request?: AbortController;
   private generation = 0;
   private serverNow: () => number = Date.now;
@@ -120,6 +121,7 @@ export class RoomAudio {
     }
     const source = context.createBufferSource();
     source.buffer = this.buffer;
+    source.loop = this.repeating;
     source.connect(this.gain!);
     source.start(when, offset);
     this.sources.set(source, { roundId: this.round!.id, startsAt: when, stopsAt: Infinity });
@@ -150,7 +152,10 @@ export class RoomAudio {
   // Local playback controls never change the room's round or shared deadline.
   position(): number {
     if (!this.playing || !this.context) return this.offset;
-    return Math.min(this.state.duration, this.offset + Math.max(0, this.context.currentTime - this.startedAt));
+    const elapsed = this.offset + Math.max(0, this.context.currentTime - this.startedAt);
+    return this.repeating && this.state.duration > 0
+      ? elapsed % this.state.duration
+      : Math.min(this.state.duration, elapsed);
   }
   pause(): void {
     this.offset = this.position();
@@ -168,6 +173,16 @@ export class RoomAudio {
     this.pause();
     this.offset = Math.max(0, Math.min(seconds, this.state.duration));
     if (playing) this.play();
+  }
+  isRepeating(): boolean { return this.repeating; }
+
+  // Preserve the audible position when changing loop mode. Future scheduled
+  // sources also inherit the preference without changing the room countdown.
+  repeat(enabled: boolean): void {
+    this.offset = this.position();
+    if (this.context) this.startedAt = Math.max(this.startedAt, this.context.currentTime);
+    this.repeating = enabled;
+    for (const source of this.sources.keys()) source.loop = enabled;
   }
   replay(): void {
     this.offset = 0;

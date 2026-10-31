@@ -35,6 +35,11 @@
 }
 
 .cafe-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
@@ -102,4 +107,15 @@
     background-image: none;
     background-color: transparent;
   }
+}
+
+/* Keep route loading accessible without flashing a transient line of text. */
+.room-loading-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

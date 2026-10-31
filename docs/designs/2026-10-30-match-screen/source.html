@@ -1,0 +1,1629 @@
+<div
+  id="animasters-match-directions"
+  class="viz-carousel"
+  aria-label="Match screen directions"
+>
+  <section data-variant="Focused player" aria-label="Focused player">
+    <div
+      class="match-scene"
+      data-layout="focused"
+      aria-label="Focused player preview"
+    ></div>
+  </section>
+  <section data-variant="Live scoreboard" aria-label="Live scoreboard" hidden>
+    <div
+      class="match-scene"
+      data-layout="scoreboard"
+      aria-label="Live scoreboard preview"
+    ></div>
+  </section>
+  <section data-variant="Answer first" aria-label="Answer first" hidden>
+    <div
+      class="match-scene"
+      data-layout="answer"
+      aria-label="Answer first preview"
+    ></div>
+  </section>
+</div>
+
+<template id="match-scene-template">
+  <header class="match-header">
+    <span class="match-brand"
+      ><span class="match-mark"
+        ><i data-lucide="headphones" aria-hidden="true"></i></span
+      ><strong>ani</strong>masters<small>BETA</small></span
+    >
+    <div class="match-room">
+      <span>Room <strong>A7B2</strong></span
+      ><span class="match-connection">● Connected</span>
+    </div>
+  </header>
+  <main class="match-main">
+    <div class="match-heading">
+      <div>
+        <p class="match-eyebrow">Your anime game night</p>
+        <h1>Song 4 <span>/ 10</span></h1>
+      </div>
+      <span class="match-progress-note">3 songs played</span>
+    </div>
+    <div class="match-round-progress" aria-label="Song 4 of 10">
+      <span></span><span></span><span></span><span class="current"></span
+      ><span></span><span></span><span></span><span></span><span></span
+      ><span></span>
+    </div>
+
+    <div class="match-layout">
+      <section class="match-player match-panel" aria-label="Audio player">
+        <div class="match-player-top">
+          <div>
+            <p class="match-eyebrow">Now playing</p>
+            <h2>Know this one?</h2>
+          </div>
+          <span class="match-audio-label"
+            ><i data-lucide="headphones" aria-hidden="true"></i> Your
+            playback</span
+          >
+        </div>
+        <div
+          class="match-spectrum"
+          role="img"
+          aria-label="Illustrative sound bars"
+        ></div>
+        <div class="match-transport">
+          <button
+            type="button"
+            class="match-button match-play cursor-interaction"
+            data-action="play"
+            aria-label="Pause playback"
+          >
+            <i data-lucide="pause" aria-hidden="true"></i><span>Pause</span>
+          </button>
+          <button
+            type="button"
+            class="match-button match-icon cursor-interaction"
+            data-action="replay"
+            aria-label="Replay from the beginning"
+          >
+            <i data-lucide="rotate-ccw" aria-hidden="true"></i>
+          </button>
+          <div class="match-seek">
+            <input
+              type="range"
+              min="0"
+              max="90"
+              value="24"
+              aria-label="Playback position"
+            /><span class="match-playback-time">0:24 / 1:30</span>
+          </div>
+          <label class="match-volume"
+            ><i data-lucide="volume-2" aria-hidden="true"></i
+            ><input
+              type="range"
+              min="0"
+              max="100"
+              value="75"
+              aria-label="Volume"
+          /></label>
+        </div>
+      </section>
+
+      <section class="match-answer match-panel" aria-label="Your answer">
+        <div class="match-answer-top">
+          <h2>Which anime is it?</h2>
+          <div class="match-clock">
+            <strong>18<span>s</span></strong
+            ><small>left to answer</small>
+          </div>
+        </div>
+        <div
+          class="match-deadline"
+          role="progressbar"
+          aria-label="Answer time remaining"
+          aria-valuemin="0"
+          aria-valuemax="20"
+          aria-valuenow="18"
+        >
+          <span></span>
+        </div>
+        <p class="match-timer-note">First answer is in. Make yours count.</p>
+        <div class="match-guess-content">
+          <form class="match-guess-form">
+            <label class="match-search-label"
+              >Your anime
+              <div class="match-search-field">
+                <i data-lucide="search" aria-hidden="true"></i
+                ><input
+                  type="text"
+                  class="match-search"
+                  placeholder="Title or alternate name…"
+                  autocomplete="off"
+                  spellcheck="false"
+                /></div
+            ></label>
+            <div class="match-suggestions" hidden></div>
+            <div class="match-answer-actions">
+              <button
+                type="submit"
+                class="match-button match-primary cursor-interaction"
+                disabled
+              >
+                Submit guess
+                <i data-lucide="arrow-right" aria-hidden="true"></i></button
+              ><button
+                type="button"
+                class="match-button cursor-interaction"
+                data-action="pass"
+              >
+                Pass
+              </button>
+            </div>
+            <p class="match-small">
+              Choose a title, then press Enter. One answer per song.
+            </p>
+          </form>
+          <div class="match-submitted" role="status" hidden>
+            <i data-lucide="check" aria-hidden="true"></i>
+            <div>
+              <strong>Answer locked in</strong>
+              <p class="match-selected-answer"></p>
+              <small>Waiting for the other players…</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="match-reveal match-panel"
+        aria-label="Round reveal"
+        hidden
+      >
+        <div class="match-reveal-top">
+          <span class="match-eyebrow">The answer</span
+          ><span class="match-result-badge">Correct · +3 points</span>
+        </div>
+        <div class="match-song-info">
+          <div
+            class="match-artwork"
+            role="img"
+            aria-label="Placeholder for the anime artwork"
+          >
+            <i data-lucide="image" aria-hidden="true"></i
+            ><span>Anime<br />artwork</span>
+          </div>
+          <div>
+            <p class="match-small">Anime</p>
+            <h2>Naruto Shippuden</h2>
+            <div class="match-song-title">
+              <i data-lucide="music-2" aria-hidden="true"></i
+              ><strong>Blue Bird</strong>
+            </div>
+            <p class="match-small">Opening theme</p>
+          </div>
+        </div>
+        <div class="match-your-result">
+          <i data-lucide="check" aria-hidden="true"></i
+          ><span>You answered <strong>Naruto Shippuden</strong></span
+          ><span class="match-finish-order">2nd correct</span>
+        </div>
+        <div class="match-next-round">
+          <div>
+            <strong>Next song in <span>8s</span></strong>
+            <p class="match-small match-next-count">2 of 4 players ready</p>
+          </div>
+          <button
+            type="button"
+            class="match-button match-primary cursor-interaction"
+            data-action="next"
+          >
+            Ready for next song
+            <i data-lucide="arrow-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      </section>
+
+      <section
+        class="match-finale match-panel"
+        aria-label="Match complete"
+        hidden
+      >
+        <p class="match-eyebrow">That's a wrap</p>
+        <i class="match-trophy" data-lucide="trophy" aria-hidden="true"></i>
+        <h2>Alex takes the win.</h2>
+        <p class="match-small">10 songs. Good ears. One more?</p>
+        <div class="match-final-personal">
+          <strong>2nd place</strong><span>Manu · 25 points</span>
+        </div>
+        <div class="match-rematch-actions">
+          <button
+            type="button"
+            class="match-button match-primary cursor-interaction"
+            data-action="rematch"
+          >
+            Ready for next match</button
+          ><button
+            type="button"
+            class="match-button cursor-interaction"
+            data-action="preferences"
+          >
+            <i data-lucide="settings-2" aria-hidden="true"></i> Match
+            preferences
+          </button>
+        </div>
+        <p class="match-small match-rematch-count" role="status">
+          1 of 4 connected players ready
+        </p>
+        <fieldset class="match-next-preferences" hidden>
+          <legend>Next match preferences</legend>
+          <label
+            >Songs per match<select aria-label="Songs per next match">
+              <option>5</option>
+              <option selected>10</option>
+              <option>20</option>
+              <option>50</option>
+            </select></label
+          ><label><input type="checkbox" checked /> Openings</label
+          ><label><input type="checkbox" checked /> Endings</label
+          ><label><input type="checkbox" checked /> Soundtracks</label>
+        </fieldset>
+      </section>
+
+      <section class="match-scores match-panel" aria-label="Players and scores">
+        <div class="match-scores-heading">
+          <h2>Players</h2>
+          <span class="match-small match-answer-count">1 / 4 answered</span>
+        </div>
+        <ol class="match-player-list"></ol>
+        <p class="match-score-note match-small">
+          Answers stay hidden until the reveal.
+        </p>
+      </section>
+    </div>
+  </main>
+</template>
+
+<style>
+  /* Product colors and artwork geometry match CafePage, independently of content. */
+  #animasters-match-directions .match-scene {
+    --match-bg: #111b21;
+    --match-panel: #1b2b32;
+    --match-text: #f2f7f4;
+    --match-muted: #b0c1c5;
+    --match-line: #354950;
+    --match-mint: #a7ecdb;
+    --match-ink: #123e34;
+    --match-frame: 592px;
+    position: relative;
+    isolation: isolate;
+    container-type: inline-size;
+    min-height: 1150px;
+    padding-bottom: 48px;
+    color-scheme: dark;
+    background: var(--match-bg);
+    color: var(--match-text);
+    font:
+      15px/1.5 system-ui,
+      sans-serif;
+  }
+  #animasters-match-directions .match-scene::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: 0 0 auto;
+    height: max(var(--match-frame), 56.25cqw);
+    pointer-events: none;
+    background-color: #122632;
+    background-image:
+      linear-gradient(transparent calc(100% - 70px), #111b21),
+      linear-gradient(#050f188c, #050f188c),
+      url('https://cdn.jsdelivr.net/gh/manumena/animasters@4856ebff01ecec6fefe23093c02f0f043c65c0f8/src/assets/lofi-cafe.gif');
+    background-size: cover;
+    background-position: 50% 58%;
+  }
+  #animasters-match-directions .match-scene * {
+    box-sizing: border-box;
+  }
+  #animasters-match-directions .match-scene [hidden] {
+    display: none !important;
+  }
+  #animasters-match-directions .match-scene h1,
+  #animasters-match-directions .match-scene h2,
+  #animasters-match-directions .match-scene p {
+    margin: 0;
+  }
+  #animasters-match-directions .match-scene svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+  #animasters-match-directions .match-scene input,
+  #animasters-match-directions .match-scene select,
+  #animasters-match-directions .match-scene button {
+    font: inherit;
+  }
+  #animasters-match-directions .match-header {
+    max-width: 1200px;
+    padding: 25px 36px 0;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  #animasters-match-directions .match-brand {
+    display: inline-flex;
+    align-items: center;
+    font-size: 23px;
+    letter-spacing: -1px;
+  }
+  #animasters-match-directions .match-brand small {
+    font-size: 10px;
+    letter-spacing: 1px;
+    align-self: start;
+    margin: 2px 0 0 8px;
+  }
+  #animasters-match-directions .match-mark {
+    display: grid;
+    place-items: center;
+    width: 33px;
+    height: 33px;
+    margin-right: 9px;
+    border-radius: 10px;
+    color: var(--match-ink);
+    background: var(--match-mint);
+  }
+  #animasters-match-directions .match-room {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    font-size: 12px;
+    color: var(--match-muted);
+  }
+  #animasters-match-directions .match-room strong {
+    color: var(--match-text);
+    letter-spacing: 2px;
+    margin-left: 6px;
+  }
+  #animasters-match-directions .match-connection {
+    color: var(--match-mint);
+  }
+  #animasters-match-directions .match-main {
+    max-width: 620px;
+    width: calc(100% - 64px);
+    margin: 38px auto 0;
+  }
+  #animasters-match-directions .match-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 16px;
+  }
+  #animasters-match-directions .match-eyebrow {
+    color: var(--match-mint);
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    font-size: 11px;
+    font-weight: 650;
+  }
+  #animasters-match-directions .match-heading h1 {
+    font-size: 34px;
+    line-height: 1.15;
+    letter-spacing: -1px;
+    margin-top: 8px;
+  }
+  #animasters-match-directions .match-heading h1 span {
+    font-weight: 400;
+    color: var(--match-muted);
+    font-size: 22px;
+  }
+  #animasters-match-directions .match-progress-note {
+    font-size: 12px;
+    color: var(--match-muted);
+  }
+  #animasters-match-directions .match-round-progress {
+    display: flex;
+    gap: 5px;
+    margin: 20px 0 24px;
+  }
+  #animasters-match-directions .match-round-progress span {
+    flex: 1;
+    height: 4px;
+    border-radius: 3px;
+    background: #40545a;
+  }
+  #animasters-match-directions .match-round-progress span:nth-child(-n + 3) {
+    background: var(--match-mint);
+  }
+  #animasters-match-directions .match-round-progress .current {
+    background: #d4f7ec;
+  }
+  #animasters-match-directions .match-layout {
+    display: grid;
+    gap: 18px;
+    grid-template-areas: 'player' 'answer' 'scores';
+  }
+  #animasters-match-directions .match-panel {
+    min-width: 0;
+    padding: 24px;
+    border: 1px solid var(--match-line);
+    border-radius: 18px;
+    background: var(--match-panel);
+  }
+  #animasters-match-directions .match-panel h2 {
+    font-size: 19px;
+    line-height: 1.3;
+    font-weight: 650;
+    letter-spacing: -0.4px;
+  }
+  #animasters-match-directions .match-small {
+    font-size: 12px;
+    color: var(--match-muted);
+  }
+  #animasters-match-directions .match-button {
+    border: 1px solid #627a81;
+    border-radius: 9px;
+    background: #1b3039;
+    color: var(--match-text);
+    min-height: 44px;
+    padding: 10px 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  #animasters-match-directions .match-button:hover {
+    background: #29424b;
+  }
+  #animasters-match-directions .match-primary {
+    background: var(--match-mint);
+    border-color: transparent;
+    color: var(--match-ink);
+  }
+  #animasters-match-directions .match-primary:hover {
+    background: #bdf5e7;
+  }
+  #animasters-match-directions .match-button:disabled {
+    opacity: 0.48;
+    cursor: not-allowed;
+  }
+  #animasters-match-directions .match-icon {
+    width: 44px;
+    padding: 10px;
+  }
+
+  /* Playback is personal; deadline and round progress remain separate controls. */
+  #animasters-match-directions .match-player {
+    grid-area: player;
+    background: #16272f;
+  }
+  #animasters-match-directions .match-player-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+  }
+  #animasters-match-directions .match-player-top h2 {
+    margin-top: 7px;
+  }
+  #animasters-match-directions .match-audio-label {
+    display: inline-flex;
+    gap: 7px;
+    align-items: center;
+    color: var(--match-muted);
+    font-size: 11px;
+  }
+  #animasters-match-directions .match-spectrum {
+    height: 104px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin: 12px 0;
+  }
+  #animasters-match-directions .match-spectrum span {
+    flex: 1;
+    max-width: 9px;
+    border-radius: 5px;
+    height: var(--bar-height);
+    background: var(--match-mint);
+    opacity: 0.9;
+  }
+  #animasters-match-directions .match-spectrum[data-paused='true'] span {
+    height: 5px;
+    opacity: 0.4;
+  }
+  #animasters-match-directions .match-transport {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+  }
+  #animasters-match-directions .match-seek {
+    flex: 1;
+    min-width: 90px;
+    display: grid;
+    gap: 3px;
+    margin-left: 4px;
+  }
+  #animasters-match-directions .match-playback-time {
+    color: var(--match-muted);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+  }
+  #animasters-match-directions input[type='range'] {
+    width: 100%;
+    min-width: 0;
+    accent-color: var(--match-mint);
+    height: 22px;
+    margin: 0;
+  }
+  #animasters-match-directions .match-volume {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 86px;
+    color: var(--match-muted);
+  }
+
+  /* Answer area has a fixed status slot, so submission does not move the player. */
+  #animasters-match-directions .match-answer {
+    grid-area: answer;
+  }
+  #animasters-match-directions .match-answer-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  #animasters-match-directions .match-clock {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  #animasters-match-directions .match-clock strong {
+    color: var(--match-mint);
+    font-size: 37px;
+    line-height: 1.1;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -1px;
+  }
+  #animasters-match-directions .match-clock strong span {
+    font-size: 17px;
+    margin-left: 3px;
+  }
+  #animasters-match-directions .match-clock small {
+    color: var(--match-muted);
+    font-size: 11px;
+    max-width: 45px;
+    line-height: 1.4;
+  }
+  #animasters-match-directions .match-deadline {
+    height: 7px;
+    background: #354950;
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+    margin: 17px 0 9px;
+  }
+  #animasters-match-directions .match-deadline > span {
+    display: block;
+    width: 90%;
+    height: 100%;
+    background: var(--match-mint);
+  }
+  #animasters-match-directions .match-deadline::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent calc(25% - 2px),
+      #1b2b32 calc(25% - 2px),
+      #1b2b32 25%
+    );
+  }
+  #animasters-match-directions .match-timer-note {
+    color: var(--match-muted);
+    font-size: 12px;
+  }
+  #animasters-match-directions .match-guess-content {
+    min-height: 182px;
+    margin-top: 20px;
+  }
+  #animasters-match-directions .match-search-label {
+    display: block;
+    color: var(--match-muted);
+    font-size: 12px;
+  }
+  #animasters-match-directions .match-search-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #12232b;
+    border: 1px solid #6b858b;
+    border-radius: 9px;
+    margin-top: 7px;
+    padding: 0 14px;
+  }
+  #animasters-match-directions .match-search {
+    display: block;
+    min-width: 0;
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: var(--match-text);
+    padding: 14px 0;
+    font-size: 16px !important;
+  }
+  #animasters-match-directions .match-search::placeholder {
+    color: #a5b8be;
+  }
+  #animasters-match-directions .match-search-field:focus-within {
+    border-color: var(--match-mint);
+  }
+  #animasters-match-directions .match-suggestions {
+    position: absolute;
+    z-index: 3;
+    left: 0;
+    right: 0;
+    top: 77px;
+    padding: 5px;
+    background: #243a43;
+    border: 1px solid #6b858b;
+    border-radius: 9px;
+    box-shadow: 0 12px 25px #0005;
+  }
+  #animasters-match-directions .match-suggestions button {
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    color: var(--match-text);
+    border: 0;
+    border-radius: 5px;
+    padding: 12px;
+    min-height: 44px;
+  }
+  #animasters-match-directions .match-suggestions button:hover {
+    background: #35515b;
+  }
+  #animasters-match-directions .match-suggestions small {
+    display: block;
+    color: var(--match-muted);
+    font-size: 11px;
+  }
+  #animasters-match-directions .match-guess-form {
+    position: relative;
+  }
+  #animasters-match-directions .match-answer-actions {
+    display: flex;
+    gap: 10px;
+    margin: 14px 0 10px;
+  }
+  #animasters-match-directions .match-answer-actions .match-primary {
+    flex: 1;
+  }
+  #animasters-match-directions .match-submitted {
+    min-height: 182px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+  #animasters-match-directions .match-submitted > svg {
+    width: 34px;
+    height: 34px;
+    color: var(--match-mint);
+  }
+  #animasters-match-directions .match-submitted p {
+    margin: 5px 0;
+  }
+  #animasters-match-directions .match-submitted small {
+    font-size: 12px;
+    color: var(--match-muted);
+  }
+
+  /* Reveal is the first point where title, artwork and correctness appear. */
+  #animasters-match-directions .match-reveal {
+    grid-area: reveal;
+  }
+  #animasters-match-directions .match-reveal-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  #animasters-match-directions .match-result-badge {
+    color: var(--match-mint);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  #animasters-match-directions
+    .match-scene[data-outcome='wrong']
+    .match-result-badge,
+  #animasters-match-directions
+    .match-scene[data-outcome='wrong']
+    .match-your-result
+    > svg,
+  #animasters-match-directions
+    .match-player-points
+    small[data-negative='true'] {
+    color: #efb2ad;
+  }
+  #animasters-match-directions .match-song-info {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 23px;
+    align-items: center;
+    margin: 24px 0;
+  }
+  #animasters-match-directions .match-artwork {
+    aspect-ratio: 3 / 4;
+    border-radius: 10px;
+    background: #30474c;
+    color: var(--match-muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-align: center;
+    font-size: 12px;
+  }
+  #animasters-match-directions .match-artwork svg {
+    width: 30px;
+    height: 30px;
+  }
+  #animasters-match-directions .match-song-info h2 {
+    font-size: 27px;
+    margin: 5px 0 18px;
+    line-height: 1.15;
+  }
+  #animasters-match-directions .match-song-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  #animasters-match-directions .match-song-title svg {
+    color: var(--match-mint);
+  }
+  #animasters-match-directions .match-your-result {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 14px 0;
+    border-top: 1px solid var(--match-line);
+    border-bottom: 1px solid var(--match-line);
+    font-size: 13px;
+  }
+  #animasters-match-directions .match-your-result > svg {
+    color: var(--match-mint);
+  }
+  #animasters-match-directions .match-finish-order {
+    margin-left: auto;
+    color: var(--match-mint);
+  }
+  #animasters-match-directions .match-next-round {
+    margin-top: 22px;
+    display: grid;
+    gap: 16px;
+  }
+  #animasters-match-directions .match-next-round > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  #animasters-match-directions .match-next-round strong {
+    font-size: 14px;
+  }
+  #animasters-match-directions .match-next-round strong span {
+    color: var(--match-mint);
+  }
+
+  /* Scores grow below the controls, except in the explicitly compared sidebar. */
+  #animasters-match-directions .match-scores {
+    grid-area: scores;
+    align-self: start;
+  }
+  #animasters-match-directions .match-scores-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  #animasters-match-directions .match-player-list {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 22px;
+  }
+  #animasters-match-directions .match-player-list li {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--match-line);
+    min-height: 61px;
+  }
+  #animasters-match-directions .match-rank {
+    color: var(--match-muted);
+    font-size: 12px;
+  }
+  #animasters-match-directions .match-player-name {
+    font-size: 13px;
+    font-weight: 550;
+    overflow-wrap: anywhere;
+  }
+  #animasters-match-directions .match-player-name small {
+    display: block;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--match-muted);
+    margin-top: 3px;
+  }
+  #animasters-match-directions .match-player-points {
+    font-size: 17px;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  #animasters-match-directions .match-player-points small {
+    display: block;
+    font-size: 11px;
+    color: var(--match-mint);
+  }
+  #animasters-match-directions li[data-me='true'] .match-player-name {
+    color: var(--match-mint);
+  }
+  #animasters-match-directions .match-score-note {
+    margin-top: 16px;
+  }
+  #animasters-match-directions .match-finale {
+    grid-area: finale;
+    text-align: center;
+  }
+  #animasters-match-directions .match-trophy {
+    width: 40px !important;
+    height: 40px !important;
+    color: var(--match-mint);
+    display: block;
+    margin: 24px auto 14px;
+  }
+  #animasters-match-directions .match-finale h2 {
+    font-size: 29px;
+    margin-bottom: 8px;
+  }
+  #animasters-match-directions .match-final-personal {
+    padding: 20px 0;
+    margin: 23px 0;
+    border-block: 1px solid var(--match-line);
+    display: grid;
+    gap: 4px;
+  }
+  #animasters-match-directions .match-final-personal strong {
+    color: var(--match-mint);
+    font-size: 23px;
+  }
+  #animasters-match-directions .match-final-personal span {
+    color: var(--match-muted);
+    font-size: 13px;
+  }
+  #animasters-match-directions .match-rematch-actions {
+    display: grid;
+    gap: 12px;
+  }
+  #animasters-match-directions .match-rematch-count {
+    margin-top: 14px;
+  }
+  #animasters-match-directions .match-next-preferences {
+    text-align: left;
+    border: 1px solid var(--match-line);
+    border-radius: 10px;
+    margin: 20px 0 0;
+    padding: 16px;
+  }
+  #animasters-match-directions .match-next-preferences legend {
+    font-size: 13px;
+    padding: 0 8px;
+  }
+  #animasters-match-directions .match-next-preferences label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  #animasters-match-directions .match-next-preferences select {
+    margin-left: auto;
+    background: #12232b;
+    border: 1px solid #6b858b;
+    border-radius: 7px;
+    padding: 8px;
+    color: var(--match-text);
+  }
+  #animasters-match-directions .match-next-preferences input {
+    accent-color: var(--match-mint);
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Alternatives change priority and composition, not the visual language. */
+  #animasters-match-directions [data-layout='scoreboard'] .match-main {
+    max-width: 980px;
+  }
+  #animasters-match-directions [data-layout='scoreboard'] .match-layout {
+    grid-template-columns: minmax(0, 1fr) 270px;
+    grid-template-areas: 'player scores' 'answer scores';
+    gap: 18px;
+  }
+  #animasters-match-directions [data-layout='scoreboard'] .match-player-list {
+    grid-template-columns: 1fr;
+  }
+  #animasters-match-directions
+    [data-layout='scoreboard']
+    .match-player-list
+    li {
+    min-height: 70px;
+  }
+  #animasters-match-directions
+    [data-layout='scoreboard']
+    .match-scores-heading {
+    flex-wrap: wrap;
+  }
+  #animasters-match-directions [data-layout='answer'] .match-main {
+    max-width: 740px;
+  }
+  #animasters-match-directions [data-layout='answer'] .match-layout {
+    grid-template-areas: 'answer' 'player' 'scores';
+  }
+  #animasters-match-directions [data-layout='answer'] .match-answer {
+    padding: 30px;
+  }
+  #animasters-match-directions [data-layout='answer'] .match-answer h2 {
+    font-size: 27px;
+  }
+  #animasters-match-directions [data-layout='answer'] .match-search {
+    padding-block: 18px;
+  }
+  #animasters-match-directions [data-layout='answer'] .match-player {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 20px;
+  }
+  #animasters-match-directions [data-layout='answer'] .match-player-top {
+    display: block;
+  }
+  #animasters-match-directions [data-layout='answer'] .match-player-top h2 {
+    font-size: 16px;
+  }
+  #animasters-match-directions [data-layout='answer'] .match-audio-label {
+    display: none;
+  }
+  #animasters-match-directions [data-layout='answer'] .match-spectrum {
+    height: 55px;
+    margin: 0;
+    gap: 3px;
+  }
+  #animasters-match-directions [data-layout='answer'] .match-spectrum span {
+    height: calc(var(--bar-height) * 0.52);
+  }
+  #animasters-match-directions [data-layout='answer'] .match-transport {
+    grid-column: 1 / -1;
+  }
+  #animasters-match-directions
+    .match-scene[data-phase='Final standings']
+    .match-round-progress
+    span {
+    background: var(--match-mint);
+  }
+  #animasters-match-directions
+    .match-scene[data-phase='Round reveal']
+    .match-layout {
+    grid-template-areas: 'reveal' 'scores';
+  }
+  #animasters-match-directions
+    .match-scene[data-phase='Final standings']
+    .match-layout {
+    grid-template-areas: 'finale' 'scores';
+  }
+  #animasters-match-directions
+    .match-scene[data-layout='scoreboard'][data-phase='Round reveal']
+    .match-layout {
+    grid-template-areas: 'reveal scores';
+  }
+  #animasters-match-directions
+    .match-scene[data-layout='scoreboard'][data-phase='Final standings']
+    .match-layout {
+    grid-template-areas: 'finale scores';
+  }
+
+  @media (max-width: 800px) {
+    #animasters-match-directions [data-layout='scoreboard'] .match-layout {
+      grid-template-columns: 1fr;
+      grid-template-areas: 'player' 'answer' 'scores';
+    }
+    #animasters-match-directions
+      .match-scene[data-layout='scoreboard'][data-phase='Round reveal']
+      .match-layout {
+      grid-template-areas: 'reveal' 'scores';
+    }
+    #animasters-match-directions
+      .match-scene[data-layout='scoreboard'][data-phase='Final standings']
+      .match-layout {
+      grid-template-areas: 'finale' 'scores';
+    }
+    #animasters-match-directions [data-layout='scoreboard'] .match-main {
+      max-width: 620px;
+    }
+    #animasters-match-directions [data-layout='scoreboard'] .match-player-list {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 700px) {
+    #animasters-match-directions .match-scene {
+      --match-frame: 610px;
+      min-height: calc(1490px + var(--roster-growth, 0px));
+    }
+    #animasters-match-directions .match-scene::before {
+      background-position: 62% 50%;
+    }
+    #animasters-match-directions .match-header {
+      padding: 20px 20px 0;
+      align-items: start;
+    }
+    #animasters-match-directions .match-room {
+      display: grid;
+      gap: 4px;
+      text-align: right;
+    }
+    #animasters-match-directions .match-main {
+      width: calc(100% - 32px);
+      margin-top: 30px;
+    }
+    #animasters-match-directions .match-heading h1 {
+      font-size: 30px;
+    }
+    #animasters-match-directions .match-progress-note {
+      display: none;
+    }
+    #animasters-match-directions .match-panel,
+    #animasters-match-directions [data-layout='answer'] .match-answer {
+      padding: 20px;
+    }
+    #animasters-match-directions .match-player-top {
+      align-items: start;
+    }
+    #animasters-match-directions .match-audio-label {
+      max-width: 78px;
+    }
+    #animasters-match-directions .match-volume {
+      width: 100%;
+      justify-content: end;
+    }
+    #animasters-match-directions .match-volume input {
+      max-width: 80px;
+    }
+    #animasters-match-directions .match-player-list,
+    #animasters-match-directions [data-layout='scoreboard'] .match-player-list {
+      grid-template-columns: 1fr;
+    }
+    #animasters-match-directions .match-answer-top {
+      align-items: start;
+    }
+    #animasters-match-directions .match-answer-top h2,
+    #animasters-match-directions [data-layout='answer'] .match-answer h2 {
+      font-size: 21px;
+      max-width: 150px;
+    }
+    #animasters-match-directions .match-clock {
+      align-items: end;
+      flex-direction: column;
+      gap: 3px;
+    }
+    #animasters-match-directions .match-clock small {
+      max-width: none;
+      white-space: nowrap;
+    }
+    #animasters-match-directions .match-song-info {
+      grid-template-columns: 85px minmax(0, 1fr);
+      gap: 16px;
+    }
+    #animasters-match-directions .match-song-info h2 {
+      font-size: 23px;
+    }
+    #animasters-match-directions .match-your-result {
+      align-items: start;
+    }
+    #animasters-match-directions .match-your-result > span:nth-child(2) {
+      flex: 1;
+    }
+    #animasters-match-directions .match-finish-order {
+      margin-left: 28px;
+    }
+  }
+  @media (max-width: 360px) {
+    #animasters-match-directions .match-scene {
+      --match-frame: 592px;
+    }
+    #animasters-match-directions .match-header {
+      padding: 16px 16px 0;
+      flex-wrap: wrap;
+      gap: 13px;
+    }
+    #animasters-match-directions .match-room {
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+    }
+    #animasters-match-directions .match-main {
+      margin-top: 24px;
+    }
+    #animasters-match-directions .match-spectrum {
+      gap: 3px;
+    }
+    #animasters-match-directions .match-answer-actions {
+      gap: 8px;
+    }
+    #animasters-match-directions .match-answer-actions button {
+      padding-inline: 12px;
+    }
+  }
+  @media (max-width: 700px) {
+    /* Fewer bars keep the compact player legible without shrinking to hairlines. */
+    #animasters-match-directions [data-layout='answer'] .match-spectrum span:nth-child(even) {
+      display: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #animasters-match-directions .match-scene::before {
+      background-image: none;
+      background-color: transparent;
+    }
+  }
+</style>
+
+<script>
+  (() => {
+    const root = document.getElementById('animasters-match-directions');
+    const template = document.getElementById('match-scene-template');
+    const phases = [
+      'Listening',
+      'Answer submitted',
+      'Round reveal',
+      'Final standings',
+    ];
+    const names = [
+      'Alex',
+      'Manu',
+      'Yui',
+      'Dani',
+      'Sora',
+      'Ren',
+      'Kai',
+      'Mika',
+      'Haru',
+      'Aki',
+    ];
+    const examples = [
+      { title: 'Naruto Shippuden', detail: 'TV series · 2007' },
+      { title: 'Naruto', detail: 'TV series · 2002' },
+      { title: 'One Piece', detail: 'TV series · 1999' },
+      { title: 'Bleach', detail: 'TV series · 2004' },
+      { title: 'Fullmetal Alchemist: Brotherhood', detail: 'TV series · 2009' },
+    ];
+    const previews = [];
+
+    // This is a silent, local sketch. No credentials, catalog downloads or game calls.
+    function createPreview(scene) {
+      scene.append(template.content.cloneNode(true));
+      const state = {
+        phase: 'Listening',
+        players: 4,
+        firstGuess: true,
+        host: true,
+        selected: '',
+        passed: false,
+        playing: true,
+        nextReady: false,
+        rematchReady: false,
+      };
+      const get = (selector) => scene.querySelector(selector);
+      const form = get('.match-guess-form');
+      const search = get('.match-search');
+      const suggestions = get('.match-suggestions');
+      const submit = form.querySelector('[type="submit"]');
+      let revealTimer;
+
+      // A stable correlated profile conveys audio without inventing live FFT data.
+      for (let index = 0; index < 34; index++) {
+        const bar = document.createElement('span');
+        const envelope = Math.pow(Math.sin(((index + 1) / 35) * Math.PI), 0.75);
+        const detail =
+          0.65 + 0.22 * Math.sin(index * 1.6) + 0.13 * Math.sin(index * 0.63);
+        bar.style.setProperty(
+          '--bar-height',
+          `${10 + envelope * detail * 78}px`,
+        );
+        get('.match-spectrum').append(bar);
+      }
+
+      function renderScores() {
+        const revealed = state.phase === 'Round reveal';
+        const final = state.phase === 'Final standings';
+        const answered = state.phase === 'Answer submitted';
+        get('.match-scores-heading h2').textContent = final
+          ? 'Final scores'
+          : revealed
+            ? 'This round'
+            : 'Players';
+        get('.match-answer-count').textContent = final
+          ? `${state.players} players`
+          : revealed
+            ? 'Points this round'
+            : `${(state.firstGuess ? 1 : 0) + (answered ? 1 : 0)} / ${state.players} answered`;
+        get('.match-score-note').textContent = final
+          ? 'Scores reset when the next match starts.'
+          : revealed
+            ? 'Correct answers score by order. Wrong answers −1. Passing 0.'
+            : 'Answers stay hidden until the reveal.';
+        const list = get('.match-player-list');
+        list.replaceChildren();
+        for (let index = 0; index < state.players; index++) {
+          const mine = index === 1;
+          const points = final
+            ? ([31, 25, 19, 12][index] ?? 10 - index)
+            : ([12, 9, 7, 4][index] ?? 3);
+          const delta =
+            index === 0
+              ? state.players
+              : mine
+                ? state.passed
+                  ? 0
+                  : state.selected && state.selected !== 'Naruto Shippuden'
+                    ? -1
+                    : state.players - 1
+                : index === 2
+                  ? -1
+                  : 0;
+          const status = final
+            ? mine
+              ? 'You'
+              : 'Finished'
+            : revealed
+              ? index === 0
+                ? 'Naruto Shippuden · 1st correct'
+                : mine
+                  ? delta > 0
+                    ? 'Naruto Shippuden · 2nd correct'
+                    : state.passed
+                      ? 'Passed'
+                      : `${state.selected} · Wrong`
+                  : index === 2
+                    ? 'Naruto · Wrong answer'
+                    : 'Passed'
+              : (index === 0 && state.firstGuess) || (mine && answered)
+                ? 'Answer submitted'
+                : 'Listening';
+          const row = document.createElement('li');
+          row.dataset.me = String(mine);
+          // Names and values are fixed preview data; input text never enters markup.
+          row.innerHTML = `<span class="match-rank">${index + 1}</span><span class="match-player-name">${names[index]}${mine ? ' · You' : ''}<small>${status}</small></span><span class="match-player-points">${points + (revealed ? delta : 0)}${revealed ? `<small data-negative="${delta < 0}">${delta > 0 ? '+' : ''}${delta}</small>` : ''}</span>`;
+          list.append(row);
+        }
+      }
+
+      function render() {
+        const revealed = state.phase === 'Round reveal';
+        const final = state.phase === 'Final standings';
+        const submitted = state.phase === 'Answer submitted';
+        scene.dataset.phase = state.phase;
+        scene.style.setProperty(
+          '--roster-growth',
+          `${Math.max(0, state.players - 4) * 70}px`,
+        );
+        get('.match-heading h1').innerHTML = final
+          ? 'Final standings'
+          : 'Song 4 <span>/ 10</span>';
+        get('.match-progress-note').textContent = final
+          ? '10 songs played'
+          : '3 songs played';
+        get('.match-player').hidden = revealed || final;
+        get('.match-answer').hidden = revealed || final;
+        get('.match-reveal').hidden = !revealed;
+        get('.match-finale').hidden = !final;
+        form.hidden = submitted;
+        suggestions.hidden = true;
+        get('.match-submitted').hidden = !submitted;
+        get('.match-submitted strong').textContent = state.passed
+          ? 'You passed'
+          : 'Answer locked in';
+        get('.match-selected-answer').textContent = state.passed
+          ? '0 points this round'
+          : state.selected || 'Naruto Shippuden';
+        // Passing alone does not start the room's final answer window.
+        const lateTimer = state.firstGuess || (submitted && !state.passed);
+        get('.match-clock strong').innerHTML = lateTimer
+          ? '18<span>s</span>'
+          : '64<span>s</span>';
+        get('.match-deadline').setAttribute(
+          'aria-valuemax',
+          lateTimer ? '20' : '90',
+        );
+        get('.match-deadline').setAttribute(
+          'aria-valuenow',
+          lateTimer ? '18' : '64',
+        );
+        get('.match-deadline > span').style.width = lateTimer
+          ? '90%'
+          : `${(64 / 90) * 100}%`;
+        get('.match-timer-note').textContent = lateTimer
+          ? 'First answer is in. Make yours count.'
+          : 'First guess starts the final 20 seconds.';
+        get('.match-spectrum').dataset.paused = String(
+          !state.playing || submitted,
+        );
+        get('[data-action="play"]').setAttribute(
+          'aria-label',
+          state.playing && !submitted ? 'Pause playback' : 'Play playback',
+        );
+        get('[data-action="play"] span').textContent =
+          state.playing && !submitted ? 'Pause' : 'Play';
+        const playIcon = document.createElement('i');
+        playIcon.dataset.lucide =
+          state.playing && !submitted ? 'pause' : 'play';
+        playIcon.setAttribute('aria-hidden', 'true');
+        get('[data-action="play"]').firstElementChild.replaceWith(playIcon);
+        get('[data-action="play"]').disabled = submitted;
+        get('[data-action="replay"]').disabled = submitted;
+        get('.match-seek input').disabled = submitted;
+        const correct =
+          !state.passed &&
+          (!state.selected || state.selected === 'Naruto Shippuden');
+        scene.dataset.outcome = state.passed
+          ? 'passed'
+          : correct
+            ? 'correct'
+            : 'wrong';
+        const resultIcon = document.createElement('i');
+        resultIcon.dataset.lucide = state.passed
+          ? 'minus'
+          : correct
+            ? 'check'
+            : 'x';
+        resultIcon.setAttribute('aria-hidden', 'true');
+        get('.match-your-result').firstElementChild.replaceWith(resultIcon);
+        get('.match-result-badge').textContent = state.passed
+          ? 'Passed · 0 points'
+          : correct
+            ? `Correct · +${state.players - 1} points`
+            : 'Wrong answer · −1 point';
+        get('.match-your-result > span:nth-child(2)').textContent = state.passed
+          ? 'You passed this song.'
+          : `You answered ${state.selected || 'Naruto Shippuden'}`;
+        get('.match-finish-order').textContent = correct
+          ? '2nd correct'
+          : state.passed
+            ? 'No answer'
+            : 'Better luck next song';
+        get('.match-next-count').textContent =
+          `${state.nextReady ? 3 : 2} of ${state.players} players ready`;
+        get('[data-action="next"]').textContent = state.nextReady
+          ? 'Ready — waiting for players'
+          : 'Ready for next song →';
+        get('[data-action="next"]').disabled = state.nextReady;
+        get('[data-action="rematch"]').textContent = state.rematchReady
+          ? 'Not ready'
+          : 'Ready for next match';
+        get('[data-action="preferences"]').hidden = !state.host;
+        get('.match-next-preferences').disabled = state.rematchReady;
+        if (!state.host) get('.match-next-preferences').hidden = true;
+        get('.match-rematch-count').textContent =
+          `${state.rematchReady ? 2 : 1} of ${state.players} connected players ready`;
+        submit.disabled = !state.selected;
+        renderScores();
+        if (globalThis.lucide) lucide.createIcons();
+      }
+
+      function chooseAnswer(title) {
+        state.selected = title;
+        search.value = title;
+        suggestions.hidden = true;
+        submit.disabled = false;
+        search.focus();
+      }
+
+      function updateSuggestions() {
+        state.selected = '';
+        submit.disabled = true;
+        const query = search.value.trim().toLowerCase();
+        const matches =
+          query.length < 2
+            ? []
+            : examples.filter((option) =>
+                option.title.toLowerCase().includes(query),
+              );
+        suggestions.replaceChildren();
+        for (const option of matches) {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'cursor-interaction';
+          button.innerHTML = `${option.title}<small>${option.detail}</small>`;
+          button.addEventListener('click', () => chooseAnswer(option.title));
+          suggestions.append(button);
+        }
+        suggestions.hidden = !matches.length;
+      }
+
+      function submitAnswer(passed) {
+        if (!passed && !state.selected) return;
+        state.passed = passed;
+        state.phase = 'Answer submitted';
+        state.playing = false;
+        render();
+        saveState();
+        // Simulate the remaining players answering; this is not a Reveal control.
+        clearTimeout(revealTimer);
+        revealTimer = setTimeout(() => {
+          state.phase = 'Round reveal';
+          render();
+          saveState();
+        }, 1800);
+      }
+
+      search.addEventListener('input', updateSuggestions);
+      search.addEventListener('keydown', (event) => {
+        // The preview iframe disallows form navigation. Keep Enter local, just
+        // like the button, while allowing IME composition to finish normally.
+        if (event.key === 'Enter' && !event.isComposing) {
+          event.preventDefault();
+          submitAnswer(false);
+        }
+        if (event.key === 'ArrowDown' && !suggestions.hidden) {
+          event.preventDefault();
+          suggestions.querySelector('button')?.focus();
+        }
+        if (event.key === 'Escape') suggestions.hidden = true;
+      });
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        submitAnswer(false);
+      });
+      submit.addEventListener('click', (event) => {
+        event.preventDefault();
+        submitAnswer(false);
+      });
+      get('[data-action="pass"]').addEventListener('click', () =>
+        submitAnswer(true),
+      );
+      get('[data-action="play"]').addEventListener('click', () => {
+        state.playing = !state.playing;
+        render();
+      });
+      get('[data-action="replay"]').addEventListener('click', () => {
+        get('.match-seek input').value = '0';
+        get('.match-playback-time').textContent = '0:00 / 1:30';
+        state.playing = true;
+        render();
+      });
+      get('.match-seek input').addEventListener('input', (event) => {
+        const seconds = Number(event.target.value);
+        get('.match-playback-time').textContent =
+          `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')} / 1:30`;
+      });
+      get('[data-action="next"]').addEventListener('click', () => {
+        state.nextReady = true;
+        render();
+        saveState();
+      });
+      get('[data-action="rematch"]').addEventListener('click', () => {
+        state.rematchReady = !state.rematchReady;
+        render();
+        saveState();
+      });
+      get('[data-action="preferences"]').addEventListener('click', () => {
+        get('.match-next-preferences').hidden = !get('.match-next-preferences')
+          .hidden;
+      });
+      get('.match-next-preferences').addEventListener('change', () => {
+        state.rematchReady = false;
+        render();
+      });
+
+      function changeDesignState() {
+        clearTimeout(revealTimer);
+        if (state.phase === 'Listening') {
+          state.passed = false;
+          state.selected = '';
+          search.value = '';
+          state.playing = true;
+          state.nextReady = false;
+        }
+        render();
+        saveState();
+      }
+
+      render();
+      if (globalThis.Tweak) {
+        const tweak = new Tweak({
+          container: scene,
+          onChange: changeDesignState,
+        });
+        tweak.addSelect(state, 'phase', { label: 'Screen', options: phases });
+        tweak.addSlider(state, 'players', {
+          label: 'Players',
+          min: 4,
+          max: 10,
+          step: 1,
+        });
+        tweak.addToggle(state, 'firstGuess', {
+          label: 'First answer submitted',
+        });
+        tweak.addToggle(state, 'host', { label: 'Host controls at match end' });
+      }
+      return { scene, state, render };
+    }
+
+    function saveState() {
+      const saved = Object.fromEntries(
+        previews.map((preview) => [
+          preview.scene.dataset.layout,
+          { ...preview.state },
+        ]),
+      );
+      window.openai
+        ?.setWidgetState?.({
+          modelContent: { designs: Object.keys(saved), previewStates: saved },
+          privateContent: saved,
+        })
+        ?.catch(() => {});
+    }
+
+    function restoreState(saved) {
+      if (!saved || typeof saved !== 'object') return;
+      for (const preview of previews) {
+        const value = saved[preview.scene.dataset.layout];
+        if (!value || !phases.includes(value.phase)) continue;
+        preview.state.phase = value.phase;
+        preview.state.players = Math.max(
+          4,
+          Math.min(10, Math.round(Number(value.players) || 4)),
+        );
+        for (const key of [
+          'host',
+          'firstGuess',
+          'passed',
+          'playing',
+          'nextReady',
+          'rematchReady',
+        ]) {
+          if (typeof value[key] === 'boolean') preview.state[key] = value[key];
+        }
+        preview.state.selected = examples.some(
+          (option) => option.title === value.selected,
+        )
+          ? value.selected
+          : '';
+        preview.scene.querySelector('.match-search').value =
+          preview.state.selected;
+        preview.render();
+      }
+    }
+
+    for (const scene of root.querySelectorAll('.match-scene'))
+      previews.push(createPreview(scene));
+    restoreState(window.openai?.widgetState?.privateContent);
+    window.addEventListener('openai:set_globals', (event) =>
+      restoreState(event.detail?.globals?.widgetState?.privateContent),
+    );
+  })();
+</script>

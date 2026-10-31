@@ -23,6 +23,12 @@ Open a `preview.html` file in a browser and use its variant picker. Previews do 
 | October 29, 2026 | [Lobby and match preferences](2026-10-29-lobby-preferences/README.md) · [Preview](2026-10-29-lobby-preferences/preview.html) | Side by side; One room card; Focused lobby; Lobby overview | Owner selected Focused lobby to allow settings to grow. Side by side feels unbalanced. Move players last and Ready near the code. |
 | October 30, 2026 | [Focused lobby Ready placement](2026-10-30-focused-lobby-ready/README.md) · [Preview](2026-10-30-focused-lobby-ready/preview.html) | Inside the card; Beside the code; Separate action strip | Implemented Inside the card, players last. Final refinements: preferences omit the code card and Save/Cancel, save automatically, and use “Ready to start” for the host / “Ready” for guests. |
 
+## Match explorations
+
+| Date | Sketch | Variants | Feedback |
+| --- | --- | --- | --- |
+| October 30, 2026 | [Match screen directions](2026-10-30-match-screen/README.md) · [Preview](2026-10-30-match-screen/preview.html) | Focused player; Live scoreboard; Answer first | Selected and implemented Live scoreboard: scores beside the game on desktop and below on phones. Same café background and palette; existing match behavior preserved. |
+
 ## Current direction
 
 - Preserve the centered typography, simple Create/Join actions and gameplay preview from Clean music quiz.
@@ -32,3 +38,9 @@ Open a `preview.html` file in a browser and use its variant picker. Previews do 
 - Save future sketches here and add them to this index.
 
 Focused lobby follow-up: implemented 5 / 10 / 20 / 50 song presets, padded 28px checkboxes, quiet autosave, and Back to room entry above the invitation card. New rooms default to 10 songs. Earlier sketches remain unchanged.
+
+## Guess feedback
+
+| Date | Sketch | Variants | Feedback |
+| --- | --- | --- | --- |
+| October 30, 2026 | [Guess feedback](2026-10-30-guess-feedback/README.md) · [Preview](2026-10-30-guess-feedback/preview.html) | Result banner; Answer card transformation; Brief celebration | Selected and implemented Result banner. Correct, wrong and pass/no-answer states; café palette and shared reveal timing. |
