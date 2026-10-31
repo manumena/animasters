@@ -241,7 +241,7 @@ export default function RoomGame({
       guessing={guessing}
       canGuess={canGuess}
       pendingGuess={pendingGuess}
-      ready={ready}
+      ready={ready && !readyBusy}
       rematchDisabled={
         readyBusy || (isReady ? !connected : !ready || preferencesState.blocked)
       }

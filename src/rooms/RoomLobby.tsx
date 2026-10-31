@@ -7,6 +7,7 @@ import type { RoomSnapshot } from './client';
 import RoomPreferences from './RoomPreferences';
 import { RoomPreferencesController, songTypes } from './preferences';
 import './RoomLobby.css';
+import { ShortcutKeycaps, useReadyShortcut } from './KeyboardShortcuts';
 
 interface Props {
   room: RoomSnapshot;
@@ -51,6 +52,13 @@ export default function RoomLobby({
   const onlinePlayers = room.players.filter((player) => player.connected);
   const readyCount = onlinePlayers.filter((player) => player.ready).length;
   const inviteLink = `${window.location.origin}/rooms/${room.code}`;
+  const readyDisabled =
+    readyBusy ||
+    (isReady ? !connected : !canReady || preferencesState.blocked);
+  // The shortcut only opts in. Unready remains an explicit button action, and
+  // editing preferences never readies a player behind the settings screen.
+  const canReadyWithKeyboard = !editing && !isReady && !readyDisabled;
+  useReadyShortcut(canReadyWithKeyboard, onReady);
 
   useEffect(() => {
     if (previousScreen.current !== editing) heading.current?.focus();
@@ -174,15 +182,11 @@ export default function RoomLobby({
                   ready.
                 </p>
                 <Button
-                  className="room-ready-button"
+                  className="room-ready-button room-keyboard-action"
                   variant="contained"
                   disableElevation
-                  disabled={
-                    readyBusy ||
-                    (isReady
-                      ? !connected
-                      : !canReady || preferencesState.blocked)
-                  }
+                  disabled={readyDisabled}
+                  aria-keyshortcuts={canReadyWithKeyboard ? 'Enter Space' : undefined}
                   onClick={isReady ? onUnready : onReady}
                 >
                   {isReady
@@ -192,6 +196,7 @@ export default function RoomLobby({
                       : isHost
                         ? 'Ready to start'
                         : 'Ready'}
+                  {canReadyWithKeyboard && <ShortcutKeycaps includeSpace />}
                 </Button>
                 {isReady && <p role="status">Ready — waiting for players.</p>}
                 {isHost && preferencesState.error && (

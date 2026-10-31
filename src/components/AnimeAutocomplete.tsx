@@ -97,6 +97,7 @@ export default function AnimeAutocomplete({ value, onChange, client = catalogCli
           // Enter first selects a suggestion through MUI. A subsequent press
           // submits the committed selection, never free text or an IME candidate.
           if (event.key !== 'Enter' || event.repeat || event.nativeEvent.isComposing || event.keyCode === 229) return;
+          if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
           if (!onSubmit || !ready || disabled || !value || popupOpen) return;
           event.preventDefault();
           onSubmit(value);

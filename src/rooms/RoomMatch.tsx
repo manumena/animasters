@@ -3,7 +3,6 @@ import type { ReactNode } from 'react';
 import { Alert, Button } from '@mui/material';
 import {
   FiArrowLeft,
-  FiArrowRight,
   FiAward,
   FiCheck,
   FiMinus,
@@ -22,6 +21,7 @@ import { songTypes } from './preferences';
 import RoomPlayback, { RoomAudioNotice } from './RoomPlayback';
 import RoomPreferences from './RoomPreferences';
 import './RoomMatch.css';
+import { ShortcutKeycaps, useReadyShortcut } from './KeyboardShortcuts';
 import MatchCountdown from './MatchCountdown';
 import GuessResultBanner from './GuessResultBanner';
 
@@ -73,6 +73,15 @@ export default function RoomMatch(props: Props) {
     round?.startsAt && props.now
       ? Math.max(0, Math.ceil((round.startsAt - props.now) / 1000))
       : '—';
+  const canReadyForNextSong =
+    showResult &&
+    room.phase === 'countdown' &&
+    Boolean(round) &&
+    props.ready &&
+    !isReady;
+  const onReady = props.onReady;
+
+  useReadyShortcut(canReadyForNextSong, onReady);
 
   return (
     <CafePage className="room-match-page">
@@ -235,13 +244,15 @@ export default function RoomMatch(props: Props) {
                     <Button
                       variant="contained"
                       disableElevation
-                      disabled={!props.ready || isReady}
+                      disabled={!canReadyForNextSong}
                       onClick={props.onReady}
-                      endIcon={<FiArrowRight />}
+                      className="room-keyboard-action"
+                      aria-keyshortcuts={canReadyForNextSong ? 'Enter Space' : undefined}
                     >
                       {isReady
                         ? 'Ready for next song'
                         : 'Ready for next song now'}
+                      {canReadyForNextSong && <ShortcutKeycaps includeSpace />}
                     </Button>
                   </div>
                 )}
@@ -353,9 +364,11 @@ function GuessInput({
           disableElevation
           disabled={disabled || !selected}
           onClick={() => onGuess(selected!.id)}
-          endIcon={<FiArrowRight />}
+          className="room-keyboard-action"
+          aria-keyshortcuts={!disabled && selected ? 'Enter' : undefined}
         >
           Submit guess
+          {!disabled && selected && <ShortcutKeycaps />}
         </Button>
         <Button
           variant="outlined"

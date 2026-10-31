@@ -1,4 +1,4 @@
-import { act, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, expect, it, vi } from 'vitest';
@@ -243,6 +243,57 @@ function lobbySession(playerId = 'host'): RoomSession {
   };
 }
 
+it.each([
+  ['host', 'Enter'],
+  ['host', ' '],
+  ['guest', 'Enter'],
+  ['guest', ' '],
+])('readies lobby player %s with %j without toggling back to unready', async (playerId, key) => {
+  const session = lobbySession(playerId);
+  render(
+    <MemoryRouter>
+      <RoomGame session={session} onBack={vi.fn()} />
+    </MemoryRouter>,
+  );
+  const button = screen.getByRole('button', { name: playerId === 'host' ? 'Ready to start' : 'Ready' });
+  expect(button).toHaveAttribute('aria-keyshortcuts', 'Enter Space');
+  expect(within(button).getByText('Space ␣')).toBeVisible();
+  fireEvent.keyDown(document.body, { key, repeat: true });
+  fireEvent.keyDown(document.body, { key, isComposing: true });
+  fireEvent.keyDown(document.body, { key, ctrlKey: true });
+  expect(mocks.send).not.toHaveBeenCalled();
+
+  await act(async () => { fireEvent.keyDown(document.body, { key }); });
+  expect(mocks.send).toHaveBeenCalledExactlyOnceWith(
+    expect.objectContaining({ type: 'ready', settingsRevision: 3 }),
+  );
+  const receive = vi.mocked(watchRoom).mock.calls[0][1];
+  act(() => receive({
+    ...session.room,
+    players: session.room.players.map(player => ({ ...player, ready: player.id === playerId })),
+  }));
+  expect(screen.getByRole('button', { name: 'Not ready' })).not.toHaveAttribute('aria-keyshortcuts');
+  expect(screen.queryByText('Space ␣')).not.toBeInTheDocument();
+  fireEvent.keyDown(document.body, { key });
+  expect(mocks.send).toHaveBeenCalledTimes(1);
+});
+
+it('leaves the invite field and other lobby controls their keyboard behavior', async () => {
+  const user = userEvent.setup();
+  render(
+    <MemoryRouter>
+      <RoomGame session={lobbySession()} onBack={vi.fn()} />
+    </MemoryRouter>,
+  );
+  fireEvent.keyDown(screen.getByRole('button', { name: 'Ready to start' }), { key: 'Enter' });
+  // keyDown alone does not synthesize a native button click. The global
+  // shortcut must leave activation to the focused control.
+  expect(mocks.send).not.toHaveBeenCalled();
+  await user.click(screen.getByRole('button', { name: /Invite/ }));
+  fireEvent.keyDown(screen.getByLabelText('Invite link'), { key: ' ' });
+  expect(mocks.send).not.toHaveBeenCalled();
+});
+
 it('keeps Ready inside the code card and the growing player list last', async () => {
   const user = userEvent.setup();
   const session = lobbySession();
@@ -281,12 +332,18 @@ it('keeps autosaving after Back to lobby and blocks Ready until acknowledgement'
   );
   await user.click(screen.getByRole('button', { name: 'Match preferences' }));
   expect(screen.queryByText('AB12')).not.toBeInTheDocument();
+  fireEvent.keyDown(document.body, { key: 'Enter' });
+  expect(mocks.send).not.toHaveBeenCalled();
   expect(
     screen.queryByRole('button', { name: /Save|Cancel|Ready/ }),
   ).not.toBeInTheDocument();
   await user.click(screen.getByLabelText('Include endings'));
   await user.click(screen.getByRole('button', { name: 'Back to lobby' }));
   expect(screen.getByRole('button', { name: 'Ready to start' })).toBeDisabled();
+  const pendingCommands = mocks.send.mock.calls.length;
+  fireEvent.keyDown(document.body, { key: ' ' });
+  expect(mocks.send).toHaveBeenCalledTimes(pendingCommands);
+  expect(screen.queryByText('Space ␣')).not.toBeInTheDocument();
 
   const receive = vi.mocked(watchRoom).mock.calls[0][1];
   act(() =>
@@ -337,6 +394,121 @@ function playingSession(): RoomSession {
     },
   };
 }
+
+function nextSongSession(): RoomSession {
+  const session = playingSession();
+  return {
+    ...session,
+    room: {
+      ...session.room,
+      phase: 'countdown',
+      round: {
+        ...session.room.round!,
+        id: 'next-song',
+        startsAt: Date.now() + 10_000,
+      },
+    },
+  };
+}
+
+it.each(['Enter', ' '])('readies the next song with %j and removes shortcuts after acknowledgement', async (key) => {
+  const session = nextSongSession();
+  render(
+    <MemoryRouter>
+      <RoomGame session={session} onBack={vi.fn()} />
+    </MemoryRouter>,
+  );
+  const button = screen.getByRole('button', { name: 'Ready for next song now' });
+  expect(button).toHaveAttribute('aria-keyshortcuts', 'Enter Space');
+  expect(within(button).getByText('Space ␣')).toBeVisible();
+
+  await act(async () => { fireEvent.keyDown(document.body, { key }); });
+  expect(mocks.send).toHaveBeenCalledExactlyOnceWith(
+    expect.objectContaining({ type: 'ready', roundId: 'next-song' }),
+  );
+
+  const receive = vi.mocked(watchRoom).mock.calls[0][1];
+  act(() => receive({
+    ...session.room,
+    players: session.room.players.map(player => ({ ...player, ready: true })),
+  }));
+  expect(screen.getByRole('button', { name: 'Ready for next song' })).toBeDisabled();
+  expect(screen.queryByText('Space ␣')).not.toBeInTheDocument();
+  fireEvent.keyDown(document.body, { key });
+  expect(mocks.send).toHaveBeenCalledTimes(1);
+});
+
+it('leaves held, modified, composing and consumed keys and focused controls alone', () => {
+  render(
+    <MemoryRouter>
+      <RoomGame session={nextSongSession()} onBack={vi.fn()} />
+    </MemoryRouter>,
+  );
+  for (const options of [
+    { repeat: true }, { ctrlKey: true }, { altKey: true },
+    { metaKey: true }, { shiftKey: true }, { isComposing: true }, { keyCode: 229 },
+  ]) {
+    fireEvent.keyDown(document.body, { key: 'Enter', ...options });
+  }
+  const consumedEvent = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true });
+  consumedEvent.preventDefault();
+  fireEvent(document.body, consumedEvent);
+
+  // Real playback controls and editable descendants must retain their own keys.
+  fireEvent.keyDown(screen.getByRole('button', { name: 'Back to room entry' }), { key: 'Enter' });
+  const input = document.createElement('input');
+  const editor = document.createElement('div');
+  editor.contentEditable = 'true';
+  editor.setAttribute('contenteditable', 'true');
+  const child = document.createElement('span');
+  editor.append(child);
+  document.body.append(input, editor);
+  fireEvent.keyDown(input, { key: ' ' });
+  fireEvent.keyDown(child, { key: 'Enter' });
+  input.remove();
+  editor.remove();
+  expect(mocks.send).not.toHaveBeenCalled();
+});
+
+it('disables the readiness shortcut while audio activation is pending and after guessing begins', async () => {
+  let finishAudio!: () => void;
+  mocks.enable.mockImplementationOnce(() => new Promise<void>(resolve => { finishAudio = resolve; }));
+  render(
+    <MemoryRouter>
+      <RoomGame session={nextSongSession()} onBack={vi.fn()} />
+    </MemoryRouter>,
+  );
+  fireEvent.keyDown(document.body, { key: 'Enter' });
+  expect(screen.getByRole('button', { name: 'Ready for next song now' })).toBeDisabled();
+  fireEvent.keyDown(document.body, { key: ' ' });
+  expect(mocks.enable).toHaveBeenCalledTimes(1);
+  await act(async () => { finishAudio(); });
+  expect(mocks.send).toHaveBeenCalledTimes(1);
+
+  const receive = vi.mocked(watchRoom).mock.calls[0][1];
+  act(() => receive(playingSession().room));
+  fireEvent.keyDown(document.body, { key: 'Enter' });
+  fireEvent.keyDown(document.body, { key: ' ' });
+  expect(mocks.send).toHaveBeenCalledTimes(1);
+});
+
+it('advertises Enter to submit only after an anime is selected', async () => {
+  const user = userEvent.setup();
+  render(
+    <MemoryRouter>
+      <RoomGame session={playingSession()} onBack={vi.fn()} />
+    </MemoryRouter>,
+  );
+  const button = screen.getByRole('button', { name: 'Submit guess' });
+  expect(button).not.toHaveAttribute('aria-keyshortcuts');
+  expect(within(button).queryByText('Enter ↵')).not.toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Select anime' }));
+  expect(button).toHaveAttribute('aria-keyshortcuts', 'Enter');
+  expect(within(button).getByText('Enter ↵')).toBeVisible();
+  await user.click(button);
+  expect(button).toBeDisabled();
+  expect(button).not.toHaveAttribute('aria-keyshortcuts');
+});
 
 it.each(['guess', 'pass'] as const)(
   'preserves %s commands, answer privacy and next-round readiness',

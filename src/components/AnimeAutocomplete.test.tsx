@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, it, vi } from 'vitest';
 import AnimeAutocomplete from './AnimeAutocomplete';
@@ -147,9 +147,31 @@ it('uses one Enter to select and a separate Enter to submit a committed answer',
   await user.keyboard('{ArrowDown}{Enter}');
   expect(screen.getByLabelText('Selected anime ID')).toHaveTextContent('42');
   expect(onSubmit).not.toHaveBeenCalled();
+  for (const options of [
+    { repeat: true }, { isComposing: true }, { keyCode: 229 },
+    { ctrlKey: true }, { altKey: true }, { metaKey: true }, { shiftKey: true },
+  ]) {
+    fireEvent.keyDown(input, { key: 'Enter', ...options });
+  }
+  expect(onSubmit).not.toHaveBeenCalled();
   await user.keyboard('{Enter}');
   expect(onSubmit).toHaveBeenCalledExactlyOnceWith(naruto);
   await user.type(input, 'x');
   await user.keyboard('{Enter}');
   expect(onSubmit).toHaveBeenCalledTimes(1);
+});
+
+it('keeps Space available when editing a selected anime title', async () => {
+  const user = userEvent.setup();
+  const onSubmit = vi.fn();
+  const { send } = setup(onSubmit);
+  act(() => send({ type: 'state', state: { phase: 'ready' } }));
+  const input = screen.getByRole('combobox');
+  await user.type(input, 'naru');
+  await screen.findByRole('option');
+  await user.keyboard('{ArrowDown}{Enter}');
+  await user.keyboard(' ');
+  expect(input).toHaveValue('Naruto ');
+  expect(screen.getByLabelText('Selected anime ID')).toHaveTextContent('none');
+  expect(onSubmit).not.toHaveBeenCalled();
 });

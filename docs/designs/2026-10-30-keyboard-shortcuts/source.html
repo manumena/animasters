@@ -1,0 +1,219 @@
+<style>
+#keyboard-sketches .scene {
+  --surface: light-dark(#edf3ef, #111e25);
+  --panel: light-dark(#ffffff, #1b2b32);
+  --text: light-dark(#19342f, #f2f7f4);
+  --muted: light-dark(#516b67, #b0c1c5);
+  --line: light-dark(#bdcfca, #354950);
+  --mint: light-dark(#245e50, #9ae1d0);
+  --action: light-dark(#a7ecdb, #a7ecdb);
+  --action-text: #123e34;
+  background: var(--surface);
+  color: var(--text);
+  padding: 28px;
+  min-height: 650px;
+  font: 15px/1.5 system-ui, sans-serif;
+  box-sizing: border-box;
+}
+#keyboard-sketches .scene * { box-sizing: border-box; }
+#keyboard-sketches header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+#keyboard-sketches .brand { font-size: 23px; font-weight: 700; }
+#keyboard-sketches .muted, #keyboard-sketches small { color: var(--muted); font-size: 12px; }
+#keyboard-sketches h1 { font-size: 30px; margin: 28px 0 20px; letter-spacing: -.6px; }
+#keyboard-sketches h1 span { font-size: 20px; font-weight: 400; color: var(--muted); }
+#keyboard-sketches h2, #keyboard-sketches p { margin: 0; }
+#keyboard-sketches h2 { font-size: 23px; }
+#keyboard-sketches .layout { display: grid; grid-template-columns: minmax(0, 1fr) 180px; gap: 18px; }
+#keyboard-sketches .panel { padding: 24px; border: 1px solid var(--line); border-radius: 18px; background: var(--panel); min-width: 0; }
+#keyboard-sketches .stage { display: grid; gap: 16px; align-content: start; }
+#keyboard-sketches .eyebrow { color: var(--mint); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 14px; }
+#keyboard-sketches .result { display: flex; align-items: center; gap: 12px; color: var(--mint); }
+#keyboard-sketches .result strong { margin-left: auto; font-size: 26px; }
+#keyboard-sketches .result svg { width: 28px; height: 28px; }
+#keyboard-sketches .song { margin: 16px 0 24px; }
+#keyboard-sketches .song p { margin-top: 6px; color: var(--muted); }
+#keyboard-sketches .answer { border-top: 1px solid var(--line); padding-top: 16px; margin-top: 24px; }
+#keyboard-sketches .answer small { display: block; }
+#keyboard-sketches .next { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px; margin-top: 24px; }
+#keyboard-sketches .next small { display: block; }
+#keyboard-sketches .action-group { display: grid; gap: 8px; }
+#keyboard-sketches button { font: 700 13px system-ui; border: 1px solid transparent; border-radius: 9px; padding: 11px 15px; min-height: 44px; }
+#keyboard-sketches .primary { display: inline-flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: center; background: var(--action); color: var(--action-text); }
+#keyboard-sketches .secondary { background: var(--panel); border-color: var(--line); color: var(--text); }
+#keyboard-sketches button:disabled { background: var(--line); color: var(--muted); }
+#keyboard-sketches kbd { display: inline-block; font: 500 11px system-ui; line-height: 20px; padding: 0 6px; border: 1px solid currentColor; border-bottom-width: 2px; border-radius: 4px; white-space: nowrap; }
+#keyboard-sketches .keys { display: inline-flex; gap: 5px; align-items: center; font-size: 11px; font-weight: 400; }
+#keyboard-sketches .hint { font-size: 12px; color: var(--muted); }
+#keyboard-sketches .bar { padding-top: 16px; margin-top: 20px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+#keyboard-sketches .bar svg { width: 16px; height: 16px; }
+#keyboard-sketches .roster { list-style: none; margin: 12px 0 0; padding: 0; }
+#keyboard-sketches .roster li { display: flex; justify-content: space-between; border-bottom: 1px solid var(--line); padding: 14px 0; gap: 12px; }
+#keyboard-sketches .roster small { display: block; }
+#keyboard-sketches .roster li:first-child { color: var(--mint); }
+#keyboard-sketches label { display: block; margin: 20px 0 8px; font-size: 13px; }
+#keyboard-sketches input { width: 100%; min-height: 48px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); color: var(--text); padding: 12px; font: 16px system-ui; }
+#keyboard-sketches .suggestion { width: 100%; text-align: left; background: var(--surface); color: var(--text); border-color: var(--line); margin-top: 6px; }
+#keyboard-sketches .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: start; margin-top: 18px; }
+#keyboard-sketches .demo-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+#keyboard-sketches .demo-tools label { margin: 0; }
+#keyboard-sketches select { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 10px; min-height: 44px; font: 14px system-ui; }
+#keyboard-sketches .status { color: var(--mint); margin-top: 14px; }
+#keyboard-sketches [hidden] { display: none !important; }
+@media (max-width: 700px) {
+  #keyboard-sketches .scene { padding: 20px 16px; min-height: 940px; }
+  #keyboard-sketches .layout { grid-template-columns: 1fr; }
+  #keyboard-sketches .panel { padding: 20px; }
+}
+</style>
+<div id="keyboard-sketches">
+  <div class="viz-carousel" aria-label="Keyboard shortcut designs">
+    <section data-variant="Button keycaps"><div class="scene" data-design="keycaps" aria-label="Button keycaps preview"></div></section>
+    <section data-variant="Below-button hints" hidden><div class="scene" data-design="hints" aria-label="Below-button hints preview"></div></section>
+    <section data-variant="Shortcut bar" hidden><div class="scene" data-design="bar" aria-label="Shortcut bar preview"></div></section>
+  </div>
+</div>
+<script>
+(() => {
+  const root = document.getElementById('keyboard-sketches');
+  const saved = window.openai?.widgetState?.modelContent || {};
+  const states = {};
+  const renderers = {};
+
+  function saveState() {
+    const choices = Object.fromEntries(Object.entries(states).map(([design, state]) => [design, { phase: state.phase }]));
+    window.openai?.setWidgetState({ modelContent: choices })?.catch(() => {});
+  }
+
+  root.querySelectorAll('.scene').forEach(scene => {
+    const design = scene.dataset.design;
+    const state = { phase: saved[design]?.phase === 'Guessing' ? 'Guessing' : 'Reveal', complete: false, selected: false };
+    states[design] = state;
+
+    function keycaps(guessing) {
+      return guessing
+        ? '<kbd>Enter ↵</kbd>'
+        : '<kbd>Enter ↵</kbd><span>or</span><kbd>Space ␣</kbd>';
+    }
+
+    function actionMarkup(guessing) {
+      const label = guessing ? 'Submit guess' : 'Ready for next song now';
+      const disabled = state.complete || (guessing && !state.selected);
+      const caption = state.complete ? (guessing ? 'Answer submitted' : '✓ Ready for next song') : label;
+      const keys = keycaps(guessing);
+      const buttonKeys = design === 'keycaps' && !disabled ? `<span class="keys" aria-hidden="true">${keys}</span>` : '';
+      const hint = design === 'hints' && !disabled ? `<p class="hint">Press ${keys}</p>` : '';
+      return `<div class="action-group"><button type="button" class="primary main-action cursor-interaction" ${disabled ? 'disabled' : ''}>${caption}${buttonKeys}</button>${hint}</div>`;
+    }
+
+    function shortcutBar(guessing) {
+      if (design !== 'bar' || state.complete) return '';
+      const detail = guessing && !state.selected
+        ? 'Select an anime to enable Enter'
+        : `${keycaps(guessing)} <span>to ${guessing ? 'submit your guess' : 'ready up'}</span>`;
+      return `<div class="bar"><i data-lucide="keyboard" aria-hidden="true"></i>${detail}</div>`;
+    }
+
+    function render() {
+      const guessing = state.phase === 'Guessing';
+      const reveal = `<div class="panel result"><i data-lucide="circle-check" aria-hidden="true"></i><div><h2>You got it!</h2><small>First correct answer</small></div><strong>+4</strong></div>
+        <section class="panel"><p class="eyebrow">Song 3 · The answer</p><div class="song"><h2>Naruto Shippuden</h2><p>Blue Bird</p></div><div class="answer"><small>Your answer</small>Naruto Shippuden</div><div class="next"><div><strong>Next song in 8s</strong><small>${state.complete ? '3' : '2'} of 4 players ready</small></div>${actionMarkup(false)}</div>${shortcutBar(false)}<p class="status" role="status">${state.complete ? 'Ready — waiting for the other players.' : ''}</p></section>`;
+      const guess = `<section class="panel"><p class="eyebrow">Now playing · 24s left</p><h2>Which anime is this from?</h2><label for="anime-${design}">Anime title</label><input id="anime-${design}" type="text" autocomplete="off" placeholder="Search for an anime…" value="${state.selected ? 'Naruto Shippuden' : ''}" ${state.complete ? 'disabled' : ''}>
+        <button type="button" class="suggestion cursor-interaction" ${state.selected || state.complete ? 'hidden' : ''}>Naruto Shippuden <small>· Enter to select</small></button>
+        <p class="hint" style="margin-top:8px">${state.selected ? 'Anime selected. You can submit your guess.' : 'Choose a suggestion before submitting.'}</p>
+        <div class="actions">${actionMarkup(true)}<button type="button" class="secondary pass cursor-interaction" ${state.complete ? 'disabled' : ''}>Pass</button></div>${shortcutBar(true)}<p class="status" role="status">${state.complete ? 'Answer submitted. Waiting for the reveal.' : ''}</p></section>`;
+
+      scene.innerHTML = `<header><span class="brand">animasters <small>Beta</small></span><span class="muted">Room A7B2 · Connected</span></header><h1>Song 3 <span>/ 10</span></h1><div class="layout"><div class="stage">${guessing ? guess : reveal}</div><aside class="panel"><h2>Players</h2><ul class="roster"><li><div>Manu (you)<small>${guessing ? 'Guessing' : 'Correct'}</small></div><strong>16</strong></li><li>Yui<strong>10</strong></li><li>Alex<strong>7</strong></li><li>Dani<strong>5</strong></li></ul></aside></div><div class="demo-tools"><label for="phase-${design}" class="muted">Preview phase</label><select id="phase-${design}"><option>Reveal</option><option>Guessing</option></select><button type="button" class="secondary reset cursor-interaction">Reset example</button></div>`;
+      scene.querySelector('select').value = state.phase;
+      scene.querySelector('select').onchange = event => {
+        state.phase = event.target.value;
+        reset();
+        saveState();
+      };
+      scene.querySelector('.reset').onclick = reset;
+      scene.querySelector('.main-action').onclick = complete;
+
+      if (guessing) {
+        scene.querySelector('.suggestion').onclick = selectAnime;
+        scene.querySelector('.pass').onclick = complete;
+        scene.querySelector('input').oninput = () => {
+          state.selected = false;
+          scene.querySelector('.main-action').disabled = true;
+          scene.querySelector('.suggestion').hidden = false;
+          scene.querySelector('.hint').textContent = 'Choose a suggestion before submitting.';
+          // Hints only advertise submission after a committed suggestion.
+          scene.querySelector('.main-action .keys')?.remove();
+          scene.querySelector('.action-group .hint')?.remove();
+          if (design === 'bar') scene.querySelector('.bar').textContent = 'Select an anime to enable Enter';
+        };
+      }
+      if (globalThis.lucide) lucide.createIcons();
+    }
+
+    function reset() {
+      state.complete = false;
+      state.selected = false;
+      render();
+    }
+
+    function selectAnime() {
+      state.selected = true;
+      render();
+      scene.querySelector('input').focus();
+    }
+
+    function complete() {
+      if (state.complete) return;
+      state.complete = true;
+      render();
+    }
+
+    // Only the visible design handles shortcuts. Native controls keep their
+    // own keys; typing spaces in an answer never triggers readiness.
+    scene.addEventListener('keydown', event => {
+      if (scene.closest('[data-variant]').hidden) return;
+      if (event.repeat || event.isComposing || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      if (state.complete) return;
+      const target = event.target;
+      if (target.closest('button, select, textarea, [contenteditable]')) return;
+      if (state.phase === 'Guessing') {
+        if (event.key !== 'Enter' || target.tagName !== 'INPUT') return;
+        event.preventDefault();
+        if (state.selected) complete();
+        else selectAnime();
+      } else if (!target.closest('input') && (event.key === 'Enter' || event.key === ' ')) {
+        event.preventDefault();
+        complete();
+      }
+    });
+
+    // The iframe body can hold focus when no game control has been clicked.
+    const outsideHandler = event => {
+      if (scene.closest('[data-variant]').hidden || scene.contains(event.target)) return;
+      if (event.target !== document.body && event.target !== document.documentElement) return;
+      if (state.phase !== 'Reveal' || state.complete || event.repeat || event.isComposing) return;
+      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        complete();
+      }
+    };
+    document.addEventListener('keydown', outsideHandler);
+    renderers[design] = reset;
+    render();
+
+    if (globalThis.Tweak) {
+      const tweak = new Tweak({ container: scene, onChange: () => { reset(); saveState(); } });
+      tweak.addSelect(state, 'phase', { label: 'Match phase', options: ['Reveal', 'Guessing'] });
+    }
+  });
+
+  window.addEventListener('openai:set_globals', event => {
+    const restored = event.detail?.globals?.widgetState?.modelContent;
+    if (!restored) return;
+    Object.entries(states).forEach(([design, state]) => {
+      state.phase = restored[design]?.phase === 'Guessing' ? 'Guessing' : 'Reveal';
+      renderers[design]();
+    });
+  });
+})();
+</script>
