@@ -1,0 +1,205 @@
+<style>
+#round-timer-options { color-scheme: dark; }
+#round-timer-options .scene {
+  --ink: #f1f7f4;
+  --muted: #b4c7cb;
+  --panel: #1b2b32;
+  --line: #354950;
+  --mint: #a7ecdb;
+  --urgent: #ffd188;
+  color: var(--ink);
+  background: #111b21;
+  font: 15px/1.5 system-ui, sans-serif;
+  padding: 28px;
+  min-height: 740px;
+  position: relative;
+  isolation: isolate;
+}
+#round-timer-options .scene::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: .25;
+  background: linear-gradient(transparent, #111b21 90%), url('https://cdn.jsdelivr.net/gh/manumena/animasters@4856ebff01ecec6fefe23093c02f0f043c65c0f8/src/assets/lofi-cafe.gif') center top / cover;
+}
+#round-timer-options * { box-sizing: border-box; }
+#round-timer-options h1, #round-timer-options h2, #round-timer-options p { margin: 0; }
+#round-timer-options header { display: flex; justify-content: space-between; gap: 16px; padding-right: 70px; }
+#round-timer-options .brand { font-size: 23px; font-weight: 700; }
+#round-timer-options .connection { color: var(--mint); font-size: 12px; }
+#round-timer-options h1 { font-size: 30px; margin: 24px 0 18px; }
+#round-timer-options h1 span { font-size: 20px; color: var(--muted); font-weight: 400; }
+#round-timer-options .layout { display: grid; grid-template-columns: minmax(0, 1fr) 210px; gap: 18px; }
+#round-timer-options .stage { display: grid; align-content: start; gap: 16px; min-width: 0; }
+#round-timer-options .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 22px; min-width: 0; }
+#round-timer-options .result { display: flex; align-items: center; gap: 12px; color: var(--mint); background: #203d3c; border-radius: 14px; padding: 18px 22px; }
+#round-timer-options .result strong { margin-left: auto; font-size: 25px; }
+#round-timer-options .eyebrow { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--mint); }
+#round-timer-options .song { display: flex; gap: 16px; align-items: center; margin: 20px 0; }
+#round-timer-options .art { display: grid; place-items: center; flex-shrink: 0; width: 62px; height: 80px; border-radius: 10px; background: #30474c; color: var(--mint); }
+#round-timer-options h2 { font-size: 20px; }
+#round-timer-options .muted { color: var(--muted); font-size: 12px; }
+#round-timer-options .song p { color: var(--muted); margin-top: 4px; }
+#round-timer-options .answer { border-top: 1px solid var(--line); padding-top: 14px; color: var(--muted); font-size: 13px; }
+#round-timer-options button { font: 600 13px/1.4 system-ui, sans-serif; min-height: 44px; padding: 11px 14px; border: 0; border-radius: 9px; background: var(--mint); color: #123e34; }
+#round-timer-options button:disabled { background: #344d4d; color: #bed6d0; }
+#round-timer-options kbd { font: 11px system-ui, sans-serif; padding: 2px 4px; border: 1px solid currentColor; border-radius: 3px; margin-left: 5px; }
+#round-timer-options .timer { --tone: var(--mint); color: var(--tone); }
+#round-timer-options .timer[data-urgent=true] { --tone: var(--urgent); }
+#round-timer-options .time { font-size: 64px; line-height: 1; font-weight: 750; font-variant-numeric: tabular-nums; letter-spacing: -2px; }
+#round-timer-options .time small { font-size: 24px; letter-spacing: 0; }
+#round-timer-options .timer-label { color: var(--ink); font-size: 15px; font-weight: 650; }
+#round-timer-options .status { font-size: 12px; min-height: 18px; margin-top: 6px; }
+#round-timer-options .ready-info { margin-top: 12px; }
+#round-timer-options .timer-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+#round-timer-options .large { border-top: 1px solid var(--line); padding-top: 22px; margin-top: 22px; }
+#round-timer-options .large .timer-label { margin-bottom: 8px; }
+#round-timer-options .large .actions { max-width: 210px; }
+#round-timer-options .banner { background: #203d3c; border: 1px solid #527a70; border-radius: 16px; padding: 20px; }
+#round-timer-options .banner[data-urgent=true] { background: #3c3427; border-color: #937649; }
+#round-timer-options .banner .time { font-size: 56px; }
+#round-timer-options .banner button { margin-top: 14px; }
+#round-timer-options .ring-layout { display: flex; gap: 24px; align-items: center; padding-top: 22px; margin-top: 22px; border-top: 1px solid var(--line); }
+#round-timer-options .ring { width: 132px; height: 132px; position: relative; flex-shrink: 0; display: grid; place-items: center; }
+#round-timer-options .ring svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+#round-timer-options .ring circle { fill: none; stroke-width: 6px; }
+#round-timer-options .ring .track { stroke: #3a5055; }
+#round-timer-options .ring .remaining { stroke: currentColor; stroke-linecap: round; }
+#round-timer-options .ring .time { font-size: 48px; }
+#round-timer-options .ring-layout button { margin-top: 12px; }
+#round-timer-options .scores h2 { font-size: 16px; }
+#round-timer-options .scores ol { padding: 0; list-style: none; margin: 14px 0; }
+#round-timer-options .scores li { display: flex; justify-content: space-between; gap: 10px; padding: 13px 0; border-bottom: 1px solid var(--line); }
+#round-timer-options .scores li:first-child { color: var(--mint); }
+#round-timer-options .demo { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 24px; }
+#round-timer-options .demo button { background: #253a43; color: var(--ink); border: 1px solid #587078; }
+@media (max-width: 700px) {
+  #round-timer-options .scene { padding: 20px 16px; min-height: 1040px; }
+  #round-timer-options header { flex-wrap: wrap; padding-right: 0; }
+  #round-timer-options .layout { grid-template-columns: 1fr; }
+  #round-timer-options .panel { padding: 18px; }
+  #round-timer-options .timer-row { flex-wrap: wrap; }
+  #round-timer-options .large .actions { max-width: none; width: 100%; }
+  #round-timer-options .ring-layout { gap: 16px; flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #round-timer-options .scene::before { background-image: none; }
+}
+</style>
+<div id="round-timer-options">
+  <div class="viz-carousel" aria-label="Between-round countdown alternatives">
+    <section data-variant="Large timer"><div class="scene" data-design="large"></div></section>
+    <section data-variant="Top banner" hidden><div class="scene" data-design="banner"></div></section>
+    <section data-variant="Countdown ring" hidden><div class="scene" data-design="ring"></div></section>
+  </div>
+</div>
+<script>
+(() => {
+  const root = document.getElementById('round-timer-options');
+  const saved = window.openai?.widgetState?.modelContent || {};
+  const states = {};
+
+  function saveChoices() {
+    const choices = Object.fromEntries(Object.entries(states).map(([name, state]) => [name, { seconds: state.seconds }]));
+    window.openai?.setWidgetState({ modelContent: choices })?.catch(() => {});
+  }
+
+  root.querySelectorAll('.scene').forEach(scene => {
+    const design = scene.dataset.design;
+    const savedSeconds = saved[design]?.seconds;
+    const state = states[design] = { seconds: Number.isInteger(savedSeconds) && savedSeconds >= 0 && savedSeconds <= 10 ? savedSeconds : 8, ready: false, interval: null };
+    const readyButton = '<button class="ready cursor-interaction">Ready for next song <kbd>↵</kbd><kbd>␣</kbd></button>';
+    const timerValue = '<div class="time" role="timer" aria-label="Seconds until next song"><span class="seconds">8</span><small>s</small></div>';
+    const timerLabel = '<p class="timer-label">Next song in</p>';
+    const status = '<p class="status">Starting automatically</p>';
+    const readiness = '<p class="muted ready-info"><span class="ready-count">2</span> of 4 players ready</p>';
+    const largeTimer = `<div class="timer large timer-row"><div>${timerLabel}${timerValue}${status}</div><div class="actions">${readyButton}${readiness}</div></div>`;
+    const bannerTimer = `<section class="timer banner"><div class="timer-row"><div>${timerLabel}${status}</div>${timerValue}</div>${readyButton}${readiness}</section>`;
+    const ringTimer = `<div class="timer ring-layout"><div class="ring"><svg viewBox="0 0 132 132" aria-hidden="true"><circle class="track" cx="66" cy="66" r="59"/><circle class="remaining" cx="66" cy="66" r="59" stroke-dasharray="370.71"/></svg>${timerValue}</div><div>${timerLabel}${status}${readyButton}${readiness}</div></div>`;
+    const result = '<div class="result"><i data-lucide="circle-check" aria-hidden="true"></i><div><h2>You got it!</h2><p class="muted">First correct answer</p></div><strong>+4</strong></div>';
+    const reveal = `<section class="panel"><p class="eyebrow">Song 3 · The answer</p><div class="song"><span class="art"><i data-lucide="music-2" aria-hidden="true"></i></span><div><h2>Naruto Shippuden</h2><p>Blue Bird</p></div></div><p class="answer">✓ You answered Naruto Shippuden</p>${design === 'large' ? largeTimer : design === 'ring' ? ringTimer : ''}</section>`;
+
+    scene.innerHTML = `<header><strong class="brand">Animasters</strong><span class="connection">Room K7H2P · ● Connected</span></header><h1>Song 4 <span>/ 10</span></h1><div class="layout"><div class="stage">${design === 'banner' ? bannerTimer : ''}${result}${reveal}</div><aside class="panel scores"><h2>Scoreboard</h2><ol><li><span>1 &nbsp; You</span><strong>16</strong></li><li><span>2 &nbsp; Haru</span><strong>12</strong></li><li><span>3 &nbsp; Mika</span><strong>9</strong></li><li><span>4 &nbsp; Ren</span><strong>6</strong></li></ol><p class="muted">4 players connected</p></aside></div><div class="demo" aria-label="Preview controls"><button class="play cursor-interaction">Play 10-second preview</button><button class="final-three cursor-interaction">Show final 3 seconds</button></div>`;
+
+    function updateTimer() {
+      scene.querySelector('.seconds').textContent = state.seconds;
+      scene.querySelector('.timer').dataset.urgent = state.seconds <= 3;
+      scene.querySelector('.timer-label').textContent = state.seconds === 0 ? 'Next song starting' : 'Next song in';
+      scene.querySelector('.status').textContent = state.seconds === 0 ? 'Countdown complete' : state.seconds <= 3 ? 'Get ready to listen' : 'Starting automatically';
+      const remainingArc = scene.querySelector('.remaining');
+      if (remainingArc) remainingArc.style.strokeDashoffset = 370.71 * (1 - state.seconds / 10);
+      scene.querySelector('.ready').disabled = state.ready || state.seconds === 0;
+    }
+
+    function stopPreview() {
+      clearInterval(state.interval);
+      state.interval = null;
+      scene.querySelector('.play').textContent = 'Play 10-second preview';
+    }
+
+    scene.querySelector('.play').addEventListener('click', () => {
+      if (state.interval) {
+        stopPreview();
+        return;
+      }
+      state.seconds = 10;
+      updateTimer();
+      scene.querySelector('.play').textContent = 'Pause preview';
+      state.interval = setInterval(() => {
+        state.seconds = Math.max(0, state.seconds - 1);
+        updateTimer();
+        if (state.seconds === 0) stopPreview();
+      }, 1000);
+    });
+
+    scene.querySelector('.final-three').addEventListener('click', () => {
+      stopPreview();
+      state.seconds = 3;
+      updateTimer();
+      saveChoices();
+    });
+
+    function markReady() {
+      if (state.ready || state.seconds === 0) return;
+      state.ready = true;
+      scene.querySelector('.ready').textContent = 'Ready for next song ✓';
+      scene.querySelector('.ready-count').textContent = '3';
+      updateTimer();
+    }
+
+    scene.querySelector('.ready').addEventListener('click', markReady);
+    scene.addEventListener('keydown', event => {
+      if (event.target.closest('button, input, select, textarea') || event.repeat) return;
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        markReady();
+      }
+    });
+    updateTimer();
+
+    if (globalThis.Tweak) {
+      const tweak = new Tweak({ container: scene, onChange: () => { stopPreview(); updateTimer(); } });
+      tweak.addSlider(state, 'seconds', { label: 'Seconds remaining', min: 0, max: 10, step: 1, unit: 's' });
+    }
+  });
+
+  window.addEventListener('openai:set_globals', event => {
+    const restored = event.detail?.globals?.widgetState?.modelContent;
+    if (!restored) return;
+    root.querySelectorAll('.scene').forEach(scene => {
+      const seconds = restored[scene.dataset.design]?.seconds;
+      if (!Number.isInteger(seconds) || seconds < 0 || seconds > 10) return;
+      // Restore through the same local control path without starting playback.
+      states[scene.dataset.design].seconds = seconds;
+      scene.querySelector('.seconds').textContent = seconds;
+      scene.querySelector('.timer').dataset.urgent = seconds <= 3;
+      scene.querySelector('.timer-label').textContent = seconds === 0 ? 'Next song starting' : 'Next song in';
+      scene.querySelector('.status').textContent = seconds === 0 ? 'Countdown complete' : seconds <= 3 ? 'Get ready to listen' : 'Starting automatically';
+      const arc = scene.querySelector('.remaining');
+      if (arc) arc.style.strokeDashoffset = 370.71 * (1 - seconds / 10);
+      scene.querySelector('.ready').disabled = states[scene.dataset.design].ready || seconds === 0;
+    });
+  });
+})();
+</script>

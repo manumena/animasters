@@ -32,6 +32,8 @@ Open a `preview.html` file in a browser and use its variant picker. Previews do 
 
 ## Current direction
 
+October 31 countdown exploration: [Between-round countdown alternatives](2026-10-31-between-round-countdown/README.md) · [Preview](2026-10-31-between-round-countdown/preview.html). Variants: Large timer; Top banner; Countdown ring. Owner loved Countdown ring and requested continuous motion. Follow-up: [Continuous countdown ring](2026-10-31-continuous-countdown-ring/README.md) · [Preview](2026-10-31-continuous-countdown-ring/preview.html). Approved and implemented: arc drains smoothly while digits remain whole seconds, with amber for the final three seconds. Ready controls and synchronized gameplay timing retained.
+
 - Preserve the centered typography, simple Create/Join actions and gameplay preview from Clean music quiz.
 - Add anime-style atmosphere using the café scene already present in the app.
 - Implement the selected Café backdrop while keeping text and controls readable on phones; omit the “Hide café” button.

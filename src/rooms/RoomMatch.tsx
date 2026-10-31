@@ -24,6 +24,7 @@ import './RoomMatch.css';
 import { ShortcutKeycaps, useReadyShortcut } from './KeyboardShortcuts';
 import MatchCountdown from './MatchCountdown';
 import GuessResultBanner from './GuessResultBanner';
+import NextSongCountdown from './NextSongCountdown';
 
 interface Props {
   room: RoomSnapshot;
@@ -69,10 +70,6 @@ export default function RoomMatch(props: Props) {
   const isReady = Boolean(
     room.players.find((player) => player.id === playerId)?.ready,
   );
-  const nextSeconds =
-    round?.startsAt && props.now
-      ? Math.max(0, Math.ceil((round.startsAt - props.now) / 1000))
-      : '—';
   const canReadyForNextSong =
     showResult &&
     room.phase === 'countdown' &&
@@ -225,8 +222,21 @@ export default function RoomMatch(props: Props) {
                 <RoundResult room={room} playerId={playerId} />
                 {room.phase === 'countdown' && round && (
                   <div className="room-match-next">
-                    <div>
-                      <strong role="timer">Next song in {nextSeconds}s</strong>
+                    <NextSongCountdown startsAt={round.startsAt} now={props.now} />
+                    <div className="room-match-next-actions">
+                      <Button
+                        variant="contained"
+                        disableElevation
+                        disabled={!canReadyForNextSong}
+                        onClick={props.onReady}
+                        className="room-keyboard-action"
+                        aria-keyshortcuts={canReadyForNextSong ? 'Enter Space' : undefined}
+                      >
+                        {isReady
+                          ? 'Ready for next song'
+                          : 'Ready for next song now'}
+                        {canReadyForNextSong && <ShortcutKeycaps includeSpace />}
+                      </Button>
                       <span className="room-match-muted">
                         {
                           room.players.filter(
@@ -241,19 +251,6 @@ export default function RoomMatch(props: Props) {
                         connected players ready
                       </span>
                     </div>
-                    <Button
-                      variant="contained"
-                      disableElevation
-                      disabled={!canReadyForNextSong}
-                      onClick={props.onReady}
-                      className="room-keyboard-action"
-                      aria-keyshortcuts={canReadyForNextSong ? 'Enter Space' : undefined}
-                    >
-                      {isReady
-                        ? 'Ready for next song'
-                        : 'Ready for next song now'}
-                      {canReadyForNextSong && <ShortcutKeycaps includeSpace />}
-                    </Button>
                   </div>
                 )}
               </section>
