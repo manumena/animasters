@@ -119,7 +119,7 @@ export default function RoomPlayback({
               min={0}
               max={1}
               step={0.01}
-              defaultValue={1}
+              value={state.volume}
               onChange={(_, value) => audio.volume(value as number)}
             />
           </div>

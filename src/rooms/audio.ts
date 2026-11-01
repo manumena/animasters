@@ -1,9 +1,33 @@
 import type { RoundSnapshot } from './client';
 
+const VOLUME_STORAGE_KEY = 'animasters.audio.volume';
+
+function loadVolume(): number {
+  try {
+    const savedVolume = localStorage.getItem(VOLUME_STORAGE_KEY);
+    if (savedVolume === null || savedVolume.trim() === '') return 1;
+
+    const volume = Number(savedVolume);
+    if (Number.isFinite(volume) && volume >= 0 && volume <= 1) return volume;
+  } catch {
+    // Browser storage can be blocked; playback must still work in memory.
+  }
+  return 1;
+}
+
+function saveVolume(volume: number): void {
+  try {
+    localStorage.setItem(VOLUME_STORAGE_KEY, String(volume));
+  } catch {
+    // Keep the current session's preference if persistent storage is unavailable.
+  }
+}
+
 interface AudioState {
   enabled: boolean;
   loading: boolean;
   duration: number;
+  volume: number;
   error?: string;
 }
 
@@ -32,7 +56,12 @@ export class RoomAudio {
   private request?: AbortController;
   private generation = 0;
   private serverNow: () => number = Date.now;
-  private state: AudioState = { enabled: false, loading: false, duration: 0 };
+  private state: AudioState = {
+    enabled: false,
+    loading: false,
+    duration: 0,
+    volume: loadVolume(),
+  };
   private listeners = new Set<() => void>();
 
   getSnapshot = () => this.state;
@@ -49,6 +78,7 @@ export class RoomAudio {
     if (!this.context) {
       this.context = new AudioContext();
       this.gain = this.context.createGain();
+      this.gain.gain.value = this.state.volume;
       this.gain.connect(this.context.destination);
       this.context.onstatechange = () => this.update({ enabled: this.context?.state === 'running' });
     }
@@ -190,6 +220,9 @@ export class RoomAudio {
   }
   volume(value: number): void {
     if (this.gain) this.gain.gain.value = value;
+    // Keep the preference even before audio is enabled and while controls unmount.
+    this.update({ volume: value });
+    saveVolume(value);
   }
   cancelScheduled(): void {
     if (this.scheduledAt && this.serverNow() < this.scheduledAt) {

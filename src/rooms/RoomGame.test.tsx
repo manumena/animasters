@@ -18,7 +18,7 @@ const mocks = vi.hoisted(() => ({
   seek: vi.fn(),
   volume: vi.fn(),
   cancelScheduled: vi.fn(),
-  audioState: { enabled: true, loading: false, duration: 90 },
+  audioState: { enabled: true, loading: false, duration: 90, volume: 1 },
   catalogState: { phase: 'ready' },
 }));
 

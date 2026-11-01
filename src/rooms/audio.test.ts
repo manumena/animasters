@@ -20,7 +20,11 @@ class FakeContext {
   onstatechange?: () => void;
   resume = vi.fn(async () => { this.state = 'running'; });
   close = vi.fn(async () => {});
-  createGain = () => ({ connect: vi.fn(), gain: { value: 1 } });
+  createGain = () => {
+    const gain = { connect: vi.fn(), gain: { value: 1 } };
+    gains.push(gain);
+    return gain;
+  };
   decodeAudioData = vi.fn(async () => ({ duration: 90 }));
   createBufferSource() {
     const source: FakeSource = {
@@ -35,10 +39,72 @@ class FakeContext {
   }
 }
 const round = { id: 'one', number: 1, total: 40, startsAt: 20_000, audioUrl: 'https://audio.example/one' };
+const gains: { gain: { value: number } }[] = [];
 beforeEach(() => {
+  localStorage.clear();
   sources.length = 0;
+  gains.length = 0;
   vi.stubGlobal('AudioContext', FakeContext);
   vi.spyOn(globalThis, 'fetch').mockImplementation(async () => new Response(new ArrayBuffer(8)));
+});
+
+it.each([0, 0.35, 1])('restores volume %s for playback after a page reload', async (volume) => {
+  const originalAudio = new RoomAudio();
+  originalAudio.volume(volume);
+  originalAudio.dispose();
+
+  // Refreshing constructs a new controller while browser storage survives.
+  const restoredAudio = new RoomAudio();
+  expect(restoredAudio.getSnapshot().volume).toBe(volume);
+  await restoredAudio.enable();
+  await restoredAudio.prepare(round, () => 21_000);
+  expect(gains[0].gain.value).toBe(volume);
+  restoredAudio.dispose();
+});
+
+it.each([null, '', ' ', 'invalid', 'NaN', 'Infinity', '-0.1', '1.1'])(
+  'defaults to full volume when the saved setting is missing or invalid (%s)',
+  (savedVolume) => {
+    if (savedVolume !== null) {
+      localStorage.setItem('animasters.audio.volume', savedVolume);
+    }
+
+    const audio = new RoomAudio();
+    expect(audio.getSnapshot().volume).toBe(1);
+  },
+);
+
+it('keeps playback and volume controls working when browser storage is blocked', async () => {
+  vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+    throw new Error('Storage blocked');
+  });
+  vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+    throw new Error('Storage blocked');
+  });
+
+  const audio = new RoomAudio();
+  expect(audio.getSnapshot().volume).toBe(1);
+  await audio.enable();
+  audio.volume(0.25);
+  expect(audio.getSnapshot().volume).toBe(0.25);
+  expect(gains[0].gain.value).toBe(0.25);
+  audio.dispose();
+});
+
+it.each([0, 0.35, 1])('preserves volume %s through audio initialization and round changes', async (volume) => {
+  const audio = new RoomAudio();
+  audio.volume(volume);
+  await audio.enable();
+  await audio.prepare(round, () => 21_000);
+  expect(gains[0].gain.value).toBe(volume);
+
+  const updatedVolume = 1 - volume;
+  audio.volume(updatedVolume);
+  await audio.prepare({ ...round, id: 'two', startsAt: 30_000 }, () => 25_000);
+  expect(sources).toHaveLength(2);
+  expect(sources[1].connect).toHaveBeenCalledWith(gains[0]);
+  expect(gains[0].gain.value).toBe(updatedVolume);
+  audio.dispose();
 });
 
 it('schedules from the shared server time, never just from message arrival', async () => {
