@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link as RouterLink, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Alert, Button, TextField } from '@mui/material';
@@ -17,6 +17,7 @@ export default function Rooms() {
   const navigate = useNavigate();
   const [session, setSession] = useState<RoomSession | null>(() => savedSession(code));
   const [nickname, setNickname] = useState('');
+  const nicknameInputRef = useRef<HTMLInputElement>(null);
   const [inputCode, setInputCode] = useState(code);
   // The homepage can open either form; a shared room code always selects Join.
   const [mode, setMode] = useState<'create' | 'join'>(
@@ -24,6 +25,12 @@ export default function Rooms() {
   );
   const [pending, setPending] = useState(false);
   const [error, setError] = useState('');
+
+  function selectMode(nextMode: 'create' | 'join') {
+    setMode(nextMode);
+    // Both modes share the mounted input, so autoFocus only handles initial entry.
+    nicknameInputRef.current?.focus();
+  }
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -74,10 +81,10 @@ export default function Rooms() {
 
         <form className="room-entry-form" onSubmit={submit} aria-busy={pending}>
           <div className="room-entry-modes" role="group" aria-label="Room entry">
-            <Button type="button" aria-pressed={!joining} disabled={pending} onClick={() => setMode('create')}>
+            <Button type="button" aria-pressed={!joining} disabled={pending} onClick={() => selectMode('create')}>
               Create room
             </Button>
-            <Button type="button" aria-pressed={joining} disabled={pending} onClick={() => setMode('join')}>
+            <Button type="button" aria-pressed={joining} disabled={pending} onClick={() => selectMode('join')}>
               Join room
             </Button>
           </div>
@@ -86,6 +93,7 @@ export default function Rooms() {
             <label htmlFor="room-nickname">Nickname</label>
             <TextField
               id="room-nickname"
+              inputRef={nicknameInputRef}
               placeholder="What should we call you?"
               value={nickname}
               required
@@ -94,6 +102,7 @@ export default function Rooms() {
               onChange={event => setNickname(event.target.value)}
               slotProps={{ htmlInput: { maxLength: 24, autoComplete: 'nickname' } }}
               helperText="Your name for this game. No account needed."
+              autoFocus
             />
           </div>
 
