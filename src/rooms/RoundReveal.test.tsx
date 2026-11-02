@@ -19,6 +19,25 @@ function RevealWithReadyShortcut({ onReady }: { onReady: () => void }) {
   return <RoundReveal result={result} playerId="me" />;
 }
 
+it.each([
+  { songType: 'opening' as const, sequenceNumber: 3, label: 'Opening 3' },
+  { songType: 'ending' as const, sequenceNumber: 2, label: 'Ending 2' },
+  { songType: 'opening' as const, sequenceNumber: undefined, label: 'Opening' },
+  { songType: 'ending' as const, sequenceNumber: 0, label: 'Ending' },
+  { songType: 'opening' as const, sequenceNumber: 1.5, label: 'Opening' },
+  { songType: 'soundtrack' as const, sequenceNumber: 1, label: 'Soundtrack' },
+])('shows $label independently of the match position', ({ songType, sequenceNumber, label }) => {
+  render(<RoundReveal result={{ ...result, songType, sequenceNumber }} playerId="me" />);
+
+  expect(screen.getByText(label)).toHaveClass('round-reveal-metadata');
+  expect(screen.getByText('Song 2 · The answer')).toBeVisible();
+});
+
+it('omits metadata for older rooms and never renders a sequence without a type', () => {
+  render(<RoundReveal result={{ ...result, sequenceNumber: 3 }} playerId="me" />);
+  expect(document.querySelector('.round-reveal-metadata')).toBeNull();
+});
+
 it('shows the full poster and its backdrop, and opens an accessible enlarged view', async () => {
   const user = userEvent.setup();
   const onReady = vi.fn();

@@ -50,7 +50,7 @@ The owner likes AMQ's ability to use Enter instead of clicking Guess when autoco
 
 The owner likes AMQ's song information alongside its video. For AniMasters, use the show's image with song details beside it; stack these on narrow screens. **Video playback is out of scope for this work.**
 
-- Show anime/season identity and song title, plus opening/ending/soundtrack type and sequence number where reliable.
+- Show anime/season identity and song title. Song type and reliable sequence numbers are implemented locally below the song title (76 of 125 songs have unambiguous numbering in the November 2 audit); deployment is pending. Season identity still needs work. See [the approved design](designs/2026-11-02-reveal-song-metadata/README.md).
 - Add artist/band information when catalog coverage supports it; revealing metadata and asking players to guess it are separate features.
 - Existing catalog imports already store release-level `picture` and `thumbnail` URLs. Choose artwork for the actual release where possible, with a representative image and a missing-image fallback.
 - Current artwork import scope: only anime represented in `public.songs`, sharing one image across songs from the same anime. Full answer-catalog artwork is deferred to iteration 3.

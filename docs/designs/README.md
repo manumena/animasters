@@ -27,6 +27,7 @@ Open a `preview.html` file in a browser and use its variant picker. Previews do 
 
 | Date | Sketch | Variants | Feedback |
 | --- | --- | --- | --- |
+| November 2, 2026 | [Reveal song metadata](2026-11-02-reveal-song-metadata/README.md) · [Preview](2026-11-02-reveal-song-metadata/preview.html) | Below the title; Beside the title; Header badge | Owner selected Below the title. Implemented; actual-component reveal preview added with poster, results and scoreboard. |
 | October 30, 2026 | [Match screen directions](2026-10-30-match-screen/README.md) · [Preview](2026-10-30-match-screen/preview.html) | Focused player; Live scoreboard; Answer first | Selected and implemented Live scoreboard: scores beside the game on desktop and below on phones. Same café background and palette; existing match behavior preserved. |
 | October 30, 2026 | [Keyboard shortcuts](2026-10-30-keyboard-shortcuts/README.md) · [Preview](2026-10-30-keyboard-shortcuts/preview.html) | Button keycaps; Below-button hints; Shortcut bar | Requested Enter/Space for next-song Ready and keyboard hints for Ready/Submit guess. Selected and implemented Button keycaps with Enter ↵ / Space ␣ for next-song Ready, and Enter ↵ for Submit guess. Extended the same Ready controls to the lobby on October 31. |
 

@@ -1,0 +1,96 @@
+<style>
+#reveal-metadata-options .reveal-sample {
+  --sample-panel: light-dark(#edf4f0, #14242c);
+  --sample-text: light-dark(#19342f, #f2f7f4);
+  --sample-muted: light-dark(#516b67, #b0c1c5);
+  --sample-line: light-dark(#bdcfca, #354950);
+  --sample-accent: light-dark(#245e50, #9ae1d0);
+  --sample-fill: light-dark(#d3e8e1, #30474c);
+  box-sizing: border-box;
+  background: var(--sample-panel);
+  color: var(--sample-text);
+  border: 1px solid var(--sample-line);
+  border-radius: 18px;
+  padding: 28px;
+  min-height: 370px;
+  font: 15px/1.5 system-ui, sans-serif;
+}
+#reveal-metadata-options .reveal-sample * { box-sizing: border-box; }
+#reveal-metadata-options .sample-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; min-height: 32px; }
+#reveal-metadata-options .sample-eyebrow { color: var(--sample-accent); text-transform: uppercase; letter-spacing: 1.5px; font-size: 11px; }
+#reveal-metadata-options .sample-song { display: flex; align-items: center; gap: 22px; margin: 24px 0; min-height: 120px; }
+#reveal-metadata-options .sample-mark { display: grid; place-items: center; flex-shrink: 0; width: 90px; height: 120px; border-radius: 10px; background: var(--sample-fill); color: var(--sample-accent); }
+#reveal-metadata-options .sample-mark svg { width: 32px; height: 32px; }
+#reveal-metadata-options .sample-answer { min-width: 0; overflow-wrap: anywhere; }
+#reveal-metadata-options h2 { margin: 0 0 12px; font: 700 27px/1.2 system-ui, sans-serif; }
+#reveal-metadata-options p { margin: 0; }
+#reveal-metadata-options .sample-metadata { color: var(--sample-accent); font-size: 13px; font-weight: 600; }
+#reveal-metadata-options .sample-under { margin-top: 8px; }
+#reveal-metadata-options .sample-inline { color: var(--sample-muted); }
+#reveal-metadata-options .sample-badge { border: 1px solid var(--sample-line); border-radius: 999px; padding: 5px 12px; }
+#reveal-metadata-options .sample-personal { border-block: 1px solid var(--sample-line); padding: 14px 0; font-size: 13px; }
+#reveal-metadata-options .sample-next { display: flex; justify-content: space-between; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: 22px; }
+#reveal-metadata-options .sample-timer { color: var(--sample-muted); font-size: 13px; }
+#reveal-metadata-options .sample-ready { font: 600 13px system-ui, sans-serif; border: 0; border-radius: 8px; background: var(--sample-accent); color: var(--sample-panel); padding: 13px 18px; }
+#reveal-metadata-options .sample-ready:disabled { opacity: .75; }
+@media (max-width: 480px) {
+  #reveal-metadata-options .reveal-sample { padding: 20px; min-height: 435px; }
+  #reveal-metadata-options .sample-song { gap: 16px; }
+  #reveal-metadata-options .sample-mark { width: 58px; height: 88px; }
+  #reveal-metadata-options h2 { font-size: 23px; }
+}
+</style>
+<div id="reveal-metadata-options">
+  <div class="viz-carousel viz-dotted-background" aria-label="Reveal metadata placement">
+    <section data-variant="Below the title">
+      <div class="reveal-sample" data-placement="below" aria-label="Below the title reveal"></div>
+    </section>
+    <section data-variant="Beside the title" hidden>
+      <div class="reveal-sample" data-placement="inline" aria-label="Beside the title reveal"></div>
+    </section>
+    <section data-variant="Header badge" hidden>
+      <div class="reveal-sample" data-placement="header" aria-label="Header badge reveal"></div>
+    </section>
+  </div>
+</div>
+<script>
+(() => {
+  const root = document.getElementById('reveal-metadata-options');
+
+  root.querySelectorAll('.reveal-sample').forEach(sample => {
+    const placement = sample.dataset.placement;
+    const state = { showNumber: true, songType: 'Opening' };
+    const metadata = '<span class="sample-metadata" data-song-metadata>Opening 3</span>';
+    const header = placement === 'header' ? `<span class="sample-badge">${metadata}</span>` : '';
+    const inline = placement === 'inline' ? ` <span class="sample-inline">· ${metadata}</span>` : '';
+    const below = placement === 'below' ? `<p class="sample-under">${metadata}</p>` : '';
+
+    sample.innerHTML = `
+      <div class="sample-top"><p class="sample-eyebrow">Song 2 · The answer</p>${header}</div>
+      <div class="sample-song">
+        <span class="sample-mark" aria-hidden="true"><i data-lucide="music"></i></span>
+        <div class="sample-answer"><h2>Naruto Shippuden</h2><p>Blue Bird${inline}</p>${below}</div>
+      </div>
+      <p class="sample-personal">You answered Naruto Shippuden</p>
+      <div class="sample-next"><span class="sample-timer">Next song in 8s</span><button class="sample-ready" type="button">Ready for next song</button></div>`;
+
+    sample.querySelector('button').addEventListener('click', event => {
+      event.currentTarget.textContent = 'Ready · waiting for players';
+      event.currentTarget.disabled = true;
+    });
+
+    function renderMetadata() {
+      const label = state.showNumber && state.songType !== 'Soundtrack'
+        ? `${state.songType} 3`
+        : state.songType;
+      sample.querySelector('[data-song-metadata]').textContent = label;
+    }
+
+    if (globalThis.Tweak) {
+      const tweak = new Tweak({ container: sample, onChange: renderMetadata });
+      tweak.addToggle(state, 'showNumber', { label: 'Reliable sequence number' });
+      tweak.addSelect(state, 'songType', { label: 'Song type', options: ['Opening', 'Ending', 'Soundtrack'] });
+    }
+  });
+})();
+</script>
