@@ -43,14 +43,17 @@ function setup(onSubmit?: (anime: AnimeOption) => void) {
   return { client, send, unmount };
 }
 
-it('selects a real ID using the keyboard and clears it when free text is edited', async () => {
+it('highlights the first result for Enter selection and clears its ID when free text is edited', async () => {
   const user = userEvent.setup();
   const { send } = setup();
   expect(screen.getByRole('combobox')).toBeDisabled();
   act(() => send({ type: 'state', state: { phase: 'ready' } }));
   await user.type(screen.getByRole('combobox'), 'naru');
-  await screen.findByRole('option', { name: /Naruto/ });
-  await user.keyboard('{ArrowDown}{Enter}');
+  const firstOption = await screen.findByRole('option', { name: /Naruto/ });
+  expect(screen.getByRole('combobox')).toHaveAttribute('aria-activedescendant', firstOption.id);
+  expect(screen.getByLabelText('Selected anime ID')).toHaveTextContent('none');
+
+  await user.keyboard('{Enter}');
   expect(screen.getByLabelText('Selected anime ID')).toHaveTextContent('42');
   await user.type(screen.getByRole('combobox'), 'x');
   expect(screen.getByLabelText('Selected anime ID')).toHaveTextContent('none');
@@ -144,7 +147,7 @@ it('uses one Enter to select and a separate Enter to submit a committed answer',
   const input = screen.getByRole('combobox');
   await user.type(input, 'naru');
   await screen.findByRole('option');
-  await user.keyboard('{ArrowDown}{Enter}');
+  await user.keyboard('{Enter}');
   expect(screen.getByLabelText('Selected anime ID')).toHaveTextContent('42');
   expect(onSubmit).not.toHaveBeenCalled();
   for (const options of [

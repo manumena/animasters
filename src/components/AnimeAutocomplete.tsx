@@ -91,6 +91,7 @@ export default function AnimeAutocomplete({ value, onChange, client = catalogCli
       )}
       <Autocomplete<AnimeOption>
         value={value}
+        autoHighlight
         clearOnBlur={false}
         onOpen={() => setPopupOpen(true)}
         onClose={() => setPopupOpen(false)}
