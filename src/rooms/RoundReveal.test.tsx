@@ -19,6 +19,21 @@ function RevealWithReadyShortcut({ onReady }: { onReady: () => void }) {
   return <RoundReveal result={result} playerId="me" />;
 }
 
+it('shows the full performer credit between the song title and song type', () => {
+  render(<RoundReveal result={{ ...result, artistCredit: 'Masayuki Suzuki feat. Airi Suzuki', songType: 'opening', sequenceNumber: 3 }} playerId="me" />);
+
+  const credit = screen.getByText('Masayuki Suzuki feat. Airi Suzuki');
+  expect(credit).toHaveClass('round-reveal-artist');
+  expect(credit.previousElementSibling).toHaveTextContent('Blue Bird');
+  expect(credit.nextElementSibling).toHaveTextContent('Opening 3');
+});
+
+it.each([undefined, '', '  '])('omits the artist line for uncertain credits and older rooms (%s)', artistCredit => {
+  render(<RoundReveal result={{ ...result, artistCredit }} playerId="me" />);
+  expect(document.querySelector('.round-reveal-artist')).toBeNull();
+  expect(screen.getByText('Blue Bird')).toBeVisible();
+});
+
 it.each([
   { songType: 'opening' as const, sequenceNumber: 3, label: 'Opening 3' },
   { songType: 'ending' as const, sequenceNumber: 2, label: 'Ending 2' },

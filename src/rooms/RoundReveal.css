@@ -67,6 +67,13 @@
   object-fit: contain;
 }
 
+.room-match-song .round-reveal-artist {
+  margin-top: 6px;
+  color: var(--home-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
 .room-match-song .round-reveal-metadata {
   margin-top: 8px;
   color: var(--home-accent);

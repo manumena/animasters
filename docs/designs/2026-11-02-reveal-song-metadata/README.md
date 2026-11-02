@@ -14,6 +14,8 @@ With the frontend Vite server running, open `/docs/designs/2026-11-02-reveal-son
 
 Verified in the browser with the poster loaded and `Opening 3` directly below `Blue Bird`. [Actual screen capture](actual-reveal.jpg).
 
+Artist follow-up: the same production reveal now displays `Ikimonogakari` below `Blue Bird` and above `Opening 3`. Unknown credits omit the row. [Verified screen with artist](actual-reveal-with-artist.jpg); the earlier screen capture and placement alternatives remain available.
+
 All three original alternatives and their local interactions were checked with JSDOM. Their standalone local file previews could not be opened through the browser tool. The selected layout was subsequently verified through Vite using the actual production components, as described above.
 
 Optional design controls let reviewers omit the number or switch song type. Only server-approved sequence numbers appear in the production reveal. See the backend's `catalog/reveal-metadata-audit.md` for the audit and conservative policy.

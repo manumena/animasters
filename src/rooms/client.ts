@@ -27,6 +27,7 @@ export interface RoomSnapshot {
   result?: {
     roundId: string; number: number; anime: string; name: string;
     songType?: 'opening' | 'ending' | 'soundtrack';
+    artistCredit?: string;
     sequenceNumber?: number;
     artworkUrl?: string;
     players: { id: string; guess: string | null; points: number; correct: boolean }[];

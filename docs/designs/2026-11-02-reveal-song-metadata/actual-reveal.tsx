@@ -32,6 +32,7 @@ const previewRoom: RoomSnapshot = {
     number: 2,
     anime: 'Naruto Shippuden',
     name: 'Blue Bird',
+    artistCredit: 'Ikimonogakari',
     songType: 'opening',
     sequenceNumber: 3,
     artworkUrl: 'https://dszqiegiplfnrnovpqvn.supabase.co/storage/v1/object/public/animasters/Naruto%20Shippuden/artwork/cover-43-f9b0b898ebc984b52b179637080eb5ae07d352b6571c3962a2fd2d6c9cfce106.jpg',

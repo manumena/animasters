@@ -37,6 +37,7 @@ export default function RoundReveal({ result, playerId, children }: Props) {
   const hasPoster = Boolean(result.artworkUrl) && !posterFailed;
   const mine = result.players.find((player) => player.id === playerId);
   const metadataLabel = songMetadataLabel(result);
+  const artistCredit = result.artistCredit?.trim();
 
   function handlePosterError() {
     setPosterFailed(true);
@@ -82,6 +83,7 @@ export default function RoundReveal({ result, playerId, children }: Props) {
         <div className="round-reveal-answer">
           <h2>{result.anime}</h2>
           <p>{result.name}</p>
+          {artistCredit && <p className="round-reveal-artist">{artistCredit}</p>}
           {metadataLabel && <p className="round-reveal-metadata">{metadataLabel}</p>}
           {hasPoster && <p className="round-reveal-hint">Click the poster for a closer look</p>}
         </div>
