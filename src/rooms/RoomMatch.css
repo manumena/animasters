@@ -689,8 +689,8 @@
   gap: 16px;
   padding: 22px;
   border-radius: 14px;
-  background: #203d3c;
-  color: #9ae1d0;
+  background: #54d69c;
+  color: #10392b;
 }
 .guess-result-banner[data-outcome='wrong'] {
   background: #402f35;

@@ -49,3 +49,4 @@ Focused lobby follow-up: implemented 5 / 10 / 20 / 50 song presets, padded 28px 
 | Date | Sketch | Variants | Feedback |
 | --- | --- | --- | --- |
 | October 30, 2026 | [Guess feedback](2026-10-30-guess-feedback/README.md) · [Preview](2026-10-30-guess-feedback/preview.html) | Result banner; Answer card transformation; Brief celebration | Selected and implemented Result banner. Correct, wrong and pass/no-answer states; café palette and shared reveal timing. |
+| November 1, 2026 | [Correct-answer colors](2026-11-01-correct-answer-colors/README.md) · [Preview](2026-11-01-correct-answer-colors/preview.html) | Vivid lime; Reward gold; Solid emerald; Current mint reference | Selected Solid emerald (“vivid emerald”) and implemented: bright green background with dark text and icon. |

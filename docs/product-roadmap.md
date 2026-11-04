@@ -1,74 +1,103 @@
-# AniMasters product roadmap and ideas
+# AniMasters product roadmap
 
-Updated: October 30, 2026
+Updated: November 3, 2026
 
-This document records the owner's inspiration and future feature ideas. It is a planning backlog, not a promise that every feature ships in the next release. The [multiplayer architecture](multiplayer-architecture.md) remains the source of truth for implemented game rules.
+## What’s left to do
+
+Only unfinished work is listed here; details and open decisions follow. Requested work and exploratory candidates retain their existing priority. The two November 2 additions have no iteration assigned yet.
+
+### Remaining presentation work (iteration 1)
+
+- Animate the match playback bars, with clear playback state and reduced-motion support.
+
+### Requested for iteration 2
+
+- Investigate and fix the reported Ranma 1/2 behavior once reproduction steps are identified.
+- Improve loudness consistency for quiet songs.
+- Let the final song’s reveal countdown finish before showing final standings.
+- Build mix-and-match anime avatars for lobby, results and standings.
+- Define and add analytics for product usage, player statistics or both.
+
+### Newly requested (iteration to be decided)
+
+- Support Spanish alongside English, with a visible language selector and a location-based initial language.
+- Create a completed-match log so players can review the match after it finishes.
+
+### Requested for iteration 3
+
+- Add configurable guessing for song title, band/artist and anime season alongside anime answers.
+- Extend artwork coverage from playable songs to the full answer catalog.
+
+### Candidates and open questions
+
+- Evaluate typo-tolerant autocomplete, such as “Nerrto” suggesting “Naruto”.
+- Decide optional accounts and how guest progress carries into them.
+- Add watched-list and mixed song selection after defining identity and sampling rules.
+- Choose a popularity source before adding Top 100/500/1,000/2,000/all filters.
+- Define five song-difficulty levels and the recognition data needed to support them.
+- Evaluate hints, quick draw, lives, battle royale, boss fight and multiple-choice rules.
+- Design a dedicated solo flow and consider public-room discovery (tentatively iteration 2).
+- Explore community quizzes and a Nexus-inspired solo/cooperative roguelike (possibly iteration 3).
+- Expose additional homepage play modes as those experiences become available.
 
 ## Delivery boundaries
 
-| Stage | Direction | Commitment |
+This is a planning backlog, not a promise that every idea ships in the next release. The [multiplayer architecture](multiplayer-architecture.md) records game rules and technical decisions; current source takes precedence where older descriptions differ.
+
+| Stage | Direction | Status |
 | --- | --- | --- |
-| Iteration 1: current MVP and presentation | Private multiplayer rooms, dependable gameplay, a welcoming homepage and clearer match UI. | Multiplayer and the selected café backdrop homepage are implemented. The remaining match polish items below are proposed next work. |
-| Iteration 2: identity, personalization and analytics | Mix-and-match anime avatars and some form of analytics. Potential accounts, watched lists, public rooms and additional quiz options. | Avatars and analytics explicitly requested for iteration 2. Analytics scope is still to be defined. Public rooms are tentative. Other placements are proposals pending prioritization. |
-| Iteration 3: expanded gameplay | Guess anime, song title and artist; potentially a cooperative/solo roguelike experience. | Title/artist answering explicitly requested for iteration 3. A Nexus-inspired experience is exploratory. |
+| Iteration 1 | Remaining match presentation work. | Reveal metadata and playback animation. |
+| Iteration 2 | Gameplay fixes, anime avatars and analytics; possible identity/personalization. | Explicit requests remain as listed above. Typo tolerance is an open question; public rooms are tentative; other candidates need prioritization. |
+| Iteration 3 | Configurable anime/title/artist/season guessing and wider artwork coverage. | Requested; a Nexus-inspired experience remains exploratory. |
+| Unassigned | Spanish interface and completed-match logs. | Requested November 2; iteration and detailed scope still to be chosen. |
 
-Features without a chosen iteration remain candidates. Recording inspiration does not change the current scoring, timers, answer rules or settings.
+Recording inspiration does not change scoring, timers, answer rules or settings.
 
-## Current baseline
+## Remaining presentation details (iteration 1)
 
-- Guest players create or join a private room with a nickname and a four-character code; up to ten players can participate.
-- Everyone connected readies up to start. Each device plays audio on the shared start schedule, with independent playback controls afterward.
-- Players select an anime through autocomplete and submit one final guess or pass. Correct guesses earn N, N−1, … points in correct-answer order; wrong guesses lose one point; passes and unanswered rounds earn zero.
-- The host chooses song count and openings/endings/soundtracks. The app reveals answers, keeps scores, advances rounds and supports another match in the same room.
-- The homepage now exposes room entry. The catalog remains directly accessible at `/catalog` for debugging, without a homepage button.
+### Reveal metadata
 
-## Iteration 1 candidates: presentation and match usability
+- Display season identity where reliable.
+- Song type and sequence number are implemented locally: type for all valid records; numbering only for positive, unique slots on single-release answers (76 of 125 songs in the November 2 audit). Ambiguous numbers are omitted. Deployment is pending; placement alternatives are in [the design archive](designs/2026-11-02-reveal-song-metadata/README.md).
+- [x] Artist metadata and reveal display: the owner manually resolved all 12 previously uncertain artist credits on November 3. Credits appear below the song title and stay hidden until reveal. Application deployment has not been confirmed; guessing artists remains a separate feature.
 
-### Homepage
-
-Inspired by skribbl's accessible entry and instructions, AMQ's presentation of play options, and Melomatch's short introduction and animated game preview.
-
-- A short hero description explaining that players recognize anime from music and compete with friends.
-- Clear Create room and Join room actions, followed by a brief How to play section.
-- Communicate existing benefits: no account required, browser play, individual devices and up to ten players.
-- A small illustrative gameplay preview and restrained animation. No automatically playing audio; provide reduced-motion behavior.
-- Put detailed scoring rules behind an expandable explanation.
-- Explore three sketches: **Anime arcade**, **Cozy anime hangout**, and **Clean music quiz**. These are alternative visual directions, not three separate products or approved implementations.
-- October 29 selection: the owner chose **Clean music quiz**, then **Café backdrop**, without the “Hide café” button. That homepage is implemented with the existing café artwork, separate Create/Join entry links and a silent illustrative round. Anime arcade felt too similar to Melomatch. Save every sketch in the [design archive](designs/README.md), retaining previous versions.
-- Longer term, expose distinct play modes at entry, once those modes exist. Do not imply that future solo, public-room, community or roguelike experiences are available today.
-
-### Enter to submit a guess
-
-The owner likes AMQ's ability to use Enter instead of clicking Guess when autocomplete is filled.
-
-- Enter submits the selected canonical anime through the same action as the Guess button.
-- Apply the existing connection, round, deadline and single-answer checks.
-- Define how selection and submission interact when the suggestions list is open. Proposed default: Enter selects a highlighted suggestion; a subsequent Enter submits the selected answer. Avoid accidental submission and respect IME composition for Japanese input.
-- Keep the visible Guess button for touch users and discoverability.
-
-### Reveal panel: artwork and song information
-
-The owner likes AMQ's song information alongside its video. For AniMasters, use the show's image with song details beside it; stack these on narrow screens. **Video playback is out of scope for this work.**
-
-- Show anime/season identity and song title. Song type and reliable sequence numbers are implemented locally below the song title (76 of 125 songs have unambiguous numbering in the November 2 audit); deployment is pending. Season identity still needs work. See [the approved design](designs/2026-11-02-reveal-song-metadata/README.md).
-- Artist display is implemented locally, backed by 113 reviewed `artist_credit` values; 12 uncertain songs remain NULL for manual review. Credits appear below the song title and stay hidden until reveal. Application deployment is pending; guessing artists remains a separate feature.
-- Existing catalog imports already store release-level `picture` and `thumbnail` URLs. Choose artwork for the actual release where possible, with a representative image and a missing-image fallback.
-- Current artwork import scope: only anime represented in `public.songs`, sharing one image across songs from the same anime. Full answer-catalog artwork is deferred to iteration 3.
-- October 31: 67 approved portrait posters are stored in Supabase and mapped in Neon, covering all 125 playable songs. The owner selected option C: a sharp poster with a darkened blurred backdrop and click-to-enlarge. Prefer classic/early-series artwork for Naruto, Shippuden and Pokémon. Local research tooling and metadata were removed after import; originals and fallbacks remain in an ignored local archive.
-- Do not deliver or preload current-answer artwork before reveal. These URLs do not belong in the compact autocomplete payload.
-- Preserve the round's guesses, points and next-round readiness near the reveal.
-
-### Playback and remaining time
-
-Inspired by Melomatch:
+### Playback bars
 
 - [x] Implemented locally: real live frequency analysis of the playing song, with centered rounded bars, 60 ms falling time and 0 dB visual sensitivity, selected November 3 from the [interactive comparison](designs/2026-11-03-song-bar-comparison/README.md). Application deployment has not been confirmed.
 - [x] Bars settle when playback stops and remain static for reduced-motion users. Hidden/offscreen views suspend visual updates. Analysis follows actual source scheduling through preloads and round transitions and stays independent of listening volume.
-- Make the remaining seconds prominent.
-- Add a horizontal shrinking time bar with divisions that help estimate the remaining percentage.
-- Use the authoritative server deadline and the existing browser clock estimate. The bar must reflect the first-guess deadline change and never become a separate timer that controls gameplay.
-- Decide whether the percentage represents the original 90-second listening window or the active shortened window; make this transition understandable.
-- Retain visible numbers, sufficient contrast and reduced-motion support rather than relying on color or animation alone.
+
+## Iteration 2: remaining gameplay fixes and autocomplete decisions
+
+Requested November 1.
+
+- **Ranma 1/2:** investigate the reported incorrect behavior; the exact failure and reproduction steps still need to be identified.
+- **Quiet songs:** investigate low playback volume and improve loudness consistency.
+- **Final-round reveal timing:** show the final song’s results and let its countdown finish before displaying final standings. The backend currently enters `completed` immediately after the final round; the frontend shows standings in that phase.
+- **Typo tolerance (open question):** evaluate likely-match suggestions for mistyped characters, such as “Nerrto” → “Naruto”, and decide how forgiving matching should be. Current search supports prefixes, substrings and reordered tokens, without edit-distance correction.
+
+## Newly requested: Spanish interface
+
+Requested November 2; no iteration assigned.
+
+- Support English and Spanish throughout the player interface, including entry, lobby, preferences, gameplay, results, instructions and errors.
+- Display a language selector so players can choose explicitly and change language later.
+- Select the initial language based on location; define the location signal and fallback when it is unavailable or ambiguous.
+- Preserve an explicit language choice so automatic selection does not override it. Browser-language fallback is a proposal to confirm during implementation.
+- Keep canonical answer IDs and existing multilingual aliases independent of interface language.
+
+## Newly requested: completed-match log
+
+Requested November 2; no iteration assigned. Create a log when a match finishes and make it available for review afterward.
+
+Proposed contents and decisions to settle:
+
+- Record the songs/anime played in order, player guesses, round points and final scores/standings.
+- Give each completed match its own identity so rematches do not overwrite earlier logs.
+- Decide where players open the log, who may access it, whether it survives room expiry and how long it is retained.
+- Decide guest access and whether export or account-linked history is needed; accounts are not an established prerequisite.
+- Coordinate storage with analytics while keeping the player-facing match log an explicit deliverable.
+
+Today the room retains final scores and only the latest reveal, expires thirty minutes after completion, and clears previous scores/results on a successful rematch. That temporary state does not fulfill this request; full round history is not currently retained.
 
 ## Iteration 2: anime avatar builder
 
@@ -95,7 +124,7 @@ Proposed implementation direction:
 **Explicitly requested for iteration 2.** Add some form of analytics; the audience, metrics and presentation are still to be defined.
 
 - Decide whether analytics should cover product usage, gameplay/player statistics, or both.
-- Previously deferred final scores and songs played per player are possible starting points, pending prioritization.
+- Final scores and songs played per player are possible starting points; coordinate with the completed-match log.
 - Define the data to collect, persistence and any identity requirements once the scope is chosen.
 
 ## Identity and catalog personalization candidates
@@ -108,11 +137,9 @@ The owner likes Melomatch's **Google**, **Discord**, and **continue without an a
 - Account benefits could include saved avatars, watched lists and the previously deferred statistics: final scores and songs played per player.
 - Decide how guest progress attaches to an account and which features actually require login.
 
-### Song selection: watched, mix or random
+### Song selection: watched or mix
 
 Inspired by AMQ's room settings:
-
-- **Random:** the current eligible song pool, subject to room filters.
 - **Watched:** use participants' watched-anime lists.
 - **Mix:** combine watched-list selections with the broader eligible pool.
 
@@ -150,29 +177,28 @@ These are ideas to evaluate; no delivery iteration or scoring change is approved
 
 | Option | Desired behavior or inspiration | Open decisions |
 | --- | --- | --- |
-| Standard | Preserve today's one-guess/pass game and correct-answer-order scoring. | Keep a stable default as other modes are added. |
 | Hint | Players may request hints for fewer points. | Hint content, cost, per-player visibility, limits and whether unused hints matter. |
 | Quick draw | Award more points for faster correct answers, based on timing. | Formula, time origin, latency treatment and how it differs from today's order-based points. |
 | Lives | A missed anime costs a life. | Starting lives; treatment of passes/timeouts/disconnections; elimination and match-end rules. |
 | Battle royale | Owner noticed this in AMQ but has not established its rules. | Research first; do not assume a particular elimination format. |
 | Boss fight | Owner noticed this in AMQ but has not established its rules. | Research first; determine whether a cooperative interpretation fits AniMasters. |
 | Multiple choice | Offer a set of anime answers instead of typed autocomplete. | Number and quality of distractors, canonical deduplication, timing and score balance. |
-| Typing | Continue the current autocomplete-based answering. | Preserve canonical IDs and multilingual aliases. |
 
 ## Entry modes and community ideas
 
 | Entry option | Direction | Status / dependencies |
 | --- | --- | --- |
 | Solo | Offer a clearly labeled experience for one player from the homepage. | A one-person room works today; a dedicated solo flow and its rules still need design. |
-| Multiplayer | Retain private creation/joining; optionally show active public rooms. | Public-room discovery is tentative for iteration 2. Needs visibility controls, capacity/status handling and an explicit policy for joining games already underway. |
+| Public rooms | Show active public rooms. | Tentative for iteration 2. Needs visibility controls, capacity/status handling and an explicit policy for joining games already underway. |
 | Community | Let users create custom quizzes and play quizzes shared by other users. | Candidate; requires quiz ownership, editing, sharing, visibility and content/reporting decisions. No iteration assigned. |
 | Nexus-inspired roguelike | Explore solo or cooperative progression through a run. | Possible iteration 3, not a commitment. Research AMQ's Nexus separately; its mechanics are not specified here. |
 
-## Iteration 3: anime, song title and artist answers
+## Iteration 3: configurable anime, song title, artist and season answers
 
 **Explicitly requested for iteration 3**, inspired by Melomatch.
 
-- Allow guessing the anime, the song title and the band/artist.
+- Add configurable room options to let players guess by song name or band/artist, alongside anime guessing.
+- Add an option to guess which anime season the song belongs to; define accepted season names/aliases and how season answers relate to canonical anime/release mappings.
 - Define separate answer fields or categories, aliases for artists/titles, partial credit, submission limits and whether one answer locks the others.
 - Audit and enrich song-title and artist metadata before relying on it for scoring.
 - Extend stored anime artwork beyond the songs table to the full answer catalog.
@@ -180,11 +206,11 @@ These are ideas to evaluate; no delivery iteration or scoring change is approved
 
 ## Suggested next decisions
 
-1. Review the implemented café backdrop homepage on the deployment.
-2. Prioritize Enter-to-submit, reveal artwork/details, audio bars and the larger timer independently of future game modes.
-3. Confirm which account/personalization candidates join avatars in iteration 2.
-4. Research AMQ's difficulty, battle royale, boss fight and Nexus before specifying comparable mechanics.
-5. Define popularity ranking independently of recognition difficulty.
+1. Prioritize the remaining presentation work and iteration 2 fixes.
+2. Choose an iteration for Spanish support and completed-match logs, and define log retention and access.
+3. Define analytics scope and which account/personalization candidates join avatars in iteration 2.
+4. Research difficulty, battle royale, boss fight and Nexus before specifying comparable mechanics.
+5. Choose a popularity source independently of recognition difficulty.
 
 ## Inspiration and evidence
 

@@ -1,0 +1,127 @@
+<style>
+#result-color-sketch .scene {
+  --game-bg: light-dark(#edf3f1, #111b21);
+  --game-panel: light-dark(#ffffff, #1b2b32);
+  --game-ink: light-dark(#203b3e, #f1f7f4);
+  --game-muted: light-dark(#52686c, #b4c7cb);
+  --game-line: light-dark(#cad9d5, #354950);
+  --game-mint: light-dark(#246b5c, #a7ecdb);
+  background: var(--game-bg);
+  color: var(--game-ink);
+  font: 15px/1.5 system-ui, sans-serif;
+  padding: 28px;
+  border-radius: 18px;
+  max-width: 680px;
+  margin: 24px auto;
+}
+#result-color-sketch .scene * { box-sizing: border-box; }
+#result-color-sketch .scene h2,
+#result-color-sketch .scene h3,
+#result-color-sketch .scene p { margin: 0; }
+#result-color-sketch .scene header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; margin-bottom: 24px; }
+#result-color-sketch .brand { font-size: 21px; font-weight: 700; }
+#result-color-sketch .round { margin-left: auto; color: var(--game-muted); font-size: 13px; }
+#result-color-sketch .banner { display: flex; align-items: center; gap: 16px; padding: 22px; border-radius: 14px; background: var(--result-bg); color: var(--result-ink); }
+#result-color-sketch .banner > svg { width: 34px; height: 34px; flex-shrink: 0; }
+#result-color-sketch .message { min-width: 0; flex: 1; }
+#result-color-sketch .message h2 { font-size: 23px; line-height: 1.3; font-weight: 700; }
+#result-color-sketch .message p { font-size: 13px; margin-top: 4px; }
+#result-color-sketch .points { display: grid; text-align: right; flex-shrink: 0; }
+#result-color-sketch .points strong { font-size: 32px; line-height: 1.2; }
+#result-color-sketch .points span { font-size: 12px; }
+#result-color-sketch .answer { margin-top: 16px; padding: 24px; border: 1px solid var(--game-line); background: var(--game-panel); border-radius: 18px; }
+#result-color-sketch .eyebrow { color: var(--game-mint); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; }
+#result-color-sketch .track { display: flex; align-items: center; gap: 16px; margin: 20px 0; }
+#result-color-sketch .art { display: grid; place-items: center; width: 56px; height: 70px; flex-shrink: 0; border-radius: 8px; background: light-dark(#e1eeea, #30474c); color: var(--game-mint); }
+#result-color-sketch .track h3 { font-size: 20px; }
+#result-color-sketch .track p, #result-color-sketch .next p { font-size: 13px; color: var(--game-muted); }
+#result-color-sketch .next { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; border-top: 1px solid var(--game-line); padding-top: 20px; }
+#result-color-sketch .ring { width: 76px; height: 76px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--game-mint) 0deg 288deg, var(--game-line) 288deg); flex-shrink: 0; }
+#result-color-sketch .ring span { display: grid; place-items: center; width: 68px; height: 68px; border-radius: 50%; background: var(--game-panel); font-size: 26px; font-weight: 700; }
+#result-color-sketch .next button { font: 600 13px/1.4 system-ui, sans-serif; border: 0; padding: 11px 14px; min-height: 44px; border-radius: 9px; color: #123e34; background: #a7ecdb; margin-top: 10px; }
+#result-color-sketch .next button:disabled { color: var(--game-muted); background: light-dark(#e1eeea, #344d4d); }
+#result-color-sketch .scene[data-tone='lime'] { --result-bg: light-dark(#e3f5bf, #293e20); --result-ink: light-dark(#385b0c, #c1f477); }
+#result-color-sketch .scene[data-tone='gold'] { --result-bg: light-dark(#fff0bc, #44391d); --result-ink: light-dark(#705009, #ffdb78); }
+#result-color-sketch .scene[data-tone='emerald'] { --result-bg: #54d69c; --result-ink: #10392b; }
+#result-color-sketch .scene[data-tone='current'] { --result-bg: light-dark(#dfefea, #203d3c); --result-ink: light-dark(#246b5c, #9ae1d0); }
+@media (max-width: 480px) {
+  #result-color-sketch .scene { padding: 16px; margin: 16px 0; }
+  #result-color-sketch .banner { padding: 16px; gap: 10px; }
+  #result-color-sketch .banner > svg { width: 26px; height: 26px; }
+  #result-color-sketch .message h2 { font-size: 20px; }
+  #result-color-sketch .points strong { font-size: 28px; }
+  #result-color-sketch .answer { padding: 18px; }
+}
+</style>
+<div id="result-color-sketch" class="viz-carousel viz-dotted-background" aria-label="Correct-answer color alternatives">
+  <section data-variant="Vivid lime" aria-label="Vivid lime success banner">
+    <div class="scene" data-tone="lime" aria-label="Vivid lime colors"></div>
+  </section>
+  <section data-variant="Reward gold" aria-label="Reward gold success banner" hidden>
+    <div class="scene" data-tone="gold" aria-label="Reward gold colors"></div>
+  </section>
+  <section data-variant="Solid emerald" aria-label="Solid emerald success banner" hidden>
+    <div class="scene" data-tone="emerald" aria-label="Solid emerald colors"></div>
+  </section>
+  <section data-variant="Current mint" aria-label="Current mint reference" hidden>
+    <div class="scene" data-tone="current" aria-label="Current mint colors"></div>
+  </section>
+</div>
+<script>
+(() => {
+  const root = document.getElementById('result-color-sketch');
+
+  // Identical content and dimensions isolate the effect of each color choice.
+  const sceneMarkup = `
+    <header><strong class="brand">Animasters</strong><span class="round">Song 4 / 10</span></header>
+    <div class="banner" role="status" aria-label="Your round result">
+      <i data-lucide="circle-check" aria-hidden="true"></i>
+      <div class="message"><h2>You got it!</h2><p>Correct answer</p></div>
+      <div class="points"><strong>+4</strong><span>points</span></div>
+    </div>
+    <section class="answer" aria-label="Revealed answer">
+      <p class="eyebrow">The answer</p>
+      <div class="track">
+        <span class="art"><i data-lucide="music-2" aria-hidden="true"></i></span>
+        <div><h3>Naruto Shippuden</h3><p>Blue Bird</p></div>
+      </div>
+      <div class="next">
+        <div class="ring" aria-label="8 seconds until the next song"><span>8s</span></div>
+        <div><strong>Next song in</strong><p>Starting automatically</p><button type="button" class="cursor-interaction">Ready for next song ↵</button></div>
+      </div>
+    </section>`;
+
+  root.querySelectorAll('.scene').forEach(scene => {
+    scene.innerHTML = sceneMarkup;
+    const readyButton = scene.querySelector('button');
+    readyButton.addEventListener('click', () => {
+      readyButton.textContent = 'Ready · waiting for others';
+      readyButton.disabled = true;
+    });
+
+    if (!globalThis.Tweak || scene.dataset.tone === 'current') return;
+
+    // Resolve light-dark once for editable starting values in the active theme.
+    const banner = scene.querySelector('.banner');
+    const computed = getComputedStyle(banner);
+    const toHex = color => {
+      const channels = color.match(/[\d.]+/g).slice(0, 3);
+      return '#' + channels.map(channel => Math.round(Number(channel)).toString(16).padStart(2, '0')).join('');
+    };
+    const palette = {
+      background: toHex(computed.backgroundColor),
+      text: toHex(computed.color),
+    };
+    const tweak = new Tweak({
+      container: scene,
+      onChange: () => {
+        scene.style.setProperty('--result-bg', palette.background);
+        scene.style.setProperty('--result-ink', palette.text);
+      },
+    });
+    tweak.addColorPicker(palette, 'background', { label: 'Banner background', reference: '--result-bg' });
+    tweak.addColorPicker(palette, 'text', { label: 'Text and icon', reference: '--result-ink' });
+  });
+  if (globalThis.lucide) lucide.createIcons();
+})();
+</script>
