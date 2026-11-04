@@ -6,10 +6,6 @@ Updated: November 3, 2026
 
 Only unfinished work is listed here; details and open decisions follow. Requested work and exploratory candidates retain their existing priority. The two November 2 additions have no iteration assigned yet.
 
-### Remaining presentation work (iteration 1)
-
-- Animate the match playback bars, with clear playback state and reduced-motion support.
-
 ### Requested for iteration 2
 
 - Investigate and fix the reported Ranma 1/2 behavior once reproduction steps are identified.
