@@ -62,7 +62,8 @@ The owner likes AMQ's song information alongside its video. For AniMasters, use 
 
 Inspired by Melomatch:
 
-- Add an animated audio-bar display while the song is playing. Decide between a decorative playback indicator and a real audio analyser; do not present decorative bars as measured audio.
+- [x] Implemented locally: real live frequency analysis of the playing song, with centered rounded bars, 60 ms falling time and 0 dB visual sensitivity, selected November 3 from the [interactive comparison](designs/2026-11-03-song-bar-comparison/README.md). Application deployment has not been confirmed.
+- [x] Bars settle when playback stops and remain static for reduced-motion users. Hidden/offscreen views suspend visual updates. Analysis follows actual source scheduling through preloads and round transitions and stays independent of listening volume.
 - Make the remaining seconds prominent.
 - Add a horizontal shrinking time bar with divisions that help estimate the remaining percentage.
 - Use the authoritative server deadline and the existing browser clock estimate. The bar must reflect the first-guess deadline change and never become a separate timer that controls gameplay.

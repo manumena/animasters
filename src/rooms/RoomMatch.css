@@ -185,6 +185,8 @@
 .room-match-spectrum span {
   flex: 1;
   max-width: 9px;
+  height: 92px;
+  transform-origin: center;
   border-radius: 5px;
   background: #a7ecdb;
   opacity: 0.9;

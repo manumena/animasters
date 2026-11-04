@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AniMasters · Song bar comparison</title>
+    <style>
+      body { margin: 0; background: #101e1c; }
+    </style>
+  </head>
+  <body>
+    <song-bar-comparison></song-bar-comparison>
+    <script type="module">
+const BAR_COUNT = 34;
+const FFT_SIZE = 4096;
+const FRAME_RATE = 20;
+
+function frequencyBands(sampleRate) {
+  const lowerFrequency = 45;
+  const upperFrequency = Math.min(16000, sampleRate / 2);
+  const binFrequency = sampleRate / FFT_SIZE;
+
+  return Array.from({ length: BAR_COUNT }, (_, index) => {
+    const lower = lowerFrequency * (upperFrequency / lowerFrequency) ** (index / BAR_COUNT);
+    const upper = lowerFrequency * (upperFrequency / lowerFrequency) ** ((index + 1) / BAR_COUNT);
+    const start = Math.max(1, Math.floor(lower / binFrequency));
+    const end = Math.min(FFT_SIZE / 2, Math.max(start + 1, Math.ceil(upper / binFrequency)));
+    return { start, end };
+  });
+}
+
+function bandDecibels(frequencies, bands) {
+  return bands.map(({ start, end }) => {
+    let maximum = -Infinity;
+    for (let index = start; index < end; index++) {
+      maximum = Math.max(maximum, frequencies[index]);
+    }
+    return maximum;
+  });
+}
+
+function normalizedLevel(decibels, sensitivity = 0, floor = -85, ceiling = -20) {
+  return Math.max(0, Math.min(1, (decibels + sensitivity - floor) / (ceiling - floor)));
+}
+
+function rmsDecibels(samples) {
+  let energy = 0;
+  for (const sample of samples) energy += sample * sample;
+  return 20 * Math.log10(Math.sqrt(energy / samples.length));
+}
+
+/** Blackman window and 1/N FFT scaling match the Web Audio analyser contract.
+ * Both live and stored spectra use the same bands; only their sample times differ.
+ * This processor belongs to the preview, not the production playback controller. */
+function createSpectrumProcessor(sampleRate) {
+  const real = new Float64Array(FFT_SIZE);
+  const imaginary = new Float64Array(FFT_SIZE);
+  const window = new Float64Array(FFT_SIZE);
+  const reversed = new Uint16Array(FFT_SIZE);
+  const cosine = new Float64Array(FFT_SIZE / 2);
+  const sine = new Float64Array(FFT_SIZE / 2);
+  const frequencies = new Float32Array(FFT_SIZE / 2);
+  const bands = frequencyBands(sampleRate);
+  const bitCount = Math.log2(FFT_SIZE);
+
+  for (let index = 0; index < FFT_SIZE; index++) {
+    const phase = 2 * Math.PI * index / FFT_SIZE;
+    window[index] = 0.42 - 0.5 * Math.cos(phase) + 0.08 * Math.cos(2 * phase);
+
+    let original = index;
+    let reverse = 0;
+    for (let bit = 0; bit < bitCount; bit++) {
+      reverse = (reverse << 1) | (original & 1);
+      original >>= 1;
+    }
+    reversed[index] = reverse;
+  }
+
+  for (let index = 0; index < cosine.length; index++) {
+    const angle = -2 * Math.PI * index / FFT_SIZE;
+    cosine[index] = Math.cos(angle);
+    sine[index] = Math.sin(angle);
+  }
+
+  return (samples, endSample) => {
+    // Match a live analyser's trailing window, padding the beginning with silence.
+    for (let index = 0; index < FFT_SIZE; index++) {
+      const sampleIndex = endSample - FFT_SIZE + index;
+      const value = sampleIndex >= 0 && sampleIndex < samples.length ? samples[sampleIndex] : 0;
+      real[reversed[index]] = value * window[index];
+      imaginary[reversed[index]] = 0;
+    }
+
+    for (let size = 2; size <= FFT_SIZE; size *= 2) {
+      const half = size / 2;
+      const stride = FFT_SIZE / size;
+
+      for (let block = 0; block < FFT_SIZE; block += size) {
+        for (let offset = 0; offset < half; offset++) {
+          const left = block + offset;
+          const right = left + half;
+          const twiddle = offset * stride;
+          const rotatedReal = real[right] * cosine[twiddle] - imaginary[right] * sine[twiddle];
+          const rotatedImaginary = real[right] * sine[twiddle] + imaginary[right] * cosine[twiddle];
+          real[right] = real[left] - rotatedReal;
+          imaginary[right] = imaginary[left] - rotatedImaginary;
+          real[left] += rotatedReal;
+          imaginary[left] += rotatedImaginary;
+        }
+      }
+    }
+
+    for (let index = 0; index < frequencies.length; index++) {
+      const amplitude = Math.hypot(real[index], imaginary[index]) / FFT_SIZE;
+      frequencies[index] = 20 * Math.log10(amplitude);
+    }
+    return bandDecibels(frequencies, bands);
+  };
+}
+
+/** Store raw dB rather than display heights so sensitivity stays adjustable. */
+function precomputeSpectrum(samples, sampleRate, onProgress = () => {}) {
+  const process = createSpectrumProcessor(sampleRate);
+  const frameCount = Math.ceil(samples.length / sampleRate * FRAME_RATE) + 1;
+  const frames = new Float32Array(frameCount * BAR_COUNT);
+
+  for (let frame = 0; frame < frameCount; frame++) {
+    const position = Math.round(frame / FRAME_RATE * sampleRate);
+    frames.set(process(samples, position), frame * BAR_COUNT);
+    if (frame % 100 === 0) onProgress(frame / frameCount);
+  }
+  return frames;
+}
+
+function storedLevels(frames, seconds, sensitivity = 0) {
+  const framePosition = Math.max(0, seconds * FRAME_RATE);
+  const lastFrame = frames.length / BAR_COUNT - 1;
+  const lowerFrame = Math.min(lastFrame, Math.floor(framePosition));
+  const upperFrame = Math.min(lastFrame, lowerFrame + 1);
+  const blend = Math.min(1, framePosition - lowerFrame);
+
+  return Array.from({ length: BAR_COUNT }, (_, index) => {
+    // Normalize before interpolation so silence (-Infinity dB) stays well-defined.
+    const lower = normalizedLevel(frames[lowerFrame * BAR_COUNT + index], sensitivity);
+    const upper = normalizedLevel(frames[upperFrame * BAR_COUNT + index], sensitivity);
+    return lower + (upper - lower) * blend;
+  });
+}
+
+/* global HTMLElement, matchMedia, performance, AudioContext, AbortController,
+  fetch, Worker, URL, DOMException, document, requestAnimationFrame,
+  cancelAnimationFrame, customElements */
+
+
+const AUDIO_BASE = 'https://dszqiegiplfnrnovpqvn.supabase.co/storage/v1/object/public/animasters/';
+const SONGS = [
+  { title: 'Kick Back', anime: 'Chainsawman', path: 'Chainsawman/kick_back.mp3' },
+  {
+    title: 'Boku-tachi wa Tenshi datta',
+    anime: 'Dragon Ball Z',
+    path: 'Dragon%20Ball%20Z/Dragon%20Ball%20Z%20-%20Boku-tachi%20wa%20Tenshi%20datta.mp3',
+  },
+];
+
+const MODES = [
+  { id: 'live', title: 'Live spectrum', label: 'Bass → midrange → treble', note: 'Each bar follows a frequency band in the playing song.' },
+  { id: 'loudness', title: 'Live loudness', label: 'Overall song energy', note: 'One measured loudness value moves a fixed bar profile.' },
+  { id: 'stored', title: 'Precomputed spectrum', label: 'Recorded frequency frames · 20 fps', note: 'Reads analysis prepared before playback. It should resemble the live spectrum.' },
+];
+
+const style = `
+  :host { display: block; color: #edf6f1; font: 15px/1.5 system-ui, sans-serif; }
+  * { box-sizing: border-box; }
+  main { max-width: 1080px; margin: auto; padding: 36px 28px; }
+  h1, h2, p { margin: 0; }
+  h1 { font-size: clamp(26px, 4vw, 36px); font-weight: 600; letter-spacing: -.035em; }
+  h2 { font-size: 17px; font-weight: 600; }
+  .eyebrow { color: #a7ecdb; font-size: 11px; font-weight: 600; letter-spacing: .17em; margin-bottom: 8px; }
+  .intro { color: #b6cbc2; margin: 8px 0 24px; max-width: 700px; }
+  .transport { padding: 22px; border: 1px solid #365048; border-radius: 16px; background: #192c26; }
+  .top-controls { display: flex; flex-wrap: wrap; align-items: end; gap: 14px; }
+  label { display: grid; gap: 6px; color: #c7d9d0; font-size: 13px; }
+  .song-field { flex: 1; min-width: min(100%, 280px); }
+  button, select, input { font: inherit; }
+  button, select { border: 1px solid #50695e; border-radius: 9px; padding: 10px 14px; color: #edf6f1; background: #243d32; min-height: 44px; }
+  select { max-width: 100%; width: 100%; }
+  button { cursor: pointer; }
+  button.primary { color: #122b22; background: #a7ecdb; border-color: #a7ecdb; min-width: 140px; font-weight: 600; }
+  button:disabled { opacity: .5; cursor: wait; }
+  input[type=range] { width: 100%; min-width: 0; accent-color: #a7ecdb; cursor: pointer; }
+  input[type=checkbox] { accent-color: #a7ecdb; }
+  .timeline { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center; margin-top: 20px; }
+  .time { min-width: 92px; text-align: right; font-variant-numeric: tabular-nums; color: #d6e5dd; font-size: 13px; }
+  .adjustments { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 18px; }
+  .label-row { display: flex; justify-content: space-between; gap: 12px; }
+  output { font-variant-numeric: tabular-nums; color: #edf6f1; }
+  .status { margin-top: 12px; color: #b6cbc2; font-size: 13px; min-height: 20px; }
+  .status.error { color: #ffb5a5; }
+  .view-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin: 22px 0 16px; }
+  .view-controls label { display: flex; align-items: center; gap: 10px; }
+  .view-controls select { width: auto; }
+  .modes { display: grid; gap: 14px; }
+  .mode { background: #192c26; border: 1px solid #365048; border-radius: 16px; padding: 18px 22px; }
+  .mode[hidden] { display: none; }
+  .mode-heading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 5px 16px; }
+  .mode-label, .mode-note { color: #b6cbc2; font-size: 12px; }
+  .spectrum { height: 114px; display: flex; gap: 5px; align-items: center; justify-content: center; overflow: hidden; }
+  .spectrum span { flex: 1; max-width: 15px; height: 92px; background: #a7ecdb; border-radius: 7px; transform: scaleY(.035); }
+  .footer { color: #a7bfb3; font-size: 12px; margin-top: 18px; }
+  @media (max-width: 560px) {
+    main { padding: 24px 14px; }
+    .transport, .mode { padding: 16px; }
+    .adjustments { grid-template-columns: 1fr; gap: 14px; }
+    .song-field { flex-basis: 100%; }
+    .spectrum { gap: 3px; }
+    .view-controls { align-items: start; }
+    .view-controls label { flex-wrap: wrap; }
+    .timeline { gap: 8px; }
+  }
+`;
+
+function formatTime(seconds) {
+  const wholeSeconds = Math.floor(seconds);
+  return `${Math.floor(wholeSeconds / 60)}:${String(wholeSeconds % 60).padStart(2, '0')}`;
+}
+
+/** A standalone comparison fixture. It shares one audio source across every view
+ * and never creates a room or alters the production playback controller. */
+class SongBarComparison extends HTMLElement {
+  connectedCallback() {
+    if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
+    this.shadowRoot.innerHTML = `
+      <style>${style}</style>
+      <main>
+        <p class="eyebrow">ANIMASTERS · PLAYBACK STUDY</p>
+        <h1>One song. Three ways to see it.</h1>
+        <p class="intro">Play a song and compare the same moment across all three approaches, or focus on one.</p>
+        <section class="transport" aria-label="Shared playback controls">
+          <div class="top-controls">
+            <label class="song-field">Song
+              <select data-control="song">${SONGS.map((song, index) => `<option value="${index}">${song.title} · ${song.anime}</option>`).join('')}</select>
+            </label>
+            <button type="button" class="primary" data-control="play">Load & play</button>
+            <button type="button" data-control="restart" disabled>Restart</button>
+          </div>
+          <div class="timeline">
+            <input type="range" data-control="seek" aria-label="Song position" min="0" max="1" step="0.05" value="0" disabled />
+            <span class="time" data-view="time">0:00 / 0:00</span>
+          </div>
+          <div class="adjustments">
+            <label><span class="label-row">Listening volume <output data-view="volume">40%</output></span>
+              <input type="range" data-control="volume" min="0" max="100" step="1" value="40" />
+            </label>
+            <label><span class="label-row">Falling time <output data-view="fall">280 ms</output></span>
+              <input type="range" data-control="fall" min="60" max="650" step="10" value="280" />
+            </label>
+            <label><span class="label-row">Visual sensitivity <output data-view="sensitivity">0 dB</output></span>
+              <input type="range" data-control="sensitivity" min="-15" max="15" step="1" value="0" />
+            </label>
+          </div>
+          <p class="status" role="status" aria-live="polite">Ready. Audio starts only when you press play.</p>
+        </section>
+        <div class="view-controls">
+          <label>Compare <select data-control="view"><option value="all">All three</option>${MODES.map(mode => `<option value="${mode.id}">${mode.title}</option>`).join('')}</select></label>
+          <label><input data-control="motion" type="checkbox" /> Animate bars</label>
+        </div>
+        <div class="modes">
+          ${MODES.map(mode => `
+            <section class="mode" data-mode="${mode.id}" aria-label="${mode.title}">
+              <div class="mode-heading"><h2>${mode.title}</h2><span class="mode-label">${mode.label}</span></div>
+              <div class="spectrum" role="img" aria-label="${mode.title} audio visualization">${'<span></span>'.repeat(BAR_COUNT)}</div>
+              <p class="mode-note">${mode.note}</p>
+            </section>
+          `).join('')}
+        </div>
+        <p class="footer">Real catalog recordings · bar heights follow the song, independently of listening volume · no random movement</p>
+      </main>
+    `;
+
+    this.cache = new Map();
+    this.context = undefined;
+    this.source = undefined;
+    this.track = undefined;
+    this.generation = (this.generation || 0) + 1;
+    this.offset = 0;
+    this.playing = false;
+    this.loading = false;
+    this.motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
+    this.control('motion').checked = !this.motionQuery.matches;
+    this.onMotionPreference = event => {
+      this.control('motion').checked = !event.matches;
+      this.resetBars();
+    };
+    this.motionQuery.addEventListener('change', this.onMotionPreference);
+
+    this.bars = MODES.map(mode => [...this.shadowRoot.querySelectorAll(`[data-mode="${mode.id}"] .spectrum span`)]);
+    this.resetBars();
+    this.bindControls();
+    this.lastPaint = performance.now();
+    this.animate(this.lastPaint);
+  }
+
+  control(name) { return this.shadowRoot.querySelector(`[data-control="${name}"]`); }
+  view(name) { return this.shadowRoot.querySelector(`[data-view="${name}"]`); }
+
+  status(message, error = false) {
+    const status = this.shadowRoot.querySelector('.status');
+    status.textContent = message;
+    status.classList.toggle('error', error);
+    status.setAttribute('role', error ? 'alert' : 'status');
+  }
+
+  bindControls() {
+    this.control('play').addEventListener('click', () => { void this.togglePlayback(); });
+    this.control('restart').addEventListener('click', () => this.seek(0));
+    this.control('seek').addEventListener('input', event => this.seek(Number(event.target.value)));
+    this.control('song').addEventListener('change', () => {
+      this.cancelLoad();
+      this.pause();
+      this.track = undefined;
+      this.offset = 0;
+      this.updateTransport();
+      this.status('Ready. Press play to load this song.');
+      this.resetBars();
+    });
+    this.control('volume').addEventListener('input', event => {
+      const volume = Number(event.target.value);
+      this.view('volume').textContent = `${volume}%`;
+      if (this.gain) this.gain.gain.setTargetAtTime(volume / 100, this.context.currentTime, 0.015);
+    });
+    this.control('fall').addEventListener('input', event => {
+      this.view('fall').textContent = `${event.target.value} ms`;
+    });
+    this.control('sensitivity').addEventListener('input', event => {
+      const value = Number(event.target.value);
+      this.view('sensitivity').textContent = `${value > 0 ? '+' : ''}${value} dB`;
+    });
+    this.control('view').addEventListener('change', event => {
+      for (const section of this.shadowRoot.querySelectorAll('[data-mode]')) {
+        section.hidden = event.target.value !== 'all' && section.dataset.mode !== event.target.value;
+      }
+    });
+    this.control('motion').addEventListener('change', () => this.resetBars());
+  }
+
+  audioContext() {
+    if (this.context) return this.context;
+    this.context = new AudioContext();
+    this.gain = this.context.createGain();
+    this.gain.gain.value = Number(this.control('volume').value) / 100;
+    this.gain.connect(this.context.destination);
+    this.analyser = this.context.createAnalyser();
+    this.analyser.fftSize = FFT_SIZE;
+    this.analyser.smoothingTimeConstant = 0;
+    this.frequencies = new Float32Array(this.analyser.frequencyBinCount);
+    this.waveform = new Float32Array(FFT_SIZE);
+    this.bands = frequencyBands(this.context.sampleRate);
+    return this.context;
+  }
+
+  async togglePlayback() {
+    if (this.playing) {
+      this.pause();
+      return;
+    }
+
+    try {
+      // Resume in the click, before download and analysis, to satisfy autoplay rules.
+      const context = this.audioContext();
+      await context.resume();
+      if (context.state !== 'running') throw new Error('Audio is blocked. Press play to try again.');
+      if (this.loading) return;
+      const track = this.track || await this.loadSong();
+      if (track && track === this.track && this.isConnected) this.play();
+    } catch (error) {
+      if (error.name !== 'AbortError' && this.isConnected) this.status(error.message, true);
+    }
+  }
+
+  async loadSong() {
+    const songIndex = Number(this.control('song').value);
+    if (this.cache.has(songIndex)) {
+      this.track = this.cache.get(songIndex);
+      return this.track;
+    }
+
+    const generation = ++this.generation;
+    this.loading = true;
+    this.request = new AbortController();
+    this.updateTransport();
+    this.status('Loading song…');
+
+    try {
+      const response = await fetch(AUDIO_BASE + SONGS[songIndex].path, { signal: this.request.signal });
+      if (!response.ok) throw new Error('The song could not be loaded. Press play to retry.');
+      const buffer = await this.context.decodeAudioData(await response.arrayBuffer());
+      if (generation !== this.generation) return;
+
+      this.status('Preparing recorded frequency frames…');
+      const frames = await this.prepareFrames(buffer, generation);
+      if (generation !== this.generation) return;
+
+      this.track = { buffer, frames };
+      this.cache.set(songIndex, this.track);
+      this.status(`Ready · ${frames.byteLength.toLocaleString()} bytes of precomputed frequency data`);
+      return this.track;
+    } finally {
+      if (generation === this.generation) {
+        this.loading = false;
+        this.updateTransport();
+      }
+    }
+  }
+
+  async prepareFrames(buffer, generation) {
+    const mono = new Float32Array(buffer.length);
+    // Web Audio's analyser downmixes stereo to mono; the stored path does the same.
+    for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
+      const samples = buffer.getChannelData(channel);
+      for (let index = 0; index < samples.length; index++) {
+        mono[index] += samples[index] / buffer.numberOfChannels;
+      }
+    }
+
+    const workerUrl = URL.createObjectURL(new Blob(["const BAR_COUNT = 34;\nconst FFT_SIZE = 4096;\nconst FRAME_RATE = 20;\n\nfunction frequencyBands(sampleRate) {\n  const lowerFrequency = 45;\n  const upperFrequency = Math.min(16000, sampleRate / 2);\n  const binFrequency = sampleRate / FFT_SIZE;\n\n  return Array.from({ length: BAR_COUNT }, (_, index) => {\n    const lower = lowerFrequency * (upperFrequency / lowerFrequency) ** (index / BAR_COUNT);\n    const upper = lowerFrequency * (upperFrequency / lowerFrequency) ** ((index + 1) / BAR_COUNT);\n    const start = Math.max(1, Math.floor(lower / binFrequency));\n    const end = Math.min(FFT_SIZE / 2, Math.max(start + 1, Math.ceil(upper / binFrequency)));\n    return { start, end };\n  });\n}\n\nfunction bandDecibels(frequencies, bands) {\n  return bands.map(({ start, end }) => {\n    let maximum = -Infinity;\n    for (let index = start; index < end; index++) {\n      maximum = Math.max(maximum, frequencies[index]);\n    }\n    return maximum;\n  });\n}\n\nfunction normalizedLevel(decibels, sensitivity = 0, floor = -85, ceiling = -20) {\n  return Math.max(0, Math.min(1, (decibels + sensitivity - floor) / (ceiling - floor)));\n}\n\nfunction rmsDecibels(samples) {\n  let energy = 0;\n  for (const sample of samples) energy += sample * sample;\n  return 20 * Math.log10(Math.sqrt(energy / samples.length));\n}\n\n/** Blackman window and 1/N FFT scaling match the Web Audio analyser contract.\n * Both live and stored spectra use the same bands; only their sample times differ.\n * This processor belongs to the preview, not the production playback controller. */\nfunction createSpectrumProcessor(sampleRate) {\n  const real = new Float64Array(FFT_SIZE);\n  const imaginary = new Float64Array(FFT_SIZE);\n  const window = new Float64Array(FFT_SIZE);\n  const reversed = new Uint16Array(FFT_SIZE);\n  const cosine = new Float64Array(FFT_SIZE / 2);\n  const sine = new Float64Array(FFT_SIZE / 2);\n  const frequencies = new Float32Array(FFT_SIZE / 2);\n  const bands = frequencyBands(sampleRate);\n  const bitCount = Math.log2(FFT_SIZE);\n\n  for (let index = 0; index < FFT_SIZE; index++) {\n    const phase = 2 * Math.PI * index / FFT_SIZE;\n    window[index] = 0.42 - 0.5 * Math.cos(phase) + 0.08 * Math.cos(2 * phase);\n\n    let original = index;\n    let reverse = 0;\n    for (let bit = 0; bit < bitCount; bit++) {\n      reverse = (reverse << 1) | (original & 1);\n      original >>= 1;\n    }\n    reversed[index] = reverse;\n  }\n\n  for (let index = 0; index < cosine.length; index++) {\n    const angle = -2 * Math.PI * index / FFT_SIZE;\n    cosine[index] = Math.cos(angle);\n    sine[index] = Math.sin(angle);\n  }\n\n  return (samples, endSample) => {\n    // Match a live analyser's trailing window, padding the beginning with silence.\n    for (let index = 0; index < FFT_SIZE; index++) {\n      const sampleIndex = endSample - FFT_SIZE + index;\n      const value = sampleIndex >= 0 && sampleIndex < samples.length ? samples[sampleIndex] : 0;\n      real[reversed[index]] = value * window[index];\n      imaginary[reversed[index]] = 0;\n    }\n\n    for (let size = 2; size <= FFT_SIZE; size *= 2) {\n      const half = size / 2;\n      const stride = FFT_SIZE / size;\n\n      for (let block = 0; block < FFT_SIZE; block += size) {\n        for (let offset = 0; offset < half; offset++) {\n          const left = block + offset;\n          const right = left + half;\n          const twiddle = offset * stride;\n          const rotatedReal = real[right] * cosine[twiddle] - imaginary[right] * sine[twiddle];\n          const rotatedImaginary = real[right] * sine[twiddle] + imaginary[right] * cosine[twiddle];\n          real[right] = real[left] - rotatedReal;\n          imaginary[right] = imaginary[left] - rotatedImaginary;\n          real[left] += rotatedReal;\n          imaginary[left] += rotatedImaginary;\n        }\n      }\n    }\n\n    for (let index = 0; index < frequencies.length; index++) {\n      const amplitude = Math.hypot(real[index], imaginary[index]) / FFT_SIZE;\n      frequencies[index] = 20 * Math.log10(amplitude);\n    }\n    return bandDecibels(frequencies, bands);\n  };\n}\n\n/** Store raw dB rather than display heights so sensitivity stays adjustable. */\nfunction precomputeSpectrum(samples, sampleRate, onProgress = () => {}) {\n  const process = createSpectrumProcessor(sampleRate);\n  const frameCount = Math.ceil(samples.length / sampleRate * FRAME_RATE) + 1;\n  const frames = new Float32Array(frameCount * BAR_COUNT);\n\n  for (let frame = 0; frame < frameCount; frame++) {\n    const position = Math.round(frame / FRAME_RATE * sampleRate);\n    frames.set(process(samples, position), frame * BAR_COUNT);\n    if (frame % 100 === 0) onProgress(frame / frameCount);\n  }\n  return frames;\n}\n\nfunction storedLevels(frames, seconds, sensitivity = 0) {\n  const framePosition = Math.max(0, seconds * FRAME_RATE);\n  const lastFrame = frames.length / BAR_COUNT - 1;\n  const lowerFrame = Math.min(lastFrame, Math.floor(framePosition));\n  const upperFrame = Math.min(lastFrame, lowerFrame + 1);\n  const blend = Math.min(1, framePosition - lowerFrame);\n\n  return Array.from({ length: BAR_COUNT }, (_, index) => {\n    // Normalize before interpolation so silence (-Infinity dB) stays well-defined.\n    const lower = normalizedLevel(frames[lowerFrame * BAR_COUNT + index], sensitivity);\n    const upper = normalizedLevel(frames[upperFrame * BAR_COUNT + index], sensitivity);\n    return lower + (upper - lower) * blend;\n  });\n}\n\n/* global self */\n\n\nself.onmessage = event => {\n  try {\n    const { samples, sampleRate } = event.data;\n    const frames = precomputeSpectrum(samples, sampleRate, progress => self.postMessage({ progress }));\n    self.postMessage({ frames }, [frames.buffer]);\n  } catch {\n    self.postMessage({ error: 'The recorded spectrum could not be prepared. Press play to retry.' });\n  }\n};\n"], { type: 'text/javascript' }));
+    const worker = new Worker(workerUrl, { type: 'module' });
+    this.worker = worker;
+    try {
+      return await new Promise((resolve, reject) => {
+        this.rejectAnalysis = reject;
+        worker.onmessage = event => {
+          if (event.data.progress !== undefined) {
+            if (generation === this.generation) this.status(`Preparing recorded frequency frames… ${Math.round(event.data.progress * 100)}%`);
+            return;
+          }
+          if (event.data.error) reject(new Error(event.data.error));
+          else resolve(event.data.frames);
+        };
+        worker.onerror = () => reject(new Error('Song analysis failed. Press play to retry.'));
+        worker.postMessage({ samples: mono, sampleRate: buffer.sampleRate }, [mono.buffer]);
+      });
+    } finally {
+      worker.terminate();
+      URL.revokeObjectURL(String(workerUrl));
+      if (this.worker === worker) {
+        this.worker = undefined;
+        this.rejectAnalysis = undefined;
+      }
+    }
+  }
+
+  cancelLoad() {
+    this.generation++;
+    this.request?.abort();
+    this.worker?.terminate();
+    this.rejectAnalysis?.(new DOMException('Song changed', 'AbortError'));
+    this.loading = false;
+  }
+
+  position() {
+    if (!this.track) return 0;
+    const elapsed = this.playing ? this.context.currentTime - this.startedAt : 0;
+    return Math.min(this.track.buffer.duration, this.offset + elapsed);
+  }
+
+  play() {
+    if (!this.track) return;
+    if (this.offset >= this.track.buffer.duration) this.offset = 0;
+    const source = this.context.createBufferSource();
+    source.buffer = this.track.buffer;
+    source.connect(this.gain);
+    // A separate analysis branch avoids a duplicate route to the speakers.
+    source.connect(this.analyser);
+    source.start(0, this.offset);
+    this.startedAt = this.context.currentTime;
+    this.source = source;
+    this.playing = true;
+    source.onended = () => {
+      source.disconnect();
+      if (this.source !== source) return;
+      this.source = undefined;
+      this.playing = false;
+      this.offset = this.track.buffer.duration;
+      this.status('Song ended. Press play or restart to listen again.');
+      this.updateTransport();
+    };
+    this.status(`Playing · ${SONGS[Number(this.control('song').value)].title}`);
+    this.updateTransport();
+  }
+
+  pause() {
+    this.offset = this.position();
+    this.playing = false;
+    const source = this.source;
+    this.source = undefined;
+    source?.stop();
+    source?.disconnect();
+    this.status('Paused.');
+    this.updateTransport();
+  }
+
+  seek(seconds) {
+    if (!this.track) return;
+    const wasPlaying = this.playing;
+    this.pause();
+    this.offset = Math.max(0, Math.min(seconds, this.track.buffer.duration));
+    this.resetBars();
+    if (wasPlaying && this.offset < this.track.buffer.duration) this.play();
+    this.updateTransport();
+  }
+
+  updateTransport() {
+    this.control('play').disabled = this.loading;
+    this.control('play').textContent = this.loading ? 'Preparing…' : this.playing ? 'Pause' : this.track ? 'Play' : 'Load & play';
+    this.control('seek').disabled = !this.track;
+    this.control('restart').disabled = !this.track;
+    this.control('seek').max = this.track?.buffer.duration || 1;
+    this.paintPosition();
+  }
+
+  paintPosition() {
+    const position = this.position();
+    this.control('seek').value = position;
+    this.view('time').textContent = `${formatTime(position)} / ${formatTime(this.track?.buffer.duration || 0)}`;
+  }
+
+  resetBars() {
+    this.levels = MODES.map(() => Array(BAR_COUNT).fill(0));
+    for (const bars of this.bars || []) {
+      for (const bar of bars) bar.style.transform = 'scaleY(.035)';
+    }
+  }
+
+  targets() {
+    if (!this.playing || this.context.state !== 'running') return MODES.map(() => Array(BAR_COUNT).fill(0));
+    const sensitivity = Number(this.control('sensitivity').value);
+    this.analyser.getFloatFrequencyData(this.frequencies);
+    this.analyser.getFloatTimeDomainData(this.waveform);
+    const live = bandDecibels(this.frequencies, this.bands).map(value => normalizedLevel(value, sensitivity));
+    const loudness = normalizedLevel(rmsDecibels(this.waveform), sensitivity, -55, -8);
+    const envelope = Array.from({ length: BAR_COUNT }, (_, index) => {
+      return loudness * (0.35 + 0.65 * Math.sin((index + 1) / (BAR_COUNT + 1) * Math.PI));
+    });
+    const stored = storedLevels(this.track.frames, this.position(), sensitivity);
+    return [live, envelope, stored];
+  }
+
+  animate(now) {
+    const elapsed = Math.min(100, now - this.lastPaint);
+    this.lastPaint = now;
+    if (!document.hidden) {
+      this.paintPosition();
+      if (this.control('motion').checked) {
+        const targets = this.targets();
+        const fall = Number(this.control('fall').value);
+        for (let mode = 0; mode < MODES.length; mode++) {
+          for (let index = 0; index < BAR_COUNT; index++) {
+            const current = this.levels[mode][index];
+            const target = targets[mode][index];
+            const response = target > current ? 22 : fall;
+            const next = current + (target - current) * (1 - Math.exp(-elapsed / response));
+            this.levels[mode][index] = next;
+            this.bars[mode][index].style.transform = `scaleY(${0.035 + next * 0.965})`;
+          }
+        }
+      }
+    }
+    this.animation = requestAnimationFrame(time => this.animate(time));
+  }
+
+  disconnectedCallback() {
+    this.cancelLoad();
+    this.pause();
+    cancelAnimationFrame(this.animation);
+    this.motionQuery.removeEventListener('change', this.onMotionPreference);
+    void this.context?.close();
+    this.cache.clear();
+  }
+}
+
+customElements.define('song-bar-comparison', SongBarComparison);
+
+</script>
+  </body>
+</html>

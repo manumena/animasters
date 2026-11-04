@@ -1,5 +1,6 @@
 import { beforeEach, expect, it, vi } from 'vitest';
 import { RoomAudio } from './audio';
+import { SPECTRUM_BAR_COUNT } from './audioSpectrum';
 
 // Minimal Web Audio doubles expose scheduled times without real speakers or timers.
 interface FakeSource {
@@ -13,13 +14,35 @@ interface FakeSource {
 }
 
 const sources: FakeSource[] = [];
+const contexts: FakeContext[] = [];
+const analysers: {
+  fftSize: number;
+  smoothingTimeConstant: number;
+  frequencyBinCount: number;
+  getFloatFrequencyData: ReturnType<typeof vi.fn>;
+}[] = [];
+
 class FakeContext {
   currentTime = 10;
+  sampleRate = 44100;
   state = 'suspended';
   destination = {};
   onstatechange?: () => void;
   resume = vi.fn(async () => { this.state = 'running'; });
   close = vi.fn(async () => {});
+  constructor() {
+    contexts.push(this);
+  }
+  createAnalyser() {
+    const analyser = {
+      fftSize: 2048,
+      smoothingTimeConstant: 0.8,
+      frequencyBinCount: 2048,
+      getFloatFrequencyData: vi.fn((frequencies: Float32Array) => frequencies.fill(-40)),
+    };
+    analysers.push(analyser);
+    return analyser;
+  }
   createGain = () => {
     const gain = { connect: vi.fn(), gain: { value: 1 } };
     gains.push(gain);
@@ -44,6 +67,8 @@ beforeEach(() => {
   localStorage.clear();
   sources.length = 0;
   gains.length = 0;
+  contexts.length = 0;
+  analysers.length = 0;
   vi.stubGlobal('AudioContext', FakeContext);
   vi.spyOn(globalThis, 'fetch').mockImplementation(async () => new Response(new ArrayBuffer(8)));
 });
@@ -225,5 +250,78 @@ it('loops by default and preserves the toggle across round changes', async () =>
   expect(sources.at(-1)?.loop).toBe(false);
   audio.repeat(true);
   expect(sources.at(-1)?.loop).toBe(true);
+  audio.dispose();
+});
+
+it('analyses the audible source before volume without animating a future start', async () => {
+  const audio = new RoomAudio();
+  const levels = new Float32Array(SPECTRUM_BAR_COUNT).fill(1);
+  audio.readSpectrum(levels);
+  expect([...levels]).toEqual(Array(SPECTRUM_BAR_COUNT).fill(0));
+  expect(contexts).toHaveLength(0);
+
+  await audio.enable();
+  await audio.prepare(round, () => 15_000);
+  audio.readSpectrum(levels);
+  expect(analysers[0].getFloatFrequencyData).not.toHaveBeenCalled();
+
+  contexts[0].currentTime = 15;
+  audio.readSpectrum(levels);
+  expect(levels[0]).toBeGreaterThan(0);
+  const audibleLevels = [...levels];
+
+  audio.volume(0);
+  audio.readSpectrum(levels);
+  expect([...levels]).toEqual(audibleLevels);
+  expect(sources[0].connect.mock.calls).toEqual([[gains[0]], [analysers[0]]]);
+  expect(analysers[0].fftSize).toBe(4096);
+  expect(analysers[0].smoothingTimeConstant).toBe(0);
+
+  audio.pause();
+  audio.readSpectrum(levels);
+  expect([...levels]).toEqual(Array(SPECTRUM_BAR_COUNT).fill(0));
+  audio.dispose();
+});
+
+it('follows audible sources across preloading, seeking, suspension and teardown', async () => {
+  const audio = new RoomAudio();
+  const levels = new Float32Array(SPECTRUM_BAR_COUNT);
+  const expectActive = () => {
+    audio.readSpectrum(levels);
+    expect(levels[0]).toBeGreaterThan(0);
+  };
+  const expectResting = () => {
+    audio.readSpectrum(levels);
+    expect([...levels]).toEqual(Array(SPECTRUM_BAR_COUNT).fill(0));
+  };
+
+  await audio.enable();
+  await audio.prepare(round, () => 21_000);
+  expectActive();
+
+  await audio.prepare({ ...round, id: 'two', startsAt: 31_000 }, () => 21_000);
+  expectActive();
+  contexts[0].currentTime = 20;
+  expectActive();
+
+  audio.seek(30);
+  expect(sources.at(-1)?.connect).toHaveBeenCalledWith(analysers[0]);
+  expectActive();
+
+  contexts[0].state = 'suspended';
+  expectResting();
+  contexts[0].state = 'running';
+  expectActive();
+
+  sources.at(-1)?.onended?.();
+  expectResting();
+  audio.dispose();
+  expectResting();
+
+  await audio.enable();
+  await audio.prepare({ ...round, id: 'three' }, () => 21_000);
+  expect(analysers).toHaveLength(2);
+  expect(sources.at(-1)?.connect).toHaveBeenCalledWith(analysers[1]);
+  expectActive();
   audio.dispose();
 });

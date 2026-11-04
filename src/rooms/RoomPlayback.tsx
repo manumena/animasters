@@ -8,6 +8,7 @@ import {
   FiVolume2,
 } from 'react-icons/fi';
 import type { RoomAudio } from './audio';
+import RoomSpectrum from './RoomSpectrum';
 
 interface Props {
   audio: RoomAudio;
@@ -19,14 +20,6 @@ function playbackTime(seconds: number) {
   const wholeSeconds = Math.max(0, Math.floor(seconds));
   return `${Math.floor(wholeSeconds / 60)}:${String(wholeSeconds % 60).padStart(2, '0')}`;
 }
-
-// Decorative, fixed profile: it never implies access to real frequency data.
-const soundBars = Array.from({ length: 34 }, (_, index) => {
-  const envelope = Math.pow(Math.sin(((index + 1) / 35) * Math.PI), 0.75);
-  const detail =
-    0.65 + 0.22 * Math.sin(index * 1.6) + 0.13 * Math.sin(index * 0.63);
-  return 10 + envelope * detail * 78;
-});
 
 /** A view over the existing audio controller. RoomGame still owns scheduling,
  * teardown and round transitions; these controls affect this device only. */
@@ -60,11 +53,7 @@ export default function RoomPlayback({
           <FiHeadphones aria-hidden="true" /> Your playback
         </span>
       </div>
-      <div className="room-match-spectrum" aria-hidden="true">
-        {soundBars.map((height, index) => (
-          <span key={index} style={{ height }} />
-        ))}
-      </div>
+      <RoomSpectrum audio={audio} />
 
       {guessing && (
         <div className="room-playback-controls">

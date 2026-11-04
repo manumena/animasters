@@ -42,6 +42,7 @@ vi.mock('./audio', () => ({
     pause = mocks.pause;
     prepare = mocks.prepare;
     position = mocks.position;
+    readSpectrum = (levels: Float32Array) => { levels.fill(0); };
     play = mocks.play;
     isRepeating = () => true;
     repeat = mocks.repeat;

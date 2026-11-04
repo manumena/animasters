@@ -1,4 +1,5 @@
 import type { RoundSnapshot } from './client';
+import { AudioSpectrum } from './audioSpectrum';
 
 const VOLUME_STORAGE_KEY = 'animasters.audio.volume';
 
@@ -41,6 +42,7 @@ interface ScheduledSource {
 export class RoomAudio {
   private context?: AudioContext;
   private gain?: GainNode;
+  private spectrum?: AudioSpectrum;
   private source?: AudioBufferSourceNode;
   // A pending next song and the still-audible previous song can coexist.
   // Keep both until they end so a shortened countdown can stop both correctly.
@@ -80,6 +82,7 @@ export class RoomAudio {
       this.gain = this.context.createGain();
       this.gain.gain.value = this.state.volume;
       this.gain.connect(this.context.destination);
+      this.spectrum = new AudioSpectrum(this.context);
       this.context.onstatechange = () => this.update({ enabled: this.context?.state === 'running' });
     }
     return this.context;
@@ -153,6 +156,8 @@ export class RoomAudio {
     source.buffer = this.buffer;
     source.loop = this.repeating;
     source.connect(this.gain!);
+    // Analyse before listening volume, with no second connection to the speakers.
+    source.connect(this.spectrum!.input);
     source.start(when, offset);
     this.sources.set(source, { roundId: this.round!.id, startsAt: when, stopsAt: Infinity });
     this.source = source;
@@ -177,6 +182,23 @@ export class RoomAudio {
     source.stop(cutoff);
     timing.stopsAt = cutoff;
     if (cutoff <= now) this.sources.delete(source);
+  }
+
+  // Read into the view's reusable buffer without publishing per-frame React state.
+  readSpectrum(levels: Float32Array): void {
+    const context = this.context;
+    const now = context?.currentTime ?? 0;
+    // During preloading, the next source may be scheduled while the previous
+    // song is still audible. Follow actual source lifetimes, not the next buffer.
+    const audible = context?.state === 'running' && [...this.sources.values()].some(timing => {
+      return timing.startsAt <= now && now < timing.stopsAt;
+    });
+
+    if (!audible || !this.spectrum) {
+      levels.fill(0);
+      return;
+    }
+    this.spectrum.read(levels);
   }
 
   // Local playback controls never change the room's round or shared deadline.
@@ -238,6 +260,8 @@ export class RoomAudio {
       this.context.onstatechange = null;
       void this.context.close();
       this.context = undefined;
+      this.spectrum = undefined;
+      this.gain = undefined;
       this.buffer = undefined;
       this.round = undefined;
       this.scheduledId = undefined;
