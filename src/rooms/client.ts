@@ -21,6 +21,7 @@ export interface RoomSnapshot {
   catalogVersion?: string;
   settings?: RoomSettings;
   settingsRevision?: number;
+  matchStartsAt?: number;
   players: { id: string; nickname: string; connected: boolean; ready?: boolean; score?: number; submitted?: boolean }[];
   round?: RoundSnapshot;
   submission?: { actionId: string; animeId: number | null };

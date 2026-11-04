@@ -57,11 +57,18 @@ export default function RoomMatch(props: Props) {
   const { room, playerId, guessing } = props;
   const round = room.round;
   const completed = room.phase === 'completed';
+  // Preferences already contain the song count. Mount the heading and progress
+  // bar before generation so receiving the first round cannot shift the stage.
+  const songProgress = room.phase === 'preparing' && room.settings
+    ? { number: 1, total: room.settings.amount }
+    : round;
   // A snapshot may retain the previous reveal during the next song. Hide it as
   // soon as that song starts, including the client-side countdown boundary.
-  const showResult = Boolean(room.result && !guessing);
+  const showResult = Boolean(room.result && !guessing && room.phase !== 'preparing');
+  // Keep the same panel mounted while the server chooses songs and schedules playback.
   const initialCountdown =
-    room.phase === 'countdown' && round?.number === 1 && !guessing;
+    room.phase === 'preparing' ||
+    (room.phase === 'countdown' && round?.number === 1 && !guessing);
   const personalResult = room.result?.players.find(
     (player) => player.id === playerId,
   );
@@ -105,27 +112,27 @@ export default function RoomMatch(props: Props) {
             <h1>
               {completed ? (
                 'Final standings'
-              ) : round ? (
+              ) : songProgress ? (
                 <>
-                  Song {round.number} <span>/ {round.total}</span>
+                  Song {songProgress.number} <span>/ {songProgress.total}</span>
                 </>
               ) : (
                 'Your match'
               )}
             </h1>
           </div>
-          {round && (
+          {songProgress && (
             <span className="room-match-muted">
-              {completed ? round.total : round.number - 1} songs played
+              {completed ? songProgress.total : songProgress.number - 1} songs played
             </span>
           )}
         </div>
-        {round && (
+        {songProgress && (
           <progress
             className="room-match-progress"
             aria-label="Match progress"
-            max={round.total}
-            value={completed ? round.total : round.number - 1}
+            max={songProgress.total}
+            value={completed ? songProgress.total : songProgress.number - 1}
           />
         )}
 
@@ -140,11 +147,6 @@ export default function RoomMatch(props: Props) {
                 onEnable={props.onEnableAudio}
               />
             )}
-            {room.phase === 'preparing' && (
-              <section className="room-match-panel" role="status">
-                Choosing songs…
-              </section>
-            )}
             {room.phase === 'paused' && (
               <section className="room-match-panel" role="status">
                 Waiting to resume the next round…
@@ -154,7 +156,11 @@ export default function RoomMatch(props: Props) {
             {completed && <FinalStandings {...props} />}
 
             {initialCountdown && (
-              <MatchCountdown startsAt={round?.startsAt} now={props.now} />
+              <MatchCountdown
+                startsAt={room.matchStartsAt ?? round?.startsAt}
+                now={props.now}
+                preparing={room.phase === 'preparing'}
+              />
             )}
 
             {round && !completed && !showResult && !initialCountdown && (

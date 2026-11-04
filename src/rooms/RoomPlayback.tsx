@@ -124,15 +124,10 @@ export function RoomAudioNotice({
   onEnable,
 }: Pick<Props, 'audio' | 'onEnable'>) {
   const state = useSyncExternalStore(audio.subscribe, audio.getSnapshot);
-  if (!state.loading && !state.error && state.enabled) return null;
+  if (!state.error && state.enabled) return null;
 
   return (
     <div className="room-match-audio-notice">
-      {state.loading && (
-        <p role="status" className="room-match-muted">
-          Loading song…
-        </p>
-      )}
       {state.error && <Alert severity="warning">{state.error}</Alert>}
       {!state.enabled && (
         <Button variant="outlined" onClick={onEnable}>

@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import RoomGame from './RoomGame';
 import { watchRoom, type RoomSession, type GameAction } from './client';
 
@@ -135,6 +135,61 @@ beforeEach(() => {
       return () => {};
     },
   );
+});
+
+afterEach(() => vi.useRealTimers());
+
+it.each([false, true])('runs the countdown without more snapshots (songs arrive: %s)', songsArrive => {
+  vi.useFakeTimers({ toFake: ['Date', 'performance', 'setInterval', 'clearInterval'] });
+  vi.setSystemTime(1_000);
+  const session = lobbySession();
+  session.room.settings = { ...session.room.settings!, amount: 20 };
+  render(
+    <MemoryRouter>
+      <RoomGame session={session} onBack={vi.fn()} />
+    </MemoryRouter>,
+  );
+  const receiveSnapshot = vi.mocked(watchRoom).mock.calls[0][1];
+  act(() => receiveSnapshot({ ...session.room, phase: 'preparing', matchStartsAt: 6_000 }));
+  const timer = screen.getByRole('timer');
+  const songHeading = screen.getByRole('heading', { name: 'Song 1 / 20' });
+  const progress = screen.getByRole('progressbar', { name: 'Match progress' });
+  expect(progress).toHaveAttribute('max', '20');
+  expect(progress).toHaveAttribute('value', '0');
+  expect(screen.getByText('0 songs played')).toBeVisible();
+  expect(timer).toHaveTextContent('5');
+
+  act(() => vi.advanceTimersByTime(2_000));
+  expect(timer).toHaveTextContent('3');
+
+  if (songsArrive) {
+    act(() => receiveSnapshot({
+      ...session.room,
+      phase: 'countdown',
+      round: {
+        id: 'first-song',
+        number: 1,
+        total: 20,
+        startsAt: 6_000,
+        audioUrl: 'https://audio.example/first',
+      },
+    }));
+    expect(screen.getByRole('timer')).toBe(timer);
+    expect(screen.getByRole('heading', { name: 'Song 1 / 20' })).toBe(songHeading);
+    expect(screen.getByRole('progressbar', { name: 'Match progress' })).toBe(progress);
+    expect(progress).toHaveAttribute('max', '20');
+    expect(progress).toHaveAttribute('value', '0');
+    expect(timer).toHaveTextContent('3');
+    expect(screen.queryByText(/Loading song|Choosing songs/)).not.toBeInTheDocument();
+  }
+
+  act(() => vi.advanceTimersByTime(3_000));
+  if (songsArrive) {
+    expect(screen.getByRole('heading', { name: 'Which anime is it?' })).toBeVisible();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  } else {
+    expect(screen.getByRole('alert')).toHaveTextContent('This is taking longer than expected.');
+  }
 });
 
 it('keeps final standings visible while the host saves preferences and opts into a rematch', async () => {
