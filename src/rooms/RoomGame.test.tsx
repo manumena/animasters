@@ -291,6 +291,53 @@ it('lets a guest ready for another match without exposing host editing controls'
   );
 });
 
+it.each(['click', 'Enter', ' '] as const)('shows the final song before standings and readies with %j', async activation => {
+  const user = userEvent.setup();
+  const session = completedSession();
+  session.room.phase = 'results';
+  session.room.resultsEndsAt = Date.now() + 10_000;
+  session.room.result!.players = [
+    { id: 'host', guess: 'Example anime', points: 2, correct: true },
+  ];
+  render(
+    <MemoryRouter>
+      <RoomGame session={session} onBack={vi.fn()} />
+    </MemoryRouter>,
+  );
+
+  expect(screen.getByRole('heading', { name: 'Song 1 / 1' })).toBeVisible();
+  expect(screen.getByRole('progressbar', { name: 'Match progress' })).toHaveAttribute('value', '1');
+  expect(screen.getByRole('region', { name: 'Round reveal' })).toHaveTextContent('Example song');
+  expect(screen.getByRole('status', { name: 'Your round result' })).toHaveTextContent('You got it!');
+  expect(screen.getByRole('timer')).toHaveAccessibleName('Match results in 10 seconds');
+  expect(screen.queryByRole('region', { name: 'Match complete' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Ready for next match' })).not.toBeInTheDocument();
+  expect(mocks.prepare).not.toHaveBeenCalled();
+
+  const readyButton = screen.getByRole('button', { name: 'Ready for match results now' });
+  if (activation === 'click') {
+    await user.click(readyButton);
+  } else {
+    await act(async () => { fireEvent.keyDown(document.body, { key: activation }); });
+  }
+  expect(mocks.send).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
+    type: 'ready', roundId: 'last-song',
+  }));
+
+  const receive = vi.mocked(watchRoom).mock.calls[0][1];
+  const readyPlayers = session.room.players.map(player => ({ ...player, ready: true }));
+  act(() => receive({ ...session.room, players: readyPlayers }));
+  expect(screen.getByRole('button', { name: 'Ready for match results' })).toBeDisabled();
+  // Standings depend on the server transition, even after local readiness.
+  expect(screen.queryByRole('heading', { name: 'Final standings' })).not.toBeInTheDocument();
+
+  act(() => receive({ ...session.room, phase: 'completed', resultsEndsAt: undefined }));
+  expect(screen.getByRole('heading', { name: 'Final standings' })).toBeVisible();
+  expect(screen.queryByRole('region', { name: 'Round reveal' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('status', { name: 'Your round result' })).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Ready for next match' })).toBeEnabled();
+});
+
 function lobbySession(playerId = 'host'): RoomSession {
   const session = completedSession(playerId);
   return {

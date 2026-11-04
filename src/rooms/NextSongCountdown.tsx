@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react';
 interface Props {
   startsAt?: number;
   now: number;
+  finalSong?: boolean;
 }
 
 // Later rounds have a ten-second intermission; all-ready can shorten it.
@@ -10,12 +11,27 @@ const intermissionMilliseconds = 10_000;
 
 /** Interpolate the synchronized clock for presentation only. RoomGame and the
  * server remain responsible for playback and phase changes. */
-export default function NextSongCountdown({ startsAt, now }: Props) {
+export default function NextSongCountdown({ startsAt, now, finalSong = false }: Props) {
   const arc = useRef<SVGCircleElement>(null);
   const clockReady = startsAt !== undefined && now > 0;
   const remaining = clockReady ? Math.max(0, startsAt - now) : null;
   const seconds = remaining === null ? null : Math.ceil(remaining / 1000);
   const urgent = seconds !== null && seconds <= 3;
+  const copy = finalSong
+    ? {
+        destination: 'Match results',
+        ending: 'Showing match results',
+        pending: 'Showing final standings…',
+        urgent: 'Get ready for the final standings',
+        automatic: 'Continuing automatically',
+      }
+    : {
+        destination: 'Next song',
+        ending: 'Next song starting',
+        pending: 'Starting playback…',
+        urgent: 'Get ready to listen',
+        automatic: 'Starting automatically',
+      };
 
   useEffect(() => {
     const circle = arc.current;
@@ -62,23 +78,23 @@ export default function NextSongCountdown({ startsAt, now }: Props) {
         <strong
           className="next-song-countdown-number"
           role="timer"
-          aria-label={seconds === null ? 'Waiting for next song timing' : `Next song in ${seconds} ${seconds === 1 ? 'second' : 'seconds'}`}
+          aria-label={seconds === null ? `Waiting for ${copy.destination.toLowerCase()} timing` : `${copy.destination} in ${seconds} ${seconds === 1 ? 'second' : 'seconds'}`}
         >
           {seconds ?? '—'}<small>s</small>
         </strong>
       </div>
       <div className="next-song-countdown-copy">
         <p className="next-song-countdown-label">
-          {seconds === 0 ? 'Next song starting' : 'Next song in'}
+          {seconds === 0 ? copy.ending : `${copy.destination} in`}
         </p>
         <p className="next-song-countdown-status">
           {seconds === null
             ? 'Syncing countdown…'
             : seconds === 0
-              ? 'Starting playback…'
+              ? copy.pending
               : urgent
-                ? 'Get ready to listen'
-                : 'Starting automatically'}
+                ? copy.urgent
+                : copy.automatic}
         </p>
       </div>
     </div>

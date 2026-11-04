@@ -69,3 +69,14 @@ it('waits for clock synchronization instead of displaying an invented countdown'
   expect(container.querySelector<SVGCircleElement>('.next-song-countdown-arc')!.style.visibility).toBe('hidden');
   expect(nextFrame).toBeUndefined();
 });
+
+it('counts down to final standings with results labels at the deadline', () => {
+  const { rerender } = render(<NextSongCountdown startsAt={11_000} now={1000} finalSong />);
+  expect(screen.getByRole('timer')).toHaveAccessibleName('Match results in 10 seconds');
+  expect(screen.getByText('Continuing automatically')).toBeVisible();
+
+  rerender(<NextSongCountdown startsAt={11_000} now={11_000} finalSong />);
+  expect(screen.getByRole('timer')).toHaveAccessibleName('Match results in 0 seconds');
+  expect(screen.getByText('Showing final standings…')).toBeVisible();
+  expect(screen.queryByText('Starting playback…')).not.toBeInTheDocument();
+});

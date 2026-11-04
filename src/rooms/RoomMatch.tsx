@@ -57,14 +57,17 @@ export default function RoomMatch(props: Props) {
   const { room, playerId, guessing } = props;
   const round = room.round;
   const completed = room.phase === 'completed';
+  const finalSongResults = room.phase === 'results';
   // Preferences already contain the song count. Mount the heading and progress
   // bar before generation so receiving the first round cannot shift the stage.
   const songProgress = room.phase === 'preparing' && room.settings
     ? { number: 1, total: room.settings.amount }
-    : round;
+    : finalSongResults && room.result
+      ? { number: room.result.number, total: room.result.number }
+      : round;
   // A snapshot may retain the previous reveal during the next song. Hide it as
   // soon as that song starts, including the client-side countdown boundary.
-  const showResult = Boolean(room.result && !guessing && room.phase !== 'preparing');
+  const showResult = Boolean(room.result && !guessing && !completed && room.phase !== 'preparing');
   // Keep the same panel mounted while the server chooses songs and schedules playback.
   const initialCountdown =
     room.phase === 'preparing' ||
@@ -75,15 +78,15 @@ export default function RoomMatch(props: Props) {
   const isReady = Boolean(
     room.players.find((player) => player.id === playerId)?.ready,
   );
-  const canReadyForNextSong =
+  const canReadyToContinue =
     showResult &&
-    room.phase === 'countdown' &&
-    Boolean(round) &&
+    ((room.phase === 'countdown' && Boolean(round)) || finalSongResults) &&
     props.ready &&
     !isReady;
   const onReady = props.onReady;
+  const readinessDestination = finalSongResults ? 'match results' : 'next song';
 
-  useReadyShortcut(canReadyForNextSong, onReady);
+  useReadyShortcut(canReadyToContinue, onReady);
 
   return (
     <CafePage className="room-match-page">
@@ -123,7 +126,7 @@ export default function RoomMatch(props: Props) {
           </div>
           {songProgress && (
             <span className="room-match-muted">
-              {completed ? songProgress.total : songProgress.number - 1} songs played
+              {completed || finalSongResults ? songProgress.total : songProgress.number - 1} songs played
             </span>
           )}
         </div>
@@ -132,7 +135,7 @@ export default function RoomMatch(props: Props) {
             className="room-match-progress"
             aria-label="Match progress"
             max={songProgress.total}
-            value={completed ? songProgress.total : songProgress.number - 1}
+            value={completed || finalSongResults ? songProgress.total : songProgress.number - 1}
           />
         )}
 
@@ -224,22 +227,24 @@ export default function RoomMatch(props: Props) {
                 result={room.result!}
                 playerId={playerId}
               >
-                {room.phase === 'countdown' && round && (
+                {((room.phase === 'countdown' && round) || finalSongResults) && (
                   <div className="room-match-next">
-                    <NextSongCountdown startsAt={round.startsAt} now={props.now} />
+                    <NextSongCountdown
+                      startsAt={finalSongResults ? room.resultsEndsAt : round?.startsAt}
+                      now={props.now}
+                      finalSong={finalSongResults}
+                    />
                     <div className="room-match-next-actions">
                       <Button
                         variant="contained"
                         disableElevation
-                        disabled={!canReadyForNextSong}
+                        disabled={!canReadyToContinue}
                         onClick={props.onReady}
                         className="room-keyboard-action"
-                        aria-keyshortcuts={canReadyForNextSong ? 'Enter Space' : undefined}
+                        aria-keyshortcuts={canReadyToContinue ? 'Enter Space' : undefined}
                       >
-                        {isReady
-                          ? 'Ready for next song'
-                          : 'Ready for next song now'}
-                        {canReadyForNextSong && <ShortcutKeycaps includeSpace />}
+                        Ready for {readinessDestination}{isReady ? '' : ' now'}
+                        {canReadyToContinue && <ShortcutKeycaps includeSpace />}
                       </Button>
                       <span className="room-match-muted">
                         {

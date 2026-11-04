@@ -1,6 +1,6 @@
 # AniMasters product roadmap
 
-Updated: November 3, 2026
+Updated: November 4, 2026
 
 ## What’s left to do
 
@@ -8,9 +8,7 @@ Only unfinished work is listed here; details and open decisions follow. Requeste
 
 ### Requested for iteration 2
 
-- Investigate and fix the reported Ranma 1/2 behavior once reproduction steps are identified.
 - Improve loudness consistency for quiet songs.
-- Let the final song’s reveal countdown finish before showing final standings.
 - Build mix-and-match anime avatars for lobby, results and standings.
 - Define and add analytics for product usage, player statistics or both.
 
@@ -23,6 +21,7 @@ Only unfinished work is listed here; details and open decisions follow. Requeste
 
 - Add configurable guessing for song title, band/artist and anime season alongside anime answers.
 - Extend artwork coverage from playable songs to the full answer catalog.
+- Add a background song or small playlist to the final standings screen so the end of a match feels lively.
 
 ### Candidates and open questions
 
@@ -44,7 +43,7 @@ This is a planning backlog, not a promise that every idea ships in the next rele
 | --- | --- | --- |
 | Iteration 1 | Remaining match presentation work. | Reveal metadata and playback animation. |
 | Iteration 2 | Gameplay fixes, anime avatars and analytics; possible identity/personalization. | Explicit requests remain as listed above. Typo tolerance is an open question; public rooms are tentative; other candidates need prioritization. |
-| Iteration 3 | Configurable anime/title/artist/season guessing and wider artwork coverage. | Requested; a Nexus-inspired experience remains exploratory. |
+| Iteration 3 | Configurable anime/title/artist/season guessing, wider artwork coverage and final-screen background music. | Requested; a Nexus-inspired experience remains exploratory. |
 | Unassigned | Spanish interface and completed-match logs. | Requested November 2; iteration and detailed scope still to be chosen. |
 
 Recording inspiration does not change scoring, timers, answer rules or settings.
@@ -68,7 +67,7 @@ Requested November 1.
 
 - **Ranma 1/2:** investigate the reported incorrect behavior; the exact failure and reproduction steps still need to be identified.
 - **Quiet songs:** investigate low playback volume and improve loudness consistency.
-- **Final-round reveal timing:** show the final song’s results and let its countdown finish before displaying final standings. The backend currently enters `completed` immediately after the final round; the frontend shows standings in that phase.
+- [x] **Final-round reveal timing:** implemented locally. The final song has its own results screen with the same ten-second countdown, Ready button and keyboard shortcuts as earlier songs. Final standings appear after the countdown or sooner when all connected players are ready. Application deployment has not been confirmed.
 - **Typo tolerance (open question):** evaluate likely-match suggestions for mistyped characters, such as “Nerrto” → “Naruto”, and decide how forgiving matching should be. Current search supports prefixes, substrings and reordered tokens, without edit-distance correction.
 
 ## Newly requested: Spanish interface
@@ -199,6 +198,13 @@ These are ideas to evaluate; no delivery iteration or scoring change is approved
 - Audit and enrich song-title and artist metadata before relying on it for scoring.
 - Extend stored anime artwork beyond the songs table to the full answer catalog.
 - Decide whether the existing anime-only mode remains the default and how multi-part guessing interacts with hints, lives and timing-based scores.
+
+## Iteration 3: final-screen background music
+
+**Explicitly requested November 4 for iteration 3.** Play a background song or small set of songs on the final standings screen so the game ends on a lively note instead of falling silent.
+
+- Choose the track or playlist and define looping and the transition from the last song’s reveal to final standings.
+- Respect the player’s audio volume and playback preferences, and stop the background music when leaving the screen or starting another match.
 
 ## Suggested next decisions
 

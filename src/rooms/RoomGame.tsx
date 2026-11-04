@@ -169,7 +169,7 @@ export default function RoomGame({
           : {
               type: 'ready',
               catalogVersion: room.catalogVersion,
-              roundId: round?.id,
+              roundId: room.phase === 'results' ? room.result?.roundId : round?.id,
               settingsRevision: room.settingsRevision ?? 0,
             };
       if (!send.current(action)) {
