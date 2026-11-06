@@ -1,0 +1,65 @@
+<div id="avatar-contour-editor">
+  <style>
+    #avatar-contour-editor { display: grid; gap: 1rem; }
+    #avatar-contour-editor .editor-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+    #avatar-contour-editor figure { display: grid; gap: .5rem; min-width: 0; margin: 0; }
+    #avatar-contour-editor canvas { display: block; width: 100%; height: auto; }
+    #avatar-contour-editor .contour-stage { color: var(--viz-series-1, var(--foreground)); touch-action: none; }
+    #avatar-contour-editor .point-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+    #avatar-contour-editor .point-label { display: grid; gap: .35rem; min-width: 0; }
+    #avatar-contour-editor .coordinate { display: flex; justify-content: space-between; gap: .5rem; }
+  </style>
+
+  <h2>Prop contour editor</h2>
+  <div class="viz-controls">
+    <label class="form-label">Prop
+      <select id="contour-prop" class="form-select"></select>
+    </label>
+    <label class="form-label">Hairstyle
+      <select id="contour-hair" class="form-select">
+        <option value="bob">Bob</option><option value="compact">Spiky</option><option value="buns">Twin buns</option><option value="none">Bald</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="editor-pair">
+    <figure>
+      <figcaption>Live avatar</figcaption>
+      <div class="card"><canvas id="contour-avatar" width="640" height="640" role="img" aria-label="Avatar wearing the selected prop with its edited depth mask"></canvas></div>
+    </figure>
+    <figure>
+      <figcaption>Prop and contour</figcaption>
+      <div class="card"><canvas id="contour-art" class="contour-stage cursor-interaction" width="640" height="640" role="img" aria-label="Prop with draggable contour points. Dimmed artwork goes behind the avatar. The controls below also move each point."></canvas></div>
+    </figure>
+  </div>
+
+  <div class="viz-controls">
+    <label class="form-label">Contour
+      <select id="contour-region" class="form-select"></select>
+    </label>
+    <label class="form-label">Control point
+      <select id="contour-point" class="form-select"></select>
+    </label>
+  </div>
+  <div class="point-controls">
+    <label class="point-label form-label"><span class="coordinate">Horizontal <output id="contour-x-value" class="tabular-nums"></output></span><input id="contour-x" class="form-range" type="range" min="0" max="100" step="1"></label>
+    <label class="point-label form-label"><span class="coordinate">Vertical <output id="contour-y-value" class="tabular-nums"></output></span><input id="contour-y" class="form-range" type="range" min="0" max="100" step="1"></label>
+  </div>
+  <div class="viz-row">
+    <button id="contour-restore" class="btn" type="button">Restore saved contour</button>
+    <span id="contour-status" class="text-small" role="status" aria-live="polite">Loading artwork…</span>
+  </div>
+  <details id="contour-export">
+    <summary class="cursor-interaction">Export preset</summary>
+    <label class="point-label form-label">Preset JSON
+      <textarea id="contour-json" class="form-control" rows="5" readonly spellcheck="false"></textarea>
+    </label>
+    <button id="contour-select-json" class="btn" type="button">Select JSON</button>
+  </details>
+</div>
+<script>
+(() => {
+__SPRITE_TOOLS__
+__CONTOUR_CODE__
+})();
+</script>

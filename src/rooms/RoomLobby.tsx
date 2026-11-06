@@ -6,6 +6,7 @@ import CafePage, { CafeHeader } from '../components/CafePage';
 import type { RoomSnapshot } from './client';
 import RoomPreferences from './RoomPreferences';
 import { RoomPreferencesController, songTypes } from './preferences';
+import AvatarPortrait from '../avatars/AvatarPortrait';
 import './RoomLobby.css';
 import { ShortcutKeycaps, useReadyShortcut } from './KeyboardShortcuts';
 
@@ -248,9 +249,7 @@ export default function RoomLobby({
               <ul>
                 {room.players.map((player) => (
                   <li key={player.id}>
-                    <span className="room-player-initial" aria-hidden="true">
-                      {Array.from(player.nickname)[0]}
-                    </span>
+                    <AvatarPortrait avatar={player.avatar} nickname={player.nickname} />
                     <span className="room-player-name">
                       {player.nickname}
                       {player.id === playerId ? ' (you)' : ''}

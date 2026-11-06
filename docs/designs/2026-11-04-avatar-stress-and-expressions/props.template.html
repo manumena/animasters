@@ -1,0 +1,617 @@
+<div id="avatar-stress-lab">
+  <style>
+    #avatar-stress-lab { display: grid; gap: 1rem; }
+    #avatar-stress-lab .lab-layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(220px, 1fr); gap: 1.25rem; align-items: start; }
+    #avatar-stress-lab .preview-column, #avatar-stress-lab .choices { display: grid; gap: 1rem; min-width: 0; }
+    #avatar-stress-lab .avatar-stage { display: grid; place-items: center; }
+    #avatar-stress-lab .avatar-stage > canvas { display: block; width: 100%; max-width: 360px; height: auto; }
+    #avatar-stress-lab .field { display: grid; gap: .35rem; min-width: 0; }
+    #avatar-stress-lab .field-pair { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+    #avatar-stress-lab .small-previews { display: flex; align-items: center; justify-content: center; gap: 1.5rem; }
+    #avatar-stress-lab .small-preview { display: flex; align-items: center; gap: .5rem; }
+    #avatar-stress-lab .hair-comparison { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+    #avatar-stress-lab .hair-comparison figure { margin: 0; text-align: center; }
+    #avatar-stress-lab .hair-comparison canvas { display: block; width: 100%; height: auto; }
+    #avatar-stress-lab .layer-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+    #avatar-stress-lab .layer-list[hidden] { display: none; }
+    #avatar-stress-lab .layer-list figure { margin: 0; text-align: center; min-width: 0; }
+    #avatar-stress-lab .layer-list canvas { width: 100%; height: auto; }
+    #avatar-stress-lab .fit-controls { display: grid; gap: .75rem; margin-top: .75rem; }
+    #avatar-stress-lab details > summary { width: fit-content; }
+    #avatar-stress-lab .range-heading { display: flex; justify-content: space-between; gap: .5rem; }
+    #avatar-stress-lab output { font-variant-numeric: tabular-nums; }
+    #avatar-stress-lab .status-line { min-height: 1.5em; }
+    @media (max-width: 560px) {
+      #avatar-stress-lab .lab-layout { grid-template-columns: 1fr; }
+      #avatar-stress-lab .avatar-stage > canvas { max-width: 300px; }
+    }
+  </style>
+
+  <h2>Four-prop fitting test</h2>
+  <div class="lab-layout">
+    <div class="preview-column">
+      <div class="card avatar-stage">
+        <canvas id="avatar-main" width="768" height="768" role="img" aria-label="Live avatar assembled from separate transparent layers"></canvas>
+      </div>
+      <div class="hair-comparison">
+        <figure><canvas width="192" height="192" data-hair-preview="compact" role="img" aria-label="Same props on spiky hair"></canvas><figcaption class="text-small">Spiky</figcaption></figure>
+        <figure><canvas width="192" height="192" data-hair-preview="bob" role="img" aria-label="Same props on bob hair"></canvas><figcaption class="text-small">Bob</figcaption></figure>
+        <figure><canvas width="192" height="192" data-hair-preview="buns" role="img" aria-label="Same props on twin buns"></canvas><figcaption class="text-small">Twin buns</figcaption></figure>
+      </div>
+      <label class="form-check"><input id="avatar-inspect" class="form-check-input" type="checkbox"><span class="form-check-label">Show front and rear pieces</span></label>
+      <div id="avatar-layers" class="layer-list" hidden>
+        <figure><canvas width="144" height="144" data-layer-preview="rear-props" role="img" aria-label="Rear accessory sections"></canvas><figcaption class="text-small">Rear pieces</figcaption></figure>
+        <figure><canvas width="144" height="144" data-layer-preview="base" role="img" aria-label="Base layer"></canvas><figcaption class="text-small">Head</figcaption></figure>
+        <figure><canvas width="144" height="144" data-layer-preview="hair" role="img" aria-label="Hair layer"></canvas><figcaption class="text-small">Hair</figcaption></figure>
+        <figure><canvas width="144" height="144" data-layer-preview="scarf-front" role="img" aria-label="Scarf front wrap"></canvas><figcaption class="text-small">Scarf wrap</figcaption></figure>
+        <figure><canvas width="144" height="144" data-layer-preview="headphones-front" role="img" aria-label="Headphone ear cups"></canvas><figcaption class="text-small">Ear cups</figcaption></figure>
+        <figure><canvas width="144" height="144" data-layer-preview="front-props" role="img" aria-label="Hat crown and glasses lenses"></canvas><figcaption class="text-small">Hat / lenses</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="choices">
+      <label class="field form-label">Composition
+        <select id="avatar-order" class="form-select"><option value="split">Split around the head</option><option value="flat">Original · whole prop in front</option></select>
+      </label>
+      <label class="field form-label">Headwear
+        <select id="avatar-headwear" class="form-select">
+          <option value="straw">Luffy · Straw hat</option>
+          <option value="leaf">Naruto · Leaf headband</option>
+          <option value="chopper">Chopper · Pink hat</option>
+          <option value="none">None</option>
+        </select>
+      </label>
+      <label class="field form-label">Face accessory
+        <select id="avatar-face" class="form-select"><option value="none">None</option><option value="glasses">Gojo · Round sunglasses</option></select>
+      </label>
+      <label class="form-check"><input id="avatar-headphones" class="form-check-input" type="checkbox"><span class="form-check-label">Teal headphones</span></label>
+      <label class="form-check"><input id="avatar-scarf" class="form-check-input" type="checkbox"><span class="form-check-label">Mikasa · Red scarf</span></label>
+      <div class="field-pair">
+        <label class="field form-label">Hairstyle
+          <select id="avatar-hair" class="form-select"><option value="compact">Spiky</option><option value="bob">Bob</option><option value="buns">Twin buns</option><option value="none">Bald</option></select>
+        </label>
+        <label class="field form-label">Hair color
+          <select id="avatar-color" class="form-select"><option value="charcoal">Charcoal</option><option value="brown">Brown</option><option value="blue">Blue</option><option value="pink">Pink</option><option value="blond">Blond</option></select>
+        </label>
+      </div>
+      <label class="field form-label">Skin tone
+        <select id="avatar-skin" class="form-select"><option value="original">Warm</option><option value="light">Light</option><option value="medium">Medium</option><option value="deep">Deep</option></select>
+      </label>
+      <label class="form-check"><input id="avatar-tuck" class="form-check-input" type="checkbox" checked><span class="form-check-label">Tuck hair under hats</span></label>
+      <button type="button" class="btn" id="avatar-shuffle">Shuffle combination</button>
+
+      <details id="avatar-adjustments">
+        <summary class="cursor-interaction">Adjust overlap</summary>
+        <div class="fit-controls">
+          <label class="field form-label">Layer
+            <select id="avatar-edit-layer" class="form-select"><option value="headgear">Headwear</option><option value="hair">Hair</option><option value="headphones">Headphones</option><option value="face">Glasses</option><option value="scarf">Scarf</option></select>
+          </label>
+          <label class="field form-label"><span class="range-heading">Horizontal <output id="avatar-x-value">0 px</output></span><input id="avatar-x" class="form-range" type="range" min="-80" max="80" value="0" step="1"></label>
+          <label class="field form-label"><span class="range-heading">Vertical <output id="avatar-y-value">0 px</output></span><input id="avatar-y" class="form-range" type="range" min="-80" max="80" value="0" step="1"></label>
+          <label class="field form-label"><span class="range-heading">Size <output id="avatar-scale-value">100%</output></span><input id="avatar-scale" class="form-range" type="range" min="65" max="140" value="100" step="1"></label>
+          <label class="field form-label"><span class="range-heading">Opening contour <output id="avatar-opening-value">78%</output></span><input id="avatar-opening" class="form-range" type="range" min="62" max="95" value="78" step="1"></label>
+          <label class="field form-label"><span class="range-heading">Head opacity <output id="avatar-opacity-value">100%</output></span><input id="avatar-opacity" class="form-range" type="range" min="0" max="100" value="100" step="1"></label>
+          <label class="form-check"><input id="avatar-contour" class="form-check-input" type="checkbox"><span class="form-check-label">Show depth contour</span></label>
+          <label class="form-check"><input id="avatar-bounds" class="form-check-input" type="checkbox"><span class="form-check-label">Show selected layer bounds</span></label>
+          <button type="button" id="avatar-restore" class="btn">Restore this layer’s fit</button>
+        </div>
+      </details>
+    </div>
+  </div>
+  <div id="avatar-status" class="text-small status-line" role="status" aria-live="polite">Loading avatar layers…</div>
+</div>
+<script>
+(() => {
+  const root = document.getElementById('avatar-stress-lab');
+  const find = id => root.querySelector('#' + id);
+  const sourceUrls = __AVATAR_ASSETS__;
+  const sprites = {};
+  const toneCache = new Map();
+  const canvasSize = 512;
+  const originalFits = {
+    base: { x: 136, y: 110, width: 240, height: 336 },
+    compact: { x: 126, y: 67, width: 260, height: 195 },
+    tall: { x: 118, y: 39, width: 276, height: 224 },
+    bob: { x: 130, y: 68, width: 252, height: 277 },
+    buns: { x: 91, y: 23, width: 330, height: 269 },
+    straw: { x: 103, y: 24, width: 306, height: 202 },
+    leaf: { x: 130, y: 133, width: 252, height: 145 },
+    chopper: { x: 98, y: 13, width: 316, height: 216 },
+    headphones: { x: 108, y: 70, width: 296, height: 244 },
+    glasses: { x: 124, y: 213, width: 264, height: 78 },
+    scarf: { x: 171, y: 300, width: 170, height: 154 }
+  };
+  const hairColors = { charcoal: [62, 61, 66], brown: [105, 65, 43], blue: [48, 88, 158], pink: [183, 82, 129], blond: [201, 157, 69] };
+  const skinTones = { original: [1, 1, 1], light: [1.09, 1.13, 1.2], medium: [.77, .7, .66], deep: [.49, .4, .37] };
+  // These contours are expressed in each trimmed prop's local coordinates.
+  // A production asset can supply arbitrary paths with multiple disconnected
+  // regions; its front and rear fragments still share one transform/anchor.
+  const depthProfiles = {
+    straw: { center: .74, edge: .94, controlX: .27 },
+    chopper: { center: .79, edge: .98, controlX: .25 },
+    leaf: { center: .65, edge: .63, controlX: .18 },
+    headphones: { kind: 'cups' },
+    glasses: { kind: 'lenses' },
+    scarf: { kind: 'lower', center: .37, edge: .20, controlX: .23 }
+  };
+  const itemLabels = { straw: 'Luffy’s straw hat', leaf: 'Leaf headband', chopper: 'Chopper’s hat', none: 'No headwear' };
+  const initialState = {
+    headwear: 'none', face: 'glasses', headphones: true, scarf: true, hair: 'compact', color: 'brown', skin: 'light',
+    tuck: true, inspect: false, bounds: false, contour: false, order: 'split', editLayer: 'headgear',
+    fits: {}, openings: {}, opacity: 100
+  };
+  let state = structuredClone(initialState);
+  let ready = false;
+
+  function newCanvas(width, height) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    return canvas;
+  }
+
+  function loadImage(url) {
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(new Error('An avatar image could not be loaded.'));
+      image.src = url;
+    });
+  }
+
+  // Atlas cells contain transparent padding and a little generation noise. Keep
+  // the largest connected silhouette so neither affects the sprite's anchors.
+  function extractSprite(image, rectangle) {
+    const [sourceX, sourceY, width, height] = rectangle;
+    const working = newCanvas(Math.ceil(width), Math.ceil(height));
+    const context = working.getContext('2d', { willReadFrequently: true });
+    context.drawImage(image, sourceX, sourceY, width, height, 0, 0, working.width, working.height);
+    const imageData = context.getImageData(0, 0, working.width, working.height);
+    const pixels = imageData.data;
+    const labels = new Int32Array(working.width * working.height);
+    const queue = new Int32Array(labels.length);
+    let componentId = 0;
+    let largestId = 0;
+    let largestCount = 0;
+
+    for (let start = 0; start < labels.length; start += 1) {
+      if (labels[start] || pixels[start * 4 + 3] < 28) continue;
+      componentId += 1;
+      let read = 0;
+      let write = 1;
+      queue[0] = start;
+      labels[start] = componentId;
+
+      while (read < write) {
+        const index = queue[read++];
+        const x = index % working.width;
+        const neighbors = [];
+        if (x > 0) neighbors.push(index - 1);
+        if (x + 1 < working.width) neighbors.push(index + 1);
+        if (index >= working.width) neighbors.push(index - working.width);
+        if (index + working.width < labels.length) neighbors.push(index + working.width);
+
+        for (const neighbor of neighbors) {
+          if (labels[neighbor] || pixels[neighbor * 4 + 3] < 28) continue;
+          labels[neighbor] = componentId;
+          queue[write++] = neighbor;
+        }
+      }
+
+      if (write > largestCount) {
+        largestCount = write;
+        largestId = componentId;
+      }
+    }
+
+    if (!largestCount) throw new Error('An avatar layer has no visible pixels.');
+    let left = working.width;
+    let right = 0;
+    let top = working.height;
+    let bottom = 0;
+
+    for (let index = 0; index < labels.length; index += 1) {
+      if (labels[index] !== largestId) {
+        pixels[index * 4 + 3] = 0;
+        continue;
+      }
+      const x = index % working.width;
+      const y = Math.floor(index / working.width);
+      left = Math.min(left, x);
+      right = Math.max(right, x);
+      top = Math.min(top, y);
+      bottom = Math.max(bottom, y);
+    }
+
+    context.putImageData(imageData, 0, 0);
+    const trimmed = newCanvas(right - left + 1, bottom - top + 1);
+    trimmed.getContext('2d').drawImage(working, left, top, trimmed.width, trimmed.height, 0, 0, trimmed.width, trimmed.height);
+    return trimmed;
+  }
+
+  function tintedSprite(type) {
+    const key = type === 'hair' ? 'hair-' + state.hair + '-' + state.color : 'base-' + state.skin;
+    if (toneCache.has(key)) return toneCache.get(key);
+    const source = type === 'hair' && state.hair !== 'compact' ? sprites[state.hair] : sprites[type];
+    const canvas = newCanvas(source.width, source.height);
+    const context = canvas.getContext('2d', { willReadFrequently: true });
+    context.drawImage(source, 0, 0);
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    const pixels = imageData.data;
+
+    for (let index = 0; index < pixels.length; index += 4) {
+      if (!pixels[index + 3]) continue;
+      if (type === 'hair' && state.color !== 'charcoal') {
+        // Multiplying a neutral sculpt's luminance preserves its highlights.
+        const brightness = (pixels[index] + pixels[index + 1] + pixels[index + 2]) / (3 * 62);
+        const color = hairColors[state.color];
+        for (let channel = 0; channel < 3; channel += 1) pixels[index + channel] = Math.min(255, color[channel] * brightness);
+      }
+      if (type === 'base' && state.skin !== 'original') {
+        const isSkin = pixels[index] > pixels[index + 2] * 1.17 && pixels[index] > pixels[index + 1] * 1.07;
+        if (isSkin) {
+          const multipliers = skinTones[state.skin];
+          for (let channel = 0; channel < 3; channel += 1) pixels[index + channel] *= multipliers[channel];
+        }
+      }
+    }
+
+    context.putImageData(imageData, 0, 0);
+    toneCache.set(key, canvas);
+    return canvas;
+  }
+
+  function selectedAsset(layer = state.editLayer) {
+    if (layer.startsWith('headgear')) return state.headwear;
+    if (layer.startsWith('face')) return state.face;
+    if (layer.startsWith('headphones')) return state.headphones ? 'headphones' : 'none';
+    if (layer.startsWith('scarf')) return state.scarf ? 'scarf' : 'none';
+    return state.hair;
+  }
+
+  function adjustmentFor(asset) {
+    return state.fits[asset] || { x: 0, y: 0, scale: 100 };
+  }
+
+  function fittedRectangle(asset) {
+    const original = originalFits[asset];
+    const adjustment = adjustmentFor(asset);
+    const scale = adjustment.scale / 100;
+    const width = original.width * scale;
+    const height = original.height * scale;
+    return {
+      x: original.x + (original.width - width) / 2 + adjustment.x,
+      y: original.y + (original.height - height) / 2 + adjustment.y,
+      width, height
+    };
+  }
+
+  function openingFor(asset) {
+    return (state.openings[asset] ?? depthProfiles[asset].center * 100) / 100;
+  }
+
+  function appendDepthEdge(path, asset) {
+    const profile = depthProfiles[asset];
+    const middle = openingFor(asset);
+    path.lineTo(1, profile.edge);
+    path.bezierCurveTo(1 - profile.controlX, middle, .68, middle, .5, middle);
+    path.bezierCurveTo(.32, middle, profile.controlX, middle, 0, profile.edge);
+  }
+
+  function frontPath(asset) {
+    const path = new Path2D();
+    const kind = depthProfiles[asset].kind;
+
+    if (kind === 'cups') {
+      // Each cup is a disconnected foreground region. The connecting band is
+      // the complement, so it can pass behind both the head and the hairstyle.
+      path.rect(0, .52, .285, .48);
+      path.rect(.715, .52, .285, .48);
+      return path;
+    }
+
+    if (kind === 'lenses') {
+      path.moveTo(.47, .5);
+      path.ellipse(.315, .5, .155, .51, 0, 0, Math.PI * 2);
+      path.closePath();
+      path.moveTo(.84, .5);
+      path.ellipse(.685, .5, .155, .51, 0, 0, Math.PI * 2);
+      path.closePath();
+      path.rect(.47, 0, .06, 1);
+      return path;
+    }
+
+    if (kind === 'lower') {
+      // A neck wrap reverses the hat's ordering: the upper loop is behind the
+      // neck, while the lower wrap and hanging end cover the shirt and hair.
+      path.moveTo(0, 1);
+      path.lineTo(1, 1);
+      appendDepthEdge(path, asset);
+      path.closePath();
+      return path;
+    }
+
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    appendDepthEdge(path, asset);
+    path.closePath();
+    return path;
+  }
+
+  function drawPropPart(context, asset, part) {
+    const rectangle = fittedRectangle(asset);
+    const foreground = frontPath(asset);
+    context.save();
+    context.translate(rectangle.x, rectangle.y);
+    context.scale(rectangle.width, rectangle.height);
+
+    if (part === 'front') {
+      context.clip(foreground);
+    } else {
+      // Subtract the exact foreground mask, rather than drawing the whole prop
+      // twice. Curved interior edges can now pass behind the head and hair.
+      const background = new Path2D();
+      background.rect(0, 0, 1, 1);
+      background.addPath(foreground);
+      context.clip(background, 'evenodd');
+    }
+
+    context.drawImage(sprites[asset], 0, 0, 1, 1);
+    context.restore();
+  }
+
+  function drawLayer(context, layer, applyFit = true) {
+    const asset = layer === 'base' ? 'base' : selectedAsset(layer);
+    if (asset === 'none') return;
+
+    if (layer.endsWith('-front') || layer.endsWith('-back')) {
+      drawPropPart(context, asset, layer.endsWith('-front') ? 'front' : 'back');
+      return;
+    }
+
+    const rectangle = fittedRectangle(asset);
+    const isAvatarLayer = layer === 'hair' || layer === 'base';
+    const sprite = isAvatarLayer ? tintedSprite(layer) : sprites[asset];
+    context.save();
+    if (isAvatarLayer && applyFit) context.globalAlpha *= state.opacity / 100;
+
+    const hasHat = state.headwear === 'straw' || state.headwear === 'chopper';
+    if (layer === 'hair' && hasHat && state.tuck && applyFit) {
+      const hat = fittedRectangle(state.headwear);
+      const fringeTop = hat.y + hat.height * openingFor(state.headwear);
+      context.beginPath();
+      context.rect(0, fringeTop, canvasSize, canvasSize - fringeTop);
+      context.clip();
+    }
+
+    context.drawImage(sprite, rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+    context.restore();
+  }
+
+  function drawDepthContour(context, asset) {
+    if (!Number.isFinite(depthProfiles[asset]?.center)) return;
+    const rectangle = fittedRectangle(asset);
+    const profile = depthProfiles[asset];
+    const middle = openingFor(asset);
+    const point = (x, y) => [rectangle.x + x * rectangle.width, rectangle.y + y * rectangle.height];
+
+    context.beginPath();
+    context.moveTo(...point(1, profile.edge));
+    context.bezierCurveTo(...point(1 - profile.controlX, middle), ...point(.68, middle), ...point(.5, middle));
+    context.bezierCurveTo(...point(.32, middle), ...point(profile.controlX, middle), ...point(0, profile.edge));
+    context.strokeStyle = getComputedStyle(root).color;
+    context.lineWidth = 1.5;
+    context.setLineDash([5, 5]);
+    context.stroke();
+    context.setLineDash([]);
+  }
+
+  function drawAvatar(canvas, onlyLayer) {
+    const context = canvas.getContext('2d');
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.save();
+    context.scale(canvas.width / canvasSize, canvas.height / canvasSize);
+    const rearLayers = ['scarf-back', 'headphones-back', 'face-back', 'headgear-back'];
+    const depthLayers = [...rearLayers, 'base', 'hair', 'scarf-front', 'headphones-front', 'headgear-front', 'face-front'];
+    const flatLayers = ['base', 'hair', 'scarf', 'headphones', 'headgear', 'face'];
+    const inspectionGroups = {
+      'rear-props': rearLayers,
+      'front-props': ['headgear-front', 'face-front']
+    };
+    const layers = onlyLayer ? inspectionGroups[onlyLayer] || [onlyLayer] : state.order === 'split' ? depthLayers : flatLayers;
+
+    for (const layer of layers) {
+      drawLayer(context, layer, !onlyLayer);
+    }
+
+    if (!onlyLayer && state.contour && state.order === 'split') {
+      drawDepthContour(context, selectedAsset());
+    }
+
+    if (!onlyLayer && state.bounds && selectedAsset() !== 'none') {
+      const rectangle = fittedRectangle(selectedAsset());
+      context.strokeStyle = getComputedStyle(root).getPropertyValue('--foreground').trim() || getComputedStyle(root).color;
+      context.lineWidth = 1.5;
+      context.setLineDash([5, 5]);
+      context.strokeRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+    }
+    context.restore();
+  }
+
+  function updateAdjustmentControls() {
+    const asset = selectedAsset();
+    const adjustment = adjustmentFor(asset);
+    for (const field of ['x', 'y', 'scale']) {
+      find('avatar-' + field).value = adjustment[field];
+      find('avatar-' + field).disabled = asset === 'none';
+      find('avatar-' + field + '-value').textContent = adjustment[field] + (field === 'scale' ? '%' : ' px');
+    }
+    find('avatar-restore').disabled = asset === 'none';
+    const hasCurve = Number.isFinite(depthProfiles[asset]?.center);
+    find('avatar-opening').disabled = !hasCurve || state.order !== 'split';
+    find('avatar-opening').min = asset === 'scarf' ? 10 : 62;
+    find('avatar-opening').max = asset === 'scarf' ? 70 : 95;
+    find('avatar-opening').value = hasCurve ? Math.round(openingFor(asset) * 100) : 78;
+    find('avatar-opening-value').textContent = hasCurve ? Math.round(openingFor(asset) * 100) + '%' : '—';
+    find('avatar-opacity-value').textContent = state.opacity + '%';
+  }
+
+  function render() {
+    if (!ready) return;
+    drawAvatar(find('avatar-main'));
+    const selectedHair = state.hair;
+    for (const canvas of root.querySelectorAll('[data-hair-preview]')) {
+      state.hair = canvas.dataset.hairPreview;
+      drawAvatar(canvas);
+    }
+    state.hair = selectedHair;
+    for (const canvas of root.querySelectorAll('[data-layer-preview]')) drawAvatar(canvas, canvas.dataset.layerPreview);
+    find('avatar-layers').hidden = !state.inspect;
+    find('avatar-tuck').disabled = !['straw', 'chopper'].includes(state.headwear);
+    updateAdjustmentControls();
+    const additions = [];
+    if (state.face === 'glasses') additions.push('round glasses');
+    if (state.headphones) additions.push('headphones');
+    if (state.scarf) additions.push('red scarf');
+    const faceLabel = additions.length ? ' + ' + additions.join(' + ') : '';
+    const modeLabel = state.order === 'split' ? ' · Front / rear pieces' : ' · Whole prop in front';
+    find('avatar-status').textContent = itemLabels[state.headwear] + faceLabel + modeLabel;
+    find('avatar-main').setAttribute('aria-label', 'Live layered avatar: ' + itemLabels[state.headwear] + faceLabel + ', ' + state.color + ' hair');
+  }
+
+  function saveState() {
+    const host = window.openai;
+    if (!host?.setWidgetState) return;
+    Promise.resolve(host.setWidgetState({
+      modelContent: { version: 3, headwear: state.headwear, face: state.face, headphones: state.headphones, scarf: state.scarf, hair: state.hair, color: state.color, skin: state.skin, tuckHair: state.tuck, composition: state.order, adjustments: state.fits, depthContours: state.openings, headOpacity: state.opacity },
+      privateContent: state
+    })).catch(() => {});
+  }
+
+  function restoreState(saved) {
+    const candidate = saved?.privateContent;
+    if (!candidate || typeof candidate !== 'object') return;
+    state = structuredClone(initialState);
+    const allowedValues = {
+      headwear: ['straw', 'leaf', 'chopper', 'none'], face: ['none', 'glasses'], hair: ['compact', 'bob', 'buns', 'none'],
+      color: Object.keys(hairColors), skin: Object.keys(skinTones), order: ['split', 'flat'], editLayer: ['headgear', 'hair', 'headphones', 'face', 'scarf']
+    };
+    for (const [key, allowed] of Object.entries(allowedValues)) {
+      if (allowed.includes(candidate[key])) state[key] = candidate[key];
+    }
+    for (const key of ['tuck', 'inspect', 'bounds', 'contour', 'headphones', 'scarf']) {
+      if (typeof candidate[key] === 'boolean') state[key] = candidate[key];
+    }
+    for (const asset of Object.keys(originalFits)) {
+      if (asset === 'base') continue;
+      const fit = candidate.fits?.[asset];
+      if (!fit || !['x', 'y', 'scale'].every(key => Number.isFinite(fit[key]))) continue;
+      state.fits[asset] = { x: Math.max(-80, Math.min(80, fit.x)), y: Math.max(-80, Math.min(80, fit.y)), scale: Math.max(65, Math.min(140, fit.scale)) };
+    }
+    for (const asset of Object.keys(depthProfiles)) {
+      if (Number.isFinite(candidate.openings?.[asset])) {
+        const minimum = asset === 'scarf' ? 10 : 62;
+        const maximum = asset === 'scarf' ? 70 : 95;
+        state.openings[asset] = Math.max(minimum, Math.min(maximum, candidate.openings[asset]));
+      }
+    }
+    if (Number.isFinite(candidate.opacity)) state.opacity = Math.max(0, Math.min(100, candidate.opacity));
+  }
+
+  function syncInputs() {
+    const values = { headwear: 'headwear', face: 'face', hair: 'hair', color: 'color', skin: 'skin', order: 'order', 'edit-layer': 'editLayer' };
+    for (const [id, key] of Object.entries(values)) find('avatar-' + id).value = state[key];
+    for (const key of ['tuck', 'inspect', 'bounds', 'contour', 'headphones', 'scarf']) find('avatar-' + key).checked = state[key];
+    find('avatar-opacity').value = state.opacity;
+  }
+
+  const inputBindings = { headwear: 'headwear', face: 'face', hair: 'hair', color: 'color', skin: 'skin', order: 'order', 'edit-layer': 'editLayer', tuck: 'tuck', inspect: 'inspect', bounds: 'bounds', contour: 'contour', headphones: 'headphones', scarf: 'scarf' };
+  for (const [id, key] of Object.entries(inputBindings)) {
+    const input = find('avatar-' + id);
+    input.addEventListener('change', () => {
+      state[key] = input.type === 'checkbox' ? input.checked : input.value;
+      render();
+      saveState();
+    });
+  }
+
+  for (const field of ['x', 'y', 'scale']) {
+    const input = find('avatar-' + field);
+    input.addEventListener('input', () => {
+      const asset = selectedAsset();
+      if (asset === 'none') return;
+      state.fits[asset] = { ...adjustmentFor(asset), [field]: Number(input.value) };
+      render();
+    });
+    input.addEventListener('change', saveState);
+  }
+
+  find('avatar-restore').addEventListener('click', () => {
+    delete state.fits[selectedAsset()];
+    delete state.openings[selectedAsset()];
+    render();
+    saveState();
+  });
+
+  find('avatar-opening').addEventListener('input', event => {
+    const asset = selectedAsset();
+    if (!Number.isFinite(depthProfiles[asset]?.center)) return;
+    state.openings[asset] = Number(event.target.value);
+    render();
+  });
+  find('avatar-opening').addEventListener('change', saveState);
+  find('avatar-opacity').addEventListener('input', event => {
+    state.opacity = Number(event.target.value);
+    render();
+  });
+  find('avatar-opacity').addEventListener('change', saveState);
+  find('avatar-shuffle').addEventListener('click', () => {
+    const choose = options => options[Math.floor(Math.random() * options.length)];
+    state.headwear = choose(['straw', 'leaf', 'chopper', 'none']);
+    state.face = choose(['none', 'glasses']);
+    state.headphones = choose([false, true]);
+    state.scarf = choose([false, true]);
+    state.hair = choose(['compact', 'bob', 'buns']);
+    state.color = choose(Object.keys(hairColors));
+    state.skin = choose(Object.keys(skinTones));
+    syncInputs();
+    render();
+    saveState();
+  });
+
+  restoreState(window.openai?.widgetState);
+  syncInputs();
+  window.addEventListener('openai:set_globals', event => {
+    const saved = event.detail?.globals?.widgetState;
+    if (!saved) return;
+    restoreState(saved);
+    syncInputs();
+    render();
+  });
+
+  async function initialize() {
+    try {
+      const images = Object.fromEntries(await Promise.all(Object.entries(sourceUrls).map(async ([name, url]) => [name, await loadImage(url)])));
+      const { base, hair, props } = images;
+      sprites.base = extractSprite(base, [0, 0, base.width, base.height]);
+      sprites.hair = extractSprite(hair, [0, 0, hair.width, hair.height]);
+      const propNames = ['straw', 'leaf', 'chopper', 'blindfold'];
+      propNames.forEach((name, column) => {
+        sprites[name] = extractSprite(props, [column * props.width / 4, 0, props.width / 4, props.height * .42]);
+      });
+      for (const name of ['headphones', 'glasses', 'scarf', 'bob', 'buns']) {
+        const image = images[name];
+        sprites[name] = extractSprite(image, [0, 0, image.width, image.height]);
+      }
+      ready = true;
+      root.dataset.ready = 'true';
+      render();
+    } catch (error) {
+      find('avatar-status').setAttribute('role', 'alert');
+      find('avatar-status').textContent = error.message;
+    }
+  }
+
+  initialize();
+})();
+</script>

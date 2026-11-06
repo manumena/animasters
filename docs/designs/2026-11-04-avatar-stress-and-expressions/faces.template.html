@@ -1,0 +1,277 @@
+<div id="avatar-face-comparison">
+  <style>
+    #avatar-face-comparison { display: grid; gap: 1rem; }
+    #avatar-face-comparison .comparison-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    #avatar-face-comparison .style-column { display: grid; gap: .5rem; min-width: 0; }
+    #avatar-face-comparison .portrait { display: grid; place-items: center; }
+    #avatar-face-comparison .portrait canvas { display: block; width: 100%; height: auto; max-width: 320px; }
+    #avatar-face-comparison .icon-size { display: flex; align-items: center; justify-content: center; gap: .5rem; }
+    #avatar-face-comparison .icon-size canvas { width: 48px; height: 48px; }
+    #avatar-face-comparison .pixel-render { image-rendering: pixelated; }
+    #avatar-face-comparison .contact-sheet { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+    #avatar-face-comparison .contact-sheet[hidden] { display: none; }
+    #avatar-face-comparison figure { margin: 0; display: grid; gap: .25rem; text-align: center; min-width: 0; }
+    #avatar-face-comparison .contact-images { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    #avatar-face-comparison .contact-images canvas { display: block; width: 100%; height: auto; }
+    @media (max-width: 560px) {
+      #avatar-face-comparison .comparison-pair { gap: .5rem; }
+      #avatar-face-comparison .contact-sheet { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+  <h2>Eyes and expressions · 3D vs pixel art</h2>
+  <div class="viz-controls">
+    <label class="form-label">Eye style
+      <select id="face-eyes" class="form-select"><option value="0">Oval</option><option value="1">Round with iris</option><option value="2">Almond</option></select>
+    </label>
+    <label class="form-label">Expression
+      <select id="face-expression" class="form-select"><option value="0">Smile</option><option value="1">Neutral</option><option value="2">Laugh</option><option value="3">Angry</option><option value="4">Sleepy</option><option value="5">Surprised</option></select>
+    </label>
+  </div>
+  <div class="comparison-pair">
+    <div class="style-column">
+      <h3>Soft 3D</h3>
+      <div class="card portrait"><canvas id="face-3d" width="768" height="768" role="img" aria-label="3D avatar with the selected eyes and expression"></canvas></div>
+      <div class="icon-size"><canvas id="face-3d-small" width="96" height="96" role="img" aria-label="3D expression at 48 pixels"></canvas><span class="text-small">48 px</span></div>
+    </div>
+    <div class="style-column">
+      <h3>Pixel art</h3>
+      <div class="card portrait"><canvas id="face-pixel" class="pixel-render" width="768" height="768" role="img" aria-label="Pixel avatar with the selected eyes and expression"></canvas></div>
+      <div class="icon-size"><canvas id="face-pixel-small" class="pixel-render" width="96" height="96" role="img" aria-label="Pixel expression at 48 pixels"></canvas><span class="text-small">48 px</span></div>
+    </div>
+  </div>
+  <label class="form-check"><input id="face-show-all" class="form-check-input" type="checkbox"><span class="form-check-label">Compare all expressions</span></label>
+  <div id="face-contact-sheet" class="contact-sheet" hidden></div>
+  <div id="face-status" class="text-small" role="status" aria-live="polite">Loading facial features…</div>
+</div>
+<script>
+(() => {
+  const root = document.getElementById('avatar-face-comparison');
+  const find = id => root.querySelector('#' + id);
+  const sourceUrls = __AVATAR_ASSETS__;
+  const expressionNames = ['Smile', 'Neutral', 'Laugh', 'Angry', 'Sleepy', 'Surprised'];
+  const eyeNames = ['Oval', 'Round with iris', 'Almond'];
+  const sprites = {};
+  const featureCells = {};
+  const expressionCache = new Map();
+  const stageSize = 512;
+  const state = { eyes: 0, expression: 0, all: false };
+  let ready = false;
+
+  function newCanvas(width, height) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    return canvas;
+  }
+
+  function loadImage(url) {
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(new Error('A comparison image could not be loaded.'));
+      image.src = url;
+    });
+  }
+
+  function cleanSprite(image, rectangle, keepLargest) {
+    const [sourceX, sourceY, width, height] = rectangle;
+    const canvas = newCanvas(Math.ceil(width), Math.ceil(height));
+    const context = canvas.getContext('2d', { willReadFrequently: true });
+    context.drawImage(image, sourceX, sourceY, width, height, 0, 0, canvas.width, canvas.height);
+    const data = context.getImageData(0, 0, canvas.width, canvas.height);
+    const labels = new Int32Array(canvas.width * canvas.height);
+    const queue = new Int32Array(labels.length);
+    const componentSizes = [0];
+    let largest = 0;
+
+    for (let start = 0; start < labels.length; start += 1) {
+      if (labels[start] || data.data[start * 4 + 3] < 36) continue;
+      const label = componentSizes.length;
+      let read = 0;
+      let write = 1;
+      queue[0] = start;
+      labels[start] = label;
+
+      while (read < write) {
+        const index = queue[read++];
+        const x = index % canvas.width;
+        const neighbors = [];
+        if (x > 0) neighbors.push(index - 1);
+        if (x + 1 < canvas.width) neighbors.push(index + 1);
+        if (index >= canvas.width) neighbors.push(index - canvas.width);
+        if (index + canvas.width < labels.length) neighbors.push(index + canvas.width);
+
+        for (const neighbor of neighbors) {
+          if (labels[neighbor] || data.data[neighbor * 4 + 3] < 36) continue;
+          labels[neighbor] = label;
+          queue[write++] = neighbor;
+        }
+      }
+
+      componentSizes.push(write);
+      if (write > componentSizes[largest]) largest = label;
+    }
+
+    let left = canvas.width;
+    let top = canvas.height;
+    let right = 0;
+    let bottom = 0;
+    for (let index = 0; index < labels.length; index += 1) {
+      const label = labels[index];
+      const keep = keepLargest ? label === largest && label !== 0 : componentSizes[label] >= 12;
+      if (!keep) {
+        data.data[index * 4 + 3] = 0;
+        continue;
+      }
+      const x = index % canvas.width;
+      const y = Math.floor(index / canvas.width);
+      left = Math.min(left, x);
+      right = Math.max(right, x);
+      top = Math.min(top, y);
+      bottom = Math.max(bottom, y);
+    }
+
+    context.putImageData(data, 0, 0);
+    // Facial cells retain their full grid coordinates. Trimming each eye or
+    // mouth would move its anchor when an expression changes shape.
+    if (!keepLargest) return canvas;
+    if (left > right) throw new Error('An avatar sprite has no visible pixels.');
+    const trimmed = newCanvas(right - left + 1, bottom - top + 1);
+    trimmed.getContext('2d').drawImage(canvas, left, top, trimmed.width, trimmed.height, 0, 0, trimmed.width, trimmed.height);
+    return trimmed;
+  }
+
+  function expressionImage(style, eyes, expression) {
+    const key = [style, eyes, expression].join('-');
+    if (expressionCache.has(key)) return expressionCache.get(key);
+    const pixel = style === 'pixel';
+    const canvas = newCanvas(pixel ? 96 : 768, pixel ? 96 : 768);
+    const context = canvas.getContext('2d');
+    context.scale(canvas.width / stageSize, canvas.height / stageSize);
+    context.imageSmoothingEnabled = !pixel;
+
+    if (pixel) {
+      context.drawImage(sprites.blankpixel, 122, 55, 268, 390);
+      context.drawImage(featureCells.pixel[expression][eyes], 138, 137, 236, 190);
+    } else {
+      context.drawImage(sprites.blank3d, 136, 110, 240, 336);
+      context.drawImage(featureCells.soft[expression][eyes], 138, 137, 236, 190);
+      context.drawImage(sprites.hair, 126, 67, 260, 195);
+    }
+
+    expressionCache.set(key, canvas);
+    return canvas;
+  }
+
+  function drawComparison(canvas, style, expression = state.expression) {
+    const context = canvas.getContext('2d');
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.imageSmoothingEnabled = style !== 'pixel';
+    const image = expressionImage(style, state.eyes, expression);
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    canvas.setAttribute('aria-label', (style === 'pixel' ? 'Pixel art' : 'Soft 3D') + ': ' + eyeNames[state.eyes] + ' eyes, ' + expressionNames[expression]);
+  }
+
+  function render() {
+    if (!ready) return;
+    drawComparison(find('face-3d'), 'soft');
+    drawComparison(find('face-pixel'), 'pixel');
+    drawComparison(find('face-3d-small'), 'soft');
+    drawComparison(find('face-pixel-small'), 'pixel');
+    for (const canvas of root.querySelectorAll('[data-expression]')) {
+      drawComparison(canvas, canvas.dataset.style, Number(canvas.dataset.expression));
+    }
+    find('face-contact-sheet').hidden = !state.all;
+    find('face-status').textContent = eyeNames[state.eyes] + ' eyes · ' + expressionNames[state.expression];
+  }
+
+  function syncInputs() {
+    find('face-eyes').value = state.eyes;
+    find('face-expression').value = state.expression;
+    find('face-show-all').checked = state.all;
+  }
+
+  function restoreState(saved) {
+    const candidate = saved?.privateContent;
+    if (!candidate || candidate.kind !== 'expression-comparison') return;
+    if (Number.isInteger(candidate.eyes) && candidate.eyes >= 0 && candidate.eyes < 3) state.eyes = candidate.eyes;
+    if (Number.isInteger(candidate.expression) && candidate.expression >= 0 && candidate.expression < 6) state.expression = candidate.expression;
+    if (typeof candidate.all === 'boolean') state.all = candidate.all;
+  }
+
+  function saveState() {
+    if (!window.openai?.setWidgetState) return;
+    Promise.resolve(window.openai.setWidgetState({
+      modelContent: { comparison: 'eyes-and-expressions', eyeStyle: eyeNames[state.eyes], expression: expressionNames[state.expression] },
+      privateContent: { kind: 'expression-comparison', ...state }
+    })).catch(() => {});
+  }
+
+  for (const [id, key] of [['face-eyes', 'eyes'], ['face-expression', 'expression'], ['face-show-all', 'all']]) {
+    const input = find(id);
+    input.addEventListener('change', () => {
+      state[key] = input.type === 'checkbox' ? input.checked : Number(input.value);
+      render();
+      saveState();
+    });
+  }
+
+  for (const [index, name] of expressionNames.entries()) {
+    const figure = document.createElement('figure');
+    const images = document.createElement('div');
+    images.className = 'contact-images';
+    for (const style of ['soft', 'pixel']) {
+      const canvas = newCanvas(192, 192);
+      canvas.dataset.expression = index;
+      canvas.dataset.style = style;
+      canvas.setAttribute('role', 'img');
+      if (style === 'pixel') canvas.className = 'pixel-render';
+      images.append(canvas);
+    }
+    const caption = document.createElement('figcaption');
+    caption.className = 'text-small';
+    caption.textContent = name;
+    figure.append(images, caption);
+    find('face-contact-sheet').append(figure);
+  }
+
+  restoreState(window.openai?.widgetState);
+  syncInputs();
+  window.addEventListener('openai:set_globals', event => {
+    const saved = event.detail?.globals?.widgetState;
+    if (!saved) return;
+    restoreState(saved);
+    syncInputs();
+    render();
+  });
+
+  async function initialize() {
+    try {
+      const images = Object.fromEntries(await Promise.all(Object.entries(sourceUrls).map(async ([name, url]) => [name, await loadImage(url)])));
+      for (const name of ['blank3d', 'blankpixel', 'hair']) {
+        const image = images[name];
+        sprites[name] = cleanSprite(image, [0, 0, image.width, image.height], true);
+      }
+      for (const [style, name] of [['soft', 'features3d'], ['pixel', 'featurespixel']]) {
+        const image = images[name];
+        featureCells[style] = [];
+        for (let row = 0; row < 6; row += 1) {
+          const columns = [];
+          for (let column = 0; column < 3; column += 1) {
+            columns.push(cleanSprite(image, [column * image.width / 3, row * image.height / 6, image.width / 3, image.height / 6], false));
+          }
+          featureCells[style].push(columns);
+        }
+      }
+      ready = true;
+      root.dataset.ready = 'true';
+      render();
+    } catch (error) {
+      find('face-status').setAttribute('role', 'alert');
+      find('face-status').textContent = error.message;
+    }
+  }
+
+  initialize();
+})();
+</script>

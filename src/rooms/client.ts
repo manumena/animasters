@@ -1,3 +1,5 @@
+import type { AvatarConfig } from '../avatars/protocol';
+
 export interface RoomSettings {
   amount: number;
   repeatAnimes: boolean;
@@ -23,7 +25,15 @@ export interface RoomSnapshot {
   settingsRevision?: number;
   matchStartsAt?: number;
   resultsEndsAt?: number;
-  players: { id: string; nickname: string; connected: boolean; ready?: boolean; score?: number; submitted?: boolean }[];
+  players: {
+    id: string;
+    nickname: string;
+    avatar?: AvatarConfig;
+    connected: boolean;
+    ready?: boolean;
+    score?: number;
+    submitted?: boolean;
+  }[];
   round?: RoundSnapshot;
   submission?: { actionId: string; animeId: number | null };
   result?: {
@@ -72,7 +82,7 @@ export function forgetSession(code: string): void {
   localStorage.removeItem(key(code));
 }
 
-export async function enterRoom(nickname: string, code?: string): Promise<RoomSession> {
+export async function enterRoom(nickname: string, code?: string, avatar?: AvatarConfig): Promise<RoomSession> {
   // Fail before creating a player if the browser cannot preserve its credential.
   const probe = 'animasters.storage-check';
   try { localStorage.setItem(probe, '1'); localStorage.removeItem(probe); }
@@ -80,7 +90,7 @@ export async function enterRoom(nickname: string, code?: string): Promise<RoomSe
   const response = await fetch(`${api}/rooms${code ? `/${code}/join` : ''}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ nickname: nickname.trim() }),
+    body: JSON.stringify({ nickname: nickname.trim(), avatar }),
   });
   const result = await response.json();
   if (!response.ok) throw new Error(result.error ?? 'Unable to enter the room.');

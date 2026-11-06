@@ -222,15 +222,9 @@
   padding: 14px 0;
   border-bottom: 1px solid var(--home-line);
 }
-.room-player-initial {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: #30474c;
-  color: var(--home-accent);
+.room-lobby-players .avatar-portrait {
+  width: 56px;
+  height: 56px;
 }
 .room-player-name {
   min-width: 0;

@@ -7,6 +7,9 @@ import RoomGame from '../rooms/RoomGame';
 import type { RoomSession } from '../rooms/client';
 import { FiArrowLeft, FiArrowRight } from 'react-icons/fi';
 import CafePage, { CafeHeader } from '../components/CafePage';
+import AvatarCreator from '../avatars/AvatarCreator';
+import { loadSavedAvatar, saveAvatar } from '../avatars/preferences';
+import type { AvatarConfig } from '../avatars/protocol';
 import './Rooms.css';
 
 /** Room entry and lobby are separate from the existing local-player game. */
@@ -17,6 +20,7 @@ export default function Rooms() {
   const navigate = useNavigate();
   const [session, setSession] = useState<RoomSession | null>(() => savedSession(code));
   const [nickname, setNickname] = useState('');
+  const [avatar, setAvatar] = useState(loadSavedAvatar);
   const nicknameInputRef = useRef<HTMLInputElement>(null);
   const [inputCode, setInputCode] = useState(code);
   // The homepage can open either form; a shared room code always selects Join.
@@ -32,6 +36,11 @@ export default function Rooms() {
     nicknameInputRef.current?.focus();
   }
 
+  function changeAvatar(next: AvatarConfig) {
+    setAvatar(next);
+    saveAvatar(next);
+  }
+
   async function submit(event: FormEvent) {
     event.preventDefault();
     if (pending) return;
@@ -42,7 +51,7 @@ export default function Rooms() {
     try {
       // Reusing this browser's credential avoids occupying a second player slot.
       const existing = mode === 'join' ? savedSession(inputCode) : null;
-      const result = existing ?? await enterRoom(nickname, mode === 'join' ? inputCode : undefined);
+      const result = existing ?? await enterRoom(nickname, mode === 'join' ? inputCode : undefined, avatar);
       setSession(result);
       navigate(`/rooms/${result.room.code}`, { replace: true });
     } catch (cause) {
@@ -105,6 +114,8 @@ export default function Rooms() {
               autoFocus
             />
           </div>
+
+          <AvatarCreator avatar={avatar} nickname={nickname} disabled={pending} onChange={changeAvatar} />
 
           {joining && (
             <div className="room-entry-field room-entry-code">

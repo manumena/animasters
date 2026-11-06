@@ -1,0 +1,61 @@
+<div id="combined-avatar-creator">
+  <style>
+    #combined-avatar-creator { display: grid; gap: 1rem; }
+    #combined-avatar-creator .creator-layout { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.15fr); align-items: start; gap: 1rem; }
+    #combined-avatar-creator .portrait { display: grid; gap: .5rem; min-width: 0; }
+    #combined-avatar-creator .portrait-stage { display: grid; place-items: center; }
+    #combined-avatar-creator #creator-avatar { display: block; width: 100%; max-width: 340px; height: auto; }
+    #combined-avatar-creator .room-icon { display: flex; align-items: center; justify-content: center; gap: .5rem; }
+    #combined-avatar-creator .room-icon canvas { width: 48px; height: 48px; }
+    #combined-avatar-creator .creator-fields { display: grid; gap: .8rem; min-width: 0; }
+    #combined-avatar-creator .field-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
+    #combined-avatar-creator .field { display: grid; gap: .25rem; min-width: 0; }
+    #combined-avatar-creator .color-label { display: flex; align-items: center; gap: .35rem; }
+    #combined-avatar-creator .color-sample { width: .8em; height: .8em; border-radius: 50%; box-shadow: 0 0 0 1px var(--border); }
+    @media (max-width: 590px) {
+      #combined-avatar-creator .creator-layout { grid-template-columns: 1fr; }
+      #combined-avatar-creator #creator-avatar { max-width: 280px; }
+    }
+  </style>
+
+  <h2>Avatar creator</h2>
+  <div class="viz-row" role="group" aria-label="Example looks">
+    <button class="btn" type="button" data-look="moon">Moon DJ</button>
+    <button class="btn" type="button" data-look="pirate">Sky pirate</button>
+    <button class="btn" type="button" data-look="scout">Forest scout</button>
+  </div>
+
+  <div class="creator-layout">
+    <div class="portrait">
+      <div class="card portrait-stage"><canvas id="creator-avatar" width="768" height="768" role="img" aria-label="Avatar preview"></canvas></div>
+      <div class="room-icon"><canvas id="creator-icon" width="96" height="96" role="img" aria-label="Small room avatar"></canvas><span class="text-small">Room icon · 48 px</span></div>
+    </div>
+
+    <div class="creator-fields">
+      <div class="field-pair">
+        <label class="field form-label">Hairstyle<select class="form-select" data-choice="hair"></select></label>
+        <label class="field form-label"><span class="color-label">Hair color <span class="color-sample" data-color="hairColor" aria-hidden="true"></span></span><select class="form-select" data-choice="hairColor"></select></label>
+      </div>
+      <label class="field form-label"><span class="color-label">Skin tone <span class="color-sample" data-color="skin" aria-hidden="true"></span></span><select class="form-select" data-choice="skin"></select></label>
+      <div class="field-pair">
+        <label class="field form-label">Eyes<select class="form-select" data-choice="eyes"></select></label>
+        <label class="field form-label">Expression<select class="form-select" data-choice="expression"></select></label>
+      </div>
+      <div class="field-pair">
+        <label class="field form-label">Headwear<select class="form-select" data-choice="hat"></select></label>
+        <label class="field form-label">Eyewear<select class="form-select" data-choice="eyewear"></select></label>
+      </div>
+      <div class="viz-row" role="group" aria-label="Additional props">
+        <label class="form-check"><input class="form-check-input" type="checkbox" data-choice="headphones"><span class="form-check-label">Headphones</span></label>
+        <label class="form-check"><input class="form-check-input" type="checkbox" data-choice="scarf"><span class="form-check-label">Red scarf</span></label>
+      </div>
+    </div>
+  </div>
+  <div id="creator-status" class="text-small" role="status" aria-live="polite">Loading avatar artwork…</div>
+</div>
+<script>
+(() => {
+__SPRITE_TOOLS__
+__CREATOR_CODE__
+})();
+</script>

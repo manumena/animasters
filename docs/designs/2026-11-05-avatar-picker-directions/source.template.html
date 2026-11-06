@@ -1,0 +1,135 @@
+<div id="avatar-picker-directions" class="viz-carousel viz-dotted-background" aria-label="Avatar picker design alternatives">
+  <section data-variant="Arcade arrows" aria-label="Arcade arrows">
+    <form class="picker-entry">
+      <header class="entry-header"><span class="entry-brand">Animasters</span><h2>Join a room</h2></header>
+      <label class="entry-field">Nickname<input name="nickname" placeholder="Your nickname" maxlength="24" required></label>
+      <div class="picker-stage arrow-stage">
+        <button type="button" class="arrow" data-cycle="-1" aria-label="Previous hairstyle">‹</button>
+        <canvas data-avatar width="384" height="384" role="img" aria-label="Current avatar"></canvas>
+        <button type="button" class="arrow" data-cycle="1" aria-label="Next hairstyle">›</button>
+      </div>
+      <div class="current-part" data-current aria-live="polite"></div>
+      <label class="entry-field">Change<select data-slot></select></label>
+      <div class="entry-action"><button class="join" type="button">Join room</button><span data-result role="status"></span></div>
+    </form>
+  </section>
+
+  <section data-variant="Thumbnail picker" aria-label="Thumbnail picker" hidden>
+    <form class="picker-entry">
+      <header class="entry-header"><span class="entry-brand">Animasters</span><h2>Join a room</h2></header>
+      <label class="entry-field">Nickname<input name="nickname" placeholder="Your nickname" maxlength="24" required></label>
+      <div class="picker-stage gallery-stage"><canvas data-avatar width="384" height="384" role="img" aria-label="Current avatar"></canvas></div>
+      <div class="picker-categories" role="group" aria-label="Part category">
+        <button type="button" data-category="hair">Hair</button><button type="button" data-category="face">Face</button><button type="button" data-category="props">Props</button>
+      </div>
+      <div class="picker-slots" data-slots role="group" aria-label="Part to change"></div>
+      <div class="picker-thumbnails" data-options role="group" aria-label="Hairstyle choices"></div>
+      <div class="entry-action"><button class="join" type="button">Join room</button><span data-result role="status"></span></div>
+    </form>
+  </section>
+
+  <section data-variant="Starter looks" aria-label="Starter looks" hidden>
+    <form class="picker-entry">
+      <header class="entry-header"><span class="entry-brand">Animasters</span><h2>Join a room</h2></header>
+      <label class="entry-field">Nickname<input name="nickname" placeholder="Your nickname" maxlength="24" required></label>
+      <div class="picker-stage starter-stage"><canvas data-avatar width="384" height="384" role="img" aria-label="Current avatar"></canvas></div>
+      <div class="starter-controls">
+        <div class="starter-looks" data-starters role="group" aria-label="Starter looks"></div>
+        <div class="fine-tune" data-fine-tune hidden>
+          <label class="entry-field">Change<select data-slot></select></label>
+          <label class="entry-field"><span data-value-label>Hairstyle</span><select data-value></select></label>
+        </div>
+        <button class="tune-toggle" type="button" data-tune>Fine-tune look</button>
+      </div>
+      <div class="entry-action"><button class="join" type="button">Join room</button><span data-result role="status"></span></div>
+    </form>
+  </section>
+</div>
+
+<style>
+  #avatar-picker-directions > section {
+    color-scheme: light dark;
+    --entry-paper: light-dark(#fff9ef, #27201d);
+    --entry-ink: light-dark(#39251d, #f8e8d9);
+    --entry-muted: light-dark(#71584c, #ceb3a3);
+    --entry-line: light-dark(#dfc8b7, #59443b);
+    --entry-tray: light-dark(#f1e1d4, #382b25);
+    --entry-accent: light-dark(#a74732, #ffab8c);
+    --entry-on-accent: light-dark(#fff7ee, #3b211a);
+    --entry-selected: light-dark(#f8ded0, #563328);
+    display: grid;
+    place-items: start center;
+    min-block-size: 632px;
+    padding: 14px 12px 20px;
+  }
+  #avatar-picker-directions [hidden] { display: none !important; }
+  #avatar-picker-directions .picker-entry {
+    box-sizing: border-box;
+    width: min(100%, 440px);
+    min-block-size: 572px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 18px;
+    color: var(--entry-ink);
+    background: var(--entry-paper);
+    border: 1px solid var(--entry-line);
+    border-radius: 22px;
+    font-family: system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.35;
+  }
+  #avatar-picker-directions .entry-header { display: grid; gap: 2px; }
+  #avatar-picker-directions .entry-brand { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--entry-muted); }
+  #avatar-picker-directions .entry-header h2 { margin: 0; font-size: 23px; font-weight: 680; }
+  #avatar-picker-directions .entry-field { display: grid; gap: 4px; min-width: 0; }
+  #avatar-picker-directions input, #avatar-picker-directions select, #avatar-picker-directions .picker-entry button {
+    box-sizing: border-box;
+    color: inherit;
+    background: var(--entry-paper);
+    border: 1px solid var(--entry-line);
+    border-radius: 10px;
+    font: inherit;
+  }
+  #avatar-picker-directions input, #avatar-picker-directions select { width: 100%; min-height: 38px; padding: 5px 8px; }
+  #avatar-picker-directions .picker-entry button { min-height: 38px; padding: 5px 8px; }
+  #avatar-picker-directions .picker-entry button[aria-pressed="true"] { background: var(--entry-selected); border-color: var(--entry-accent); }
+  #avatar-picker-directions .picker-entry :is(button, input, select):focus-visible { outline: 2px solid var(--entry-accent); outline-offset: 2px; }
+  #avatar-picker-directions .picker-stage { display: grid; justify-items: center; align-items: center; min-width: 0; background: var(--entry-tray); border-radius: 14px; }
+  #avatar-picker-directions .picker-stage canvas { display: block; width: min(100%, var(--portrait-size)); height: auto; }
+  #avatar-picker-directions .arrow-stage { grid-template-columns: 44px minmax(0, 1fr) 44px; padding: 0 7px; min-block-size: 190px; --portrait-size: 190px; }
+  #avatar-picker-directions .arrow-stage .arrow { width: 42px; min-height: 46px; padding: 0; font-size: 31px; line-height: 1; }
+  #avatar-picker-directions .gallery-stage { min-block-size: 120px; --portrait-size: 120px; }
+  #avatar-picker-directions .starter-stage { min-block-size: 172px; --portrait-size: 172px; }
+  #avatar-picker-directions .current-part { text-align: center; color: var(--entry-muted); }
+  #avatar-picker-directions .picker-categories { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+  #avatar-picker-directions .picker-slots { display: flex; flex-wrap: wrap; gap: 4px; }
+  #avatar-picker-directions .picker-slots button { min-height: 34px; font-size: 12px; padding: 3px 6px; }
+  #avatar-picker-directions .picker-thumbnails, #avatar-picker-directions .starter-looks { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
+  #avatar-picker-directions .starter-looks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  #avatar-picker-directions .option { display: grid; justify-items: center; align-content: center; gap: 2px; min-width: 0; text-align: center; overflow-wrap: anywhere; }
+  #avatar-picker-directions .option span { font-size: 11px; line-height: 1.15; }
+  #avatar-picker-directions .option canvas { width: 48px; max-width: 100%; height: auto; }
+  #avatar-picker-directions .starter-looks .option canvas { width: 68px; }
+  #avatar-picker-directions .option .swatch { display: block; width: 22px; height: 22px; border-radius: 50%; box-shadow: 0 0 0 1px var(--entry-line); }
+  #avatar-picker-directions .starter-controls { display: grid; gap: 8px; }
+  #avatar-picker-directions .fine-tune { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px; min-height: 86px; align-content: center; }
+  #avatar-picker-directions .entry-action { margin-top: auto; display: grid; gap: 4px; }
+  #avatar-picker-directions .entry-action .join { width: 100%; min-height: 42px; color: var(--entry-on-accent); background: var(--entry-accent); border-color: var(--entry-accent); font-weight: 650; }
+  #avatar-picker-directions [data-result] { min-height: 16px; color: var(--entry-muted); font-size: 12px; }
+  @media (max-width: 420px) {
+    #avatar-picker-directions > section { padding-inline: 6px; min-block-size: 686px; }
+    #avatar-picker-directions .picker-entry { padding: 12px; min-block-size: 620px; }
+    #avatar-picker-directions input, #avatar-picker-directions select { font-size: 16px; }
+  }
+  @media (pointer: coarse) {
+    #avatar-picker-directions .picker-entry button, #avatar-picker-directions .picker-entry input, #avatar-picker-directions .picker-entry select { min-height: 44px; }
+  }
+</style>
+<script>
+(() => {
+__SPRITE_TOOLS__
+__RENDERER__
+__INTERACTION__
+})();
+</script>

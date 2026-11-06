@@ -721,15 +721,50 @@ it('keeps playback controls local without sending room commands', async () => {
   expect(mocks.send).not.toHaveBeenCalled();
 });
 
-it('shows tied final scores without choosing an arbitrary winner', () => {
+it('shows the top three on the final podium and every player on the scoreboard', () => {
+  const session = completedSession();
+  session.room.players.push(
+    { id: 'mika', nickname: 'Mika', connected: true, score: 6 },
+    { id: 'sora', nickname: 'Sora', connected: false, score: 1 },
+  );
+  render(
+    <MemoryRouter>
+      <RoomGame session={session} onBack={vi.fn()} />
+    </MemoryRouter>,
+  );
+
+  expect(screen.getByRole('heading', { name: 'Mika takes the win.' })).toBeVisible();
+  const podium = within(screen.getByRole('list', { name: 'Podium' }));
+  const places = podium.getAllByRole('listitem');
+  expect(places).toHaveLength(3);
+  expect(within(places[0]).getByText('Mika')).toBeVisible();
+  expect(within(places[0]).getByText('6 points')).toBeVisible();
+  expect(within(places[1]).getByText('Host')).toBeVisible();
+  expect(within(places[2]).getByText('Sora')).toBeVisible();
+
+  const scores = within(screen.getByRole('region', { name: 'Players and scores' }));
+  expect(scores.getAllByRole('listitem')).toHaveLength(4);
+  expect(scores.getByText('Guest')).toBeVisible();
+});
+
+it('gives tied players the same podium place, including ties for third', () => {
   const session = completedSession();
   session.room.players.forEach((player) => {
     player.score = -1;
   });
+  session.room.players.push(
+    { id: 'mika', nickname: 'Mika', connected: true, score: -2 },
+    { id: 'sora', nickname: 'Sora', connected: true, score: -2 },
+    { id: 'yuki', nickname: 'Yuki', connected: true, score: -3 },
+  );
   render(
     <MemoryRouter>
       <RoomGame session={session} onBack={vi.fn()} />
     </MemoryRouter>,
   );
   expect(screen.getByRole('heading', { name: "It's a tie." })).toBeVisible();
+  const podium = within(screen.getByRole('list', { name: 'Podium' }));
+  expect(podium.getAllByText('#1')).toHaveLength(2);
+  expect(podium.getAllByText('#3')).toHaveLength(2);
+  expect(podium.queryByText('Yuki')).not.toBeInTheDocument();
 });

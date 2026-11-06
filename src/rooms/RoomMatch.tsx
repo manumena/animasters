@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Alert, Button } from '@mui/material';
 import {
   FiArrowLeft,
-  FiAward,
   FiCheck,
   FiSettings,
 } from 'react-icons/fi';
@@ -17,6 +16,7 @@ import type { RoomPreferencesController } from './preferences';
 import { songTypes } from './preferences';
 import RoomPlayback, { RoomAudioNotice } from './RoomPlayback';
 import RoomPreferences from './RoomPreferences';
+import AvatarPortrait from '../avatars/AvatarPortrait';
 import './RoomMatch.css';
 import { ShortcutKeycaps, useReadyShortcut } from './KeyboardShortcuts';
 import MatchCountdown from './MatchCountdown';
@@ -51,10 +51,29 @@ function signedPoints(points: number) {
   return `${points > 0 ? '+' : ''}${points}`;
 }
 
+interface PlayerStanding {
+  player: RoomSnapshot['players'][number];
+  score: number;
+  rank: number;
+}
+
+function rankPlayers(players: RoomSnapshot['players']): PlayerStanding[] {
+  const ordered = players.map(player => ({ player, score: player.score ?? 0 }));
+  ordered.sort((first, second) => second.score - first.score);
+
+  // Ties share a place and consume the positions they occupy (1, 1, 3).
+  let rank = 1;
+  return ordered.map(({ player, score }, index) => {
+    if (index > 0 && score !== ordered[index - 1].score) rank = index + 1;
+    return { player, score, rank };
+  });
+}
+
 /** Presentation only: the server snapshot and RoomGame decide when guesses,
  * reveals and readiness are allowed. Never infer answers from the audio URL. */
 export default function RoomMatch(props: Props) {
   const { room, playerId, guessing } = props;
+  const standings = useMemo(() => rankPlayers(room.players), [room.players]);
   const round = room.round;
   const completed = room.phase === 'completed';
   const finalSongResults = room.phase === 'results';
@@ -156,7 +175,7 @@ export default function RoomMatch(props: Props) {
               </section>
             )}
 
-            {completed && <FinalStandings {...props} />}
+            {completed && <FinalStandings {...props} standings={standings} />}
 
             {initialCountdown && (
               <MatchCountdown
@@ -268,6 +287,7 @@ export default function RoomMatch(props: Props) {
 
           <Scoreboard
             room={room}
+            standings={standings}
             playerId={playerId}
             showResult={showResult}
             guessing={guessing}
@@ -400,13 +420,14 @@ function playerStatus(
 
 function Scoreboard({
   room,
+  standings,
   playerId,
   showResult,
   guessing,
-}: Pick<Props, 'room' | 'playerId' | 'guessing'> & { showResult: boolean }) {
-  const players = [...room.players].sort(
-    (first, second) => (second.score ?? 0) - (first.score ?? 0),
-  );
+}: Pick<Props, 'room' | 'playerId' | 'guessing'> & {
+  standings: PlayerStanding[];
+  showResult: boolean;
+}) {
   const completed = room.phase === 'completed';
   return (
     <section
@@ -417,23 +438,20 @@ function Scoreboard({
         <h2>{completed ? 'Scores' : 'Players'}</h2>
         <span className="room-match-muted">
           {guessing
-            ? `${players.filter((player) => player.submitted).length} / ${players.length} answered`
-            : `${players.length} / 10`}
+            ? `${room.players.filter((player) => player.submitted).length} / ${standings.length} answered`
+            : `${standings.length} / 10`}
         </span>
       </div>
       <ol>
-        {players.map((player) => {
+        {standings.map(({ player, score, rank }) => {
           const result = showResult
             ? room.result?.players.find((answer) => answer.id === player.id)
             : undefined;
-          const rank =
-            players.findIndex(
-              (other) => (other.score ?? 0) === (player.score ?? 0),
-            ) + 1;
           const status = playerStatus(player, guessing, completed);
           return (
             <li key={player.id} data-me={player.id === playerId}>
               <span className="room-match-rank">{rank}</span>
+              <AvatarPortrait avatar={player.avatar} nickname={player.nickname} />
               <div className="room-match-player-name">
                 <strong>
                   {player.nickname}
@@ -456,7 +474,7 @@ function Scoreboard({
               </div>
               <div className="room-match-points">
                 <span>
-                  {player.score ?? 0}
+                  {score}
                   <small> points</small>
                 </span>
                 {result && (
@@ -483,17 +501,32 @@ function Scoreboard({
   );
 }
 
-function FinalStandings(props: Props) {
-  const { room, playerId } = props;
+function Podium({ standings, playerId }: { standings: PlayerStanding[]; playerId: string }) {
+  const finishers = standings.filter(({ rank }) => rank <= 3);
+  if (finishers.length === 0) return null;
+
+  const classicOrder = finishers.length === 3 && finishers[1].rank === 2 && finishers[2].rank === 3;
+
+  return (
+    <ol className="room-match-podium" aria-label="Podium" role="list" data-classic-order={classicOrder}>
+      {finishers.map(({ player, score, rank }) => (
+        <li key={player.id} data-rank={rank} data-me={player.id === playerId}>
+          <AvatarPortrait avatar={player.avatar} nickname={player.nickname} resolution={192} />
+          <strong className="room-match-podium-name">{player.nickname}</strong>
+          <span className="room-match-podium-score">{score} points</span>
+          <span className="room-match-podium-step">#{rank}</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function FinalStandings(props: Props & { standings: PlayerStanding[] }) {
+  const { room, playerId, standings } = props;
   const [editing, setEditing] = useState(false);
   const isHost = room.hostId === playerId;
   const me = room.players.find((player) => player.id === playerId);
-  const highestScore = Math.max(
-    ...room.players.map((player) => player.score ?? 0),
-  );
-  const leaders = room.players.filter(
-    (player) => (player.score ?? 0) === highestScore,
-  );
+  const leaders = standings.filter(({ rank }) => rank === 1);
   const connected = room.players.filter((player) => player.connected);
 
   return (
@@ -514,12 +547,12 @@ function FinalStandings(props: Props) {
           </Button>
         )}
       </div>
-      <FiAward className="room-match-award" aria-hidden="true" />
       <h2>
         {leaders.length === 1
-          ? `${leaders[0].nickname} takes the win.`
+          ? `${leaders[0].player.nickname} takes the win.`
           : "It's a tie."}
       </h2>
+      <Podium standings={standings} playerId={playerId} />
       {me && (
         <p className="room-match-final-score">
           Your score <strong>{me.score ?? 0} points</strong>

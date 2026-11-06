@@ -466,7 +466,7 @@
 }
 .room-match-scores li {
   display: grid;
-  grid-template-columns: 18px minmax(0, 1fr) auto;
+  grid-template-columns: 18px 34px minmax(0, 1fr) auto;
   gap: 8px;
   align-items: center;
   padding: 14px 0;
@@ -520,15 +520,69 @@
 .room-match-finale {
   text-align: center;
 }
-.room-match-finale .room-match-award {
-  display: block;
-  width: 40px;
-  height: 40px;
-  margin: 24px auto 14px;
+.room-match .room-match-finale h2 {
+  margin-top: 20px;
+  font-size: clamp(22px, 4vw, 29px);
+}
+.room-match-podium {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: end;
+  gap: 12px 8px;
+  max-width: 420px;
+  margin: 18px auto 0;
+  padding: 0;
+  list-style: none;
+}
+.room-match-podium li {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 0 0 calc((100% - 16px) / 3);
+}
+/* In a three-player podium, second place sits to the left of the winner. */
+.room-match-podium[data-classic-order='true'] li[data-rank='2'] {
+  order: -1;
+}
+.room-match-podium .avatar-portrait {
+  /* Keep the side portraits smaller when the winner fills a narrow column. */
+  width: min(104px, 100%, 84% + 4px);
+  height: auto;
+  aspect-ratio: 1;
+  font-size: 20px;
+}
+.room-match-podium li[data-rank='1'] .avatar-portrait {
+  width: min(124px, 100%);
+}
+.room-match-podium-name {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+.room-match-podium li[data-me='true'] .room-match-podium-name {
   color: var(--home-accent);
 }
-.room-match-finale h2 {
-  font-size: 29px;
+.room-match-podium-score {
+  color: var(--home-muted);
+  font-size: 12px;
+}
+.room-match-podium-step {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 28px;
+  border-radius: 7px 7px 2px 2px;
+  background: #293f49;
+  font-weight: 700;
+}
+.room-match-podium li[data-rank='2'] .room-match-podium-step {
+  min-height: 38px;
+}
+.room-match-podium li[data-rank='1'] .room-match-podium-step {
+  min-height: 52px;
+  background: #534938;
 }
 .room-match .room-match-final-score {
   display: grid;
