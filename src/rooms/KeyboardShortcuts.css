@@ -18,3 +18,9 @@
   font: 500 11px/20px system-ui, sans-serif;
   white-space: nowrap;
 }
+
+@media (pointer: coarse) {
+  .room-shortcut-keycaps {
+    display: none;
+  }
+}
