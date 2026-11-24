@@ -25,6 +25,17 @@ function setup(path = '/rooms') {
   return userEvent.setup();
 }
 
+it.each(['/rooms', '/rooms?mode=join', '/rooms/A7B2'])('prefills an editable saved nickname on %s', async path => {
+  localStorage.setItem('animasters.nickname', 'Manu');
+  const user = setup(path);
+
+  const nickname = screen.getByLabelText(/Nickname/);
+  expect(nickname).toHaveValue('Manu');
+  await user.clear(nickname);
+  await user.type(nickname, 'Mika');
+  expect(nickname).toHaveValue('Mika');
+});
+
 it('creates a room with the grouped avatar choices and displays its shareable code', async () => {
   const user = setup();
   await user.type(screen.getByLabelText(/Nickname/), 'Manu');

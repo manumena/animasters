@@ -65,6 +65,7 @@ export interface RoomSession {
 
 const api = (import.meta.env.VITE_API_URL ?? 'https://match-generator.manuelmena19938676.workers.dev').replace(/\/$/, '');
 const key = (code: string) => `animasters.room.${code}`;
+const nicknameKey = 'animasters.nickname';
 
 export function normalizeRoomCode(value: string): string {
   // Filter before uppercasing so non-ASCII letters cannot expand into valid codes.
@@ -76,6 +77,14 @@ export function savedSession(code: string): RoomSession | null {
     const value = JSON.parse(localStorage.getItem(key(code)) ?? 'null') as RoomSession | null;
     return value?.room.code === code && typeof value.token === 'string' && typeof value.playerId === 'string' ? value : null;
   } catch { return null; }
+}
+
+export function savedNickname(): string {
+  try {
+    return localStorage.getItem(nicknameKey) ?? '';
+  } catch {
+    return '';
+  }
 }
 
 export function forgetSession(code: string): void {
@@ -94,8 +103,19 @@ export async function enterRoom(nickname: string, code?: string, avatar?: Avatar
   });
   const result = await response.json();
   if (!response.ok) throw new Error(result.error ?? 'Unable to enter the room.');
-  localStorage.setItem(key(result.room.code), JSON.stringify(result));
-  return result as RoomSession;
+
+  const session = result as RoomSession;
+  localStorage.setItem(key(session.room.code), JSON.stringify(session));
+
+  const player = session.room.players.find(player => player.id === session.playerId);
+  if (player) {
+    try {
+      localStorage.setItem(nicknameKey, player.nickname);
+    } catch {
+      // A failed preference write should not interrupt a saved room entry.
+    }
+  }
+  return session;
 }
 
 /** Reconnect with a private header credential, never the shareable room code alone. */

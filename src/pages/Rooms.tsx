@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link as RouterLink, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Alert, Button, TextField } from '@mui/material';
-import { enterRoom, normalizeRoomCode, savedSession } from '../rooms/client';
+import { enterRoom, normalizeRoomCode, savedNickname, savedSession } from '../rooms/client';
 import RoomGame from '../rooms/RoomGame';
 import type { RoomSession } from '../rooms/client';
 import { FiArrowLeft, FiArrowRight } from 'react-icons/fi';
@@ -19,7 +19,7 @@ export default function Rooms() {
   const code = normalizeRoomCode(routeCode ?? '');
   const navigate = useNavigate();
   const [session, setSession] = useState<RoomSession | null>(() => savedSession(code));
-  const [nickname, setNickname] = useState('');
+  const [nickname, setNickname] = useState(savedNickname);
   const [avatar, setAvatar] = useState(loadSavedAvatar);
   const nicknameInputRef = useRef<HTMLInputElement>(null);
   const [inputCode, setInputCode] = useState(code);
@@ -65,6 +65,7 @@ export default function Rooms() {
   if (session) {
     return <RoomGame session={session} onBack={() => {
       setSession(null);
+      setNickname(savedNickname() || nickname);
       navigate('/rooms');
     }} />;
   }
