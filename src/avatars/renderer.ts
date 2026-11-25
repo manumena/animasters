@@ -1,13 +1,13 @@
 import { hairStyles, palettes } from './catalog';
 import { propProfiles } from './propCatalog';
-import type { Point, PropId, PropProfile, Rectangle } from './propCatalog';
+import type { ContourCurve, Point, PropId, PropProfile, Rectangle } from './propCatalog';
 import { avatarOptions } from './protocol';
 import type { AvatarConfig } from './protocol';
 import { cleanSprite, context2d, loadImage, newCanvas } from './sprites';
 
 const stageSize = 512;
 const bodyImages = ['blank3d', 'hair', 'bob', 'buns'] as const;
-const propImages = ['props', 'headphones', 'glasses', 'scarf'] as const;
+const propImages = [...new Set(Object.values(propProfiles).map(profile => profile.image))];
 
 interface PropLayers {
   sprite: HTMLCanvasElement;
@@ -20,8 +20,20 @@ function coordinates(profile: PropProfile, along: number, across: number): Point
   return profile.vertical ? [across, along] : [along, across];
 }
 
-function traceCurve(path: Path2D, profile: PropProfile, points: readonly Point[]) {
+function traceCurve(path: Path2D, profile: PropProfile, curve: ContourCurve, reversed = false) {
+  const points = reversed ? [...curve.points].reverse() : curve.points;
   path.lineTo(...coordinates(profile, ...points[0]));
+
+  if (curve.interpolation === 'quadratic') {
+    const controls = reversed ? [...curve.controls].reverse() : curve.controls;
+    for (let index = 1; index < points.length; index += 1) {
+      path.quadraticCurveTo(
+        ...coordinates(profile, ...controls[index - 1]),
+        ...coordinates(profile, ...points[index]),
+      );
+    }
+    return;
+  }
 
   for (let index = 1; index < points.length; index += 1) {
     const [previousAlong, previousAcross] = points[index - 1];
@@ -38,16 +50,16 @@ function traceCurve(path: Path2D, profile: PropProfile, points: readonly Point[]
 function makePropLayers(profile: PropProfile, sprite: HTMLCanvasElement): PropLayers {
   const front = new Path2D();
   if (profile.foreground === 'between') {
-    const left = profile.curves[0].points;
-    const right = [...profile.curves[1].points].reverse();
-    front.moveTo(...coordinates(profile, ...left[0]));
+    const [left, right] = profile.curves;
+    front.moveTo(...coordinates(profile, ...left.points[0]));
     traceCurve(front, profile, left);
-    traceCurve(front, profile, right);
+    traceCurve(front, profile, right, true);
     front.closePath();
   } else {
-    for (const { points } of profile.curves) {
+    for (const curve of profile.curves) {
+      const { points } = curve;
       front.moveTo(...coordinates(profile, points[0][0], profile.foreground));
-      traceCurve(front, profile, points);
+      traceCurve(front, profile, curve);
       front.lineTo(...coordinates(profile, points[points.length - 1][0], profile.foreground));
       front.closePath();
     }

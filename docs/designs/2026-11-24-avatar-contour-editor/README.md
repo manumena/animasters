@@ -1,0 +1,19 @@
+# New anime prop contour editor
+
+November 24, 2026. The owner approved six generated props and requested the contour interface to arrange them individually.
+
+Open `preview.html`. The editor starts with Ash’s cap and includes Urahara’s hat, the Saiyan scouter, Kamina’s glasses, Kakashi’s mask, and Nezuko’s bamboo. Use the prop selector or Previous prop and Next prop to move between items.
+
+Position and size use the same 512 px coordinate space as the app’s avatar renderer. Use the Size slider to scale width and height together, retaining the current aspect ratio and keeping the prop centered within the editor’s position limits. 100% corresponds to the original preset width. Size is retained per prop and exported through the fitted rectangle. The width and height fields remain available for independent adjustments. Drag the round points in the source-art panel to define which parts sit in front of the head. Hats default to Simple arcs, with one square bend handle between each pair of round anchors. Drag a square to change the bow of that quadratic segment. Each segment has no inflection. Curve shape can switch the current contour between Simple arcs and Original curves. The point selector and horizontal/vertical sliders offer keyboard control. Front region selects the side of a contour that covers the avatar. Kamina’s glasses use the region between two vertical contours. The hair option lets hats hide the crown beneath the opening.
+
+The owner’s adjusted rectangles and contours are saved in `contour-presets.json`. The exact pasted export is retained as `owner-contour-export.json`. The working preset preserves all fitted numbers and contour data and switches Kamina’s image to the armless revision. Each prop retains its changes while switching items, and the inline editor stores the full session through the host’s saved interaction state. Export preset contains all six fitted rectangles, contour points, interpolation modes, quadratic bend handles, front regions, and hair settings. Quadratic contours export as `interpolation: "quadratic"` and one `controls` entry per segment, also supported by the app renderer. Use Select JSON to copy the complete set for durable storage. Restore contour affects only the selected curve. Reset position and size affects only the selected prop’s rectangle.
+
+The scouter uses the revised 45% opacity lens. The six WebP inputs in `assets/` are losslessly encoded review-size copies of the generated PNGs in the prop expansion folder. The original PNGs and their generation records remain there. The base and hairstyles come from the existing avatar assets.
+
+The editable sources are `source.template.html`, `editor.js`, `sprites.js`, and `contour-presets.json`. Run `node build-preview.mjs` to refresh `source.html` and the inline editor. Then use the visualize renderer to wrap `source.html` as `preview.html`.
+
+Browser checks covered all six props, visible artwork changes after moving a fit, contour sliders, per-item retention, Previous/Next, full export, the translucent scouter, and stacked mobile canvases at 320 px content width.
+
+All six fitted configurations have been saved from the owner’s export, including the two quadratic hat curves and their handles. The saved editor uses `assets/kamina-glasses-armless.webp`. Its automatically trimmed bounds differ by one source pixel at the top and left, equivalent to less than half an avatar pixel at the saved fit. The original fitted coordinates and curves are retained exactly.
+
+November 25: implemented all six props in the app’s shared prop rotation and room avatar protocol. Production artwork lives in `public/avatars/v1/`; calibrated profiles live in `src/avatars/propCatalog.ts`. The renderer uses the exported quadratic handles for both hats and preserves the existing interpolation for other props. Saved version 1 avatar selections remain compatible.

@@ -19,6 +19,8 @@ Open a `preview.html` file in a browser and use its variant picker. Previews do 
 
 | Date | Sketch | Variants | Feedback |
 | --- | --- | --- | --- |
+| November 24, 2026 | [New anime prop contour editor](2026-11-24-avatar-contour-editor/README.md) · [Preview](2026-11-24-avatar-contour-editor/preview.html) | Per-item fit and front/rear contours for all six new props | Saved the owner’s six fitted configurations with proportional Size control and quadratic hat arcs. Implemented all six on November 25, retaining the 45% scouter lens and armless glasses. |
+| November 24, 2026 | [Anime prop expansion](2026-11-24-avatar-prop-expansion/README.md) · [Preview](2026-11-24-avatar-prop-expansion/preview.html) | Six soft 3D props across headwear, eyewear, and face accessories | Owner likes the six drafts and requested a 45% opacity scouter lens before manual contour calibration. |
 | November 5, 2026 | [Lobby avatar thumbnail sizes](2026-11-05-lobby-avatar-sizes/README.md) · [Preview](2026-11-05-lobby-avatar-sizes/preview.html) | Current 34 px, Compact 44 px, Clear 56 px, Portrait 72 px | Owner selected Clear (56 px) for the lobby’s player list. |
 | November 5, 2026 | [Arcade arrow layouts](2026-11-05-avatar-arrow-layouts/README.md) · [Preview](2026-11-05-avatar-arrow-layouts/preview.html) | Side stacks, Rows below, Grouped rows | Owner preferred Arcade arrows with direct arrow pairs and one shared prop rotation. |
 | November 5, 2026 | [Avatar picker directions](2026-11-05-avatar-picker-directions/README.md) · [Preview](2026-11-05-avatar-picker-directions/preview.html) | Arcade arrows, Thumbnail picker, Starter looks | Owner requested playable sketches to compare before choosing an interaction. |

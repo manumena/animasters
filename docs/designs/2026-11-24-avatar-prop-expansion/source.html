@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Anime avatar props — review batch</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: system-ui, sans-serif;
+      background: #12232b;
+      color: #f2f7f4;
+    }
+
+    body {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 26px;
+    }
+
+    header p {
+      margin: 8px 0 22px;
+      color: #b0c1c5;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    figure {
+      min-width: 0;
+      margin: 0;
+      padding: 16px;
+      border: 1px solid #354950;
+      border-radius: 14px;
+      background: #1b2b32;
+    }
+
+    .artwork {
+      display: grid;
+      place-items: center;
+      aspect-ratio: 1;
+      overflow: hidden;
+      border-radius: 8px;
+      background-color: #30474c;
+      background-image: repeating-conic-gradient(#30474c 0% 25%, #354e53 0% 50%);
+      background-size: 20px 20px;
+    }
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    figcaption {
+      display: grid;
+      gap: 4px;
+      margin-top: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    figcaption span {
+      color: #b0c1c5;
+      font-size: 13px;
+    }
+
+    @media (max-width: 700px) {
+      main {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 420px) {
+      main {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Anime avatar props</h1>
+    <p>Review batch · Soft 3D · Placement and contours pending</p>
+  </header>
+  <main aria-label="Six new prop drafts">
+    <figure>
+      <div class="artwork"><img src="assets/ash-cap.png" alt="Red and white cap with a green angular emblem"></div>
+      <figcaption><strong>Ash’s cap</strong><span>Pokémon · Headwear</span></figcaption>
+    </figure>
+    <figure>
+      <div class="artwork"><img src="assets/urahara-hat.png" alt="Green and ivory striped bucket hat with a visible inner brim"></div>
+      <figcaption><strong>Urahara’s bucket hat</strong><span>Bleach · Headwear</span></figcaption>
+    </figure>
+    <figure>
+      <div class="artwork"><img src="assets/dragon-ball-scouter-45.png" alt="Green single-eye lens connected to an ivory earpiece with a red button"></div>
+      <figcaption><strong>Saiyan scouter</strong><span>Dragon Ball · Eyewear · Lens opacity 45%</span></figcaption>
+    </figure>
+    <figure>
+      <div class="artwork"><img src="assets/kamina-glasses-armless.png" alt="Red sunglasses with dramatically pointed triangular lenses"></div>
+      <figcaption><strong>Kamina’s glasses</strong><span>Gurren Lagann · Eyewear</span></figcaption>
+    </figure>
+    <figure>
+      <div class="artwork"><img src="assets/kakashi-mask.png" alt="Dark navy mask with a raised nose bridge and curved chin"></div>
+      <figcaption><strong>Kakashi’s mask</strong><span>Naruto · Face accessory</span></figcaption>
+    </figure>
+    <figure>
+      <div class="artwork"><img src="assets/nezuko-bamboo.png" alt="Horizontal green bamboo segment with dark red ties"></div>
+      <figcaption><strong>Nezuko’s bamboo</strong><span>Demon Slayer · Face accessory</span></figcaption>
+    </figure>
+  </main>
+</body>
+</html>

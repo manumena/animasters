@@ -44,7 +44,7 @@ it('creates a room with the grouped avatar choices and displays its shareable co
   expect(screen.queryByRole('button', { name: 'Next hair style' })).not.toBeInTheDocument();
 
   await user.click(screen.getByRole('button', { name: 'Previous prop' }));
-  expect(screen.getByText('Red scarf')).toBeVisible();
+  expect(screen.getByText('Nezuko’s bamboo · Demon Slayer')).toBeVisible();
   await user.click(screen.getByRole('button', { name: 'Next prop' }));
   expect(screen.getByText('None')).toBeVisible();
   await user.click(screen.getByRole('button', { name: 'Next prop' }));

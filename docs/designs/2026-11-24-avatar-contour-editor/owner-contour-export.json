@@ -1,0 +1,308 @@
+{
+  "version": 1,
+  "selection": {
+    "prop": "ash-cap",
+    "hair": "compact",
+    "region": 0,
+    "point": 1,
+    "control": "anchor"
+  },
+  "props": {
+    "ash-cap": {
+      "label": "Ash’s cap · Pokémon",
+      "image": "ash-cap",
+      "rectangle": [
+        136.12,
+        52.13500000000002,
+        239.76,
+        188.72999999999996
+      ],
+      "foreground": 0,
+      "tuckHair": true,
+      "curves": [
+        {
+          "label": "Visor opening",
+          "points": [
+            [
+              0,
+              0.94
+            ],
+            [
+              0.24,
+              0.81
+            ],
+            [
+              0.5,
+              0.78
+            ],
+            [
+              0.76,
+              0.82
+            ],
+            [
+              1,
+              0.94
+            ]
+          ],
+          "interpolation": "quadratic",
+          "controls": [
+            [
+              0.12,
+              0.83
+            ],
+            [
+              0.36,
+              0.77
+            ],
+            [
+              0.63,
+              0.78
+            ],
+            [
+              0.88,
+              0.83
+            ]
+          ]
+        }
+      ]
+    },
+    "urahara-hat": {
+      "label": "Urahara’s hat · Bleach",
+      "image": "urahara-hat",
+      "rectangle": [
+        98.08000000000006,
+        42.050000000000054,
+        315.8399999999999,
+        220.8999999999999
+      ],
+      "foreground": 0,
+      "tuckHair": true,
+      "curves": [
+        {
+          "label": "Brim opening",
+          "points": [
+            [
+              0,
+              0.82
+            ],
+            [
+              0.24,
+              0.72
+            ],
+            [
+              0.5,
+              0.64
+            ],
+            [
+              0.76,
+              0.72
+            ],
+            [
+              1,
+              0.84
+            ]
+          ],
+          "interpolation": "quadratic",
+          "controls": [
+            [
+              0.12,
+              0.74
+            ],
+            [
+              0.37,
+              0.67
+            ],
+            [
+              0.63,
+              0.67
+            ],
+            [
+              0.87,
+              0.75
+            ]
+          ]
+        }
+      ]
+    },
+    "dragon-ball-scouter": {
+      "label": "Saiyan scouter · Dragon Ball",
+      "image": "dragon-ball-scouter",
+      "rectangle": [
+        256.03999999999996,
+        214.5,
+        126.71999999999998,
+        63.99999999999994
+      ],
+      "foreground": 0,
+      "vertical": true,
+      "curves": [
+        {
+          "label": "Lens / ear boundary",
+          "points": [
+            [
+              0,
+              1
+            ],
+            [
+              0.24,
+              1
+            ],
+            [
+              0.49,
+              1
+            ],
+            [
+              0.73,
+              1
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          "interpolation": "s-curve"
+        }
+      ]
+    },
+    "kamina-glasses": {
+      "label": "Kamina’s glasses · Gurren Lagann",
+      "image": "kamina-glasses",
+      "rectangle": [
+        115.4199999999999,
+        193.49499999999983,
+        281.16,
+        98.00999999999995
+      ],
+      "foreground": "between",
+      "vertical": true,
+      "curves": [
+        {
+          "label": "Left temple",
+          "bounds": [
+            0,
+            0.49
+          ],
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.12
+            ],
+            [
+              1,
+              0.15
+            ]
+          ],
+          "interpolation": "s-curve"
+        },
+        {
+          "label": "Right temple",
+          "bounds": [
+            0.51,
+            1
+          ],
+          "points": [
+            [
+              0,
+              1
+            ],
+            [
+              0.5,
+              0.88
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "interpolation": "s-curve"
+        }
+      ]
+    },
+    "kakashi-mask": {
+      "label": "Kakashi’s mask · Naruto",
+      "image": "kakashi-mask",
+      "rectangle": [
+        170.4999999999996,
+        253,
+        171,
+        113.25000000000003
+      ],
+      "foreground": 1,
+      "curves": [
+        {
+          "label": "Cheek opening",
+          "points": [
+            [
+              0,
+              0.24
+            ],
+            [
+              0.05,
+              0.26
+            ],
+            [
+              0.5,
+              0.02
+            ],
+            [
+              0.95,
+              0.27
+            ],
+            [
+              1,
+              0.24
+            ]
+          ],
+          "interpolation": "s-curve"
+        }
+      ]
+    },
+    "nezuko-bamboo": {
+      "label": "Nezuko’s bamboo · Demon Slayer",
+      "image": "nezuko-bamboo",
+      "rectangle": [
+        165.27999999999963,
+        264.1199999999999,
+        181.44,
+        51.839999999999996
+      ],
+      "foreground": 1,
+      "curves": [
+        {
+          "label": "Bamboo / tie boundary",
+          "points": [
+            [
+              0,
+              0.22
+            ],
+            [
+              0.05,
+              0.28
+            ],
+            [
+              0.32,
+              0.06
+            ],
+            [
+              0.69,
+              0
+            ],
+            [
+              0.95,
+              0.29
+            ],
+            [
+              1,
+              0.2
+            ]
+          ],
+          "interpolation": "s-curve"
+        }
+      ]
+    }
+  }
+}

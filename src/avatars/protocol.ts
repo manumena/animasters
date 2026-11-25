@@ -5,7 +5,10 @@ export const avatarOptions = {
   skin: ['light', 'warm', 'brown', 'deep', 'mint', 'sky', 'lilac', 'rose'],
   eyes: ['oval', 'round', 'almond'],
   expression: ['smile', 'neutral', 'laugh', 'angry', 'sleepy', 'surprised'],
-  prop: ['none', 'straw', 'leaf', 'chopper', 'headphones', 'glasses', 'scarf'],
+  prop: [
+    'none', 'straw', 'leaf', 'chopper', 'headphones', 'glasses', 'scarf',
+    'ash-cap', 'urahara-hat', 'dragon-ball-scouter', 'kamina-glasses', 'kakashi-mask', 'nezuko-bamboo',
+  ],
 } as const;
 
 export type AvatarSetting = keyof typeof avatarOptions;
