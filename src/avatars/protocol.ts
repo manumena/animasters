@@ -1,6 +1,9 @@
 // Keep these versioned IDs in sync with the Animasters avatar protocol.
 export const avatarOptions = {
-  hair: ['compact', 'bob', 'buns', 'none'],
+  hair: [
+    'compact', 'bob', 'buns', 'none',
+    'curtains', 'swept-undercut', 'rounded-curls', 'high-ponytail', 'twin-tails', 'long-layers',
+  ],
   hairColor: ['charcoal', 'chestnut', 'copper', 'blonde', 'silver', 'teal', 'blue', 'pink'],
   skin: ['light', 'warm', 'brown', 'deep', 'mint', 'sky', 'lilac', 'rose'],
   eyes: ['oval', 'round', 'almond'],

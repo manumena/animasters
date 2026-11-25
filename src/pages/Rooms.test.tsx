@@ -56,8 +56,10 @@ it('creates a room with the grouped avatar choices and displays its shareable co
   expect(screen.getByText(/Manu \(you\) · Host/)).toBeVisible();
 });
 
-it('joins by normalized code with the look saved in this browser', async () => {
-  const avatar = { ...defaultAvatar, skin: 'mint', prop: 'headphones' } as const;
+it.each([
+  'compact', 'curtains', 'swept-undercut', 'rounded-curls', 'high-ponytail', 'twin-tails', 'long-layers',
+] as const)('joins by normalized code with saved %s hair', async hair => {
+  const avatar = { ...defaultAvatar, hair, skin: 'mint', prop: 'headphones' } as const;
   saveAvatar(avatar);
   const user = setup();
   expect(screen.getByText('Mint green')).toBeVisible();

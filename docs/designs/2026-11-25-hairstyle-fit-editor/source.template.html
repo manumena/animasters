@@ -1,0 +1,67 @@
+<div id="avatar-hair-fit-editor">
+  <style>
+    #avatar-hair-fit-editor { display: grid; gap: 1rem; }
+    #avatar-hair-fit-editor .hair-layout { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 1rem; align-items: center; }
+    #avatar-hair-fit-editor .hair-fields { display: grid; gap: 1rem; min-width: 0; }
+    #avatar-hair-fit-editor .hair-position { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+    #avatar-hair-fit-editor .hair-field { display: grid; gap: .5rem; min-width: 0; }
+    #avatar-hair-fit-editor .hair-label { display: flex; justify-content: space-between; gap: .5rem; }
+    #avatar-hair-fit-editor canvas { display: block; width: 100%; height: auto; touch-action: none; }
+    #avatar-hair-fit-editor details { min-width: 0; }
+    #avatar-hair-fit-editor .hair-export { display: grid; gap: .75rem; margin-top: .75rem; }
+    #avatar-hair-fit-editor summary { color: var(--foreground); }
+    @media (max-width: 540px) {
+      #avatar-hair-fit-editor .hair-layout { grid-template-columns: minmax(0, 1fr); }
+    }
+  </style>
+
+  <div class="viz-controls">
+    <label class="form-label">Hairstyle
+      <select id="hair-fit-style" class="form-select" disabled></select>
+    </label>
+  </div>
+  <div class="hair-layout">
+    <div class="card">
+      <canvas id="hair-fit-avatar" width="640" height="640" role="img" aria-label="Avatar with the selected hairstyle. Drag the hair to reposition it, or use the horizontal and vertical position fields."></canvas>
+    </div>
+    <div class="hair-fields" role="group" aria-label="Hairstyle position and size">
+      <div class="viz-row">
+        <button id="hair-fit-previous" class="btn" type="button" disabled>Previous</button>
+        <span id="hair-fit-progress" class="text-small tabular-nums" aria-live="polite"></span>
+        <button id="hair-fit-next" class="btn" type="button" disabled>Next</button>
+      </div>
+      <div class="hair-position">
+        <label class="hair-field form-label">Horizontal position
+          <input id="hair-fit-x" class="form-control" type="number" min="-256" max="768" step="1" disabled>
+        </label>
+        <label class="hair-field form-label">Vertical position
+          <input id="hair-fit-y" class="form-control" type="number" min="-256" max="768" step="1" disabled>
+        </label>
+      </div>
+      <label class="hair-field form-label">
+        <span class="hair-label">Size <output id="hair-fit-size-value" class="tabular-nums"></output></span>
+        <input id="hair-fit-size" class="form-range" type="range" min="40" max="180" step="1" disabled>
+      </label>
+      <label class="hair-field form-label">Size (%)
+        <input id="hair-fit-size-number" class="form-control" type="number" min="40" max="180" step="1" disabled>
+      </label>
+      <output id="hair-fit-dimensions" class="text-small tabular-nums"></output>
+    </div>
+  </div>
+  <span id="hair-fit-status" class="text-small" aria-live="polite">Loading hairstyles…</span>
+  <details id="hair-fit-export">
+    <summary class="cursor-interaction">Export all six fits</summary>
+    <div class="hair-export">
+      <label class="hair-field form-label">Saved configuration
+        <textarea id="hair-fit-json" class="form-control" rows="8" readonly spellcheck="false"></textarea>
+      </label>
+      <div class="viz-row"><button id="hair-fit-select-json" class="btn" type="button">Select JSON</button></div>
+    </div>
+  </details>
+  <script>
+  (() => {
+    __SPRITE_TOOLS__
+    __HAIR_EDITOR__
+  })();
+  </script>
+</div>

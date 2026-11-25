@@ -1,15 +1,78 @@
 import { propProfiles } from './propCatalog';
-import type { Rectangle } from './propCatalog';
+import type { Point, Rectangle } from './propCatalog';
 import { avatarOptions } from './protocol';
 import type { AvatarConfig, AvatarSetting } from './protocol';
 
 type Color = { label: string; rgb: readonly [number, number, number] };
-type HairStyle = { label: string; image: 'hair' | 'bob' | 'buns'; rectangle: Rectangle };
+export type HairId = Exclude<AvatarConfig['hair'], 'none'>;
+type HairImage =
+  | 'hair' | 'bob' | 'buns'
+  | 'curtains' | 'swept-undercut' | 'rounded-curls' | 'high-ponytail' | 'twin-tails' | 'long-layers';
 
-export const hairStyles: Record<Exclude<AvatarConfig['hair'], 'none'>, HairStyle> = {
+export interface HairStyle {
+  label: string;
+  image: HairImage;
+  rectangle: Rectangle;
+  depth?: {
+    // The normalized, closed outline follows visible foreground locks.
+    frontOutline: {
+      start: Point;
+      segments: readonly { to: Point; control?: Point }[];
+    };
+  };
+}
+
+export const hairStyles: Record<HairId, HairStyle> = {
   compact: { label: 'Spiky', image: 'hair', rectangle: [126, 67, 260, 195] },
   bob: { label: 'Bob', image: 'bob', rectangle: [130, 68, 252, 277] },
   buns: { label: 'Twin buns', image: 'buns', rectangle: [91, 23, 330, 269] },
+  // Owner-calibrated November 25 fits, preserved from the exported editor config.
+  curtains: {
+    label: 'Curtains', image: 'curtains',
+    rectangle: [120.99999999999989, 69.00000000000004, 270, 169.3006993006993],
+  },
+  'swept-undercut': {
+    label: 'Swept undercut', image: 'swept-undercut',
+    rectangle: [133, 60, 270, 204.09448818897638],
+  },
+  'rounded-curls': {
+    label: 'Rounded curls', image: 'rounded-curls',
+    rectangle: [97, 58.75389755011136, 318, 264.173719376392],
+  },
+  'high-ponytail': {
+    label: 'High ponytail', image: 'high-ponytail',
+    rectangle: [137, 10, 300, 264.8780487804878],
+  },
+  'twin-tails': {
+    label: 'Twin tails', image: 'twin-tails',
+    rectangle: [86, 85, 340, 286.875],
+  },
+  'long-layers': {
+    label: 'Long layers', image: 'long-layers',
+    rectangle: [97.82500000000019, 87, 316.35, 314.77219451371576],
+    depth: {
+      frontOutline: {
+        start: [0, 0],
+        segments: [
+          { to: [1, 0] },
+          { to: [1, 0.49] },
+          { control: [0.98, 0.65], to: [0.87, 0.78] },
+          { control: [0.81, 0.84], to: [0.74, 0.83] },
+          { control: [0.71, 0.85], to: [0.69, 0.84] },
+          { control: [0.66, 0.84], to: [0.68, 0.81] },
+          { control: [0.74, 0.74], to: [0.73, 0.62] },
+          { control: [0.76, 0.55], to: [0.73, 0.47] },
+          { to: [0.27, 0.47] },
+          { control: [0.24, 0.55], to: [0.27, 0.62] },
+          { control: [0.26, 0.74], to: [0.32, 0.81] },
+          { control: [0.34, 0.84], to: [0.31, 0.84] },
+          { control: [0.29, 0.85], to: [0.26, 0.83] },
+          { control: [0.19, 0.84], to: [0.13, 0.78] },
+          { control: [0.02, 0.65], to: [0, 0.49] },
+        ],
+      },
+    },
+  },
 };
 
 export const palettes: { [Setting in 'hairColor' | 'skin']: Record<AvatarConfig[Setting], Color> } = {

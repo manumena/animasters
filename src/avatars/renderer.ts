@@ -1,4 +1,5 @@
 import { hairStyles, palettes } from './catalog';
+import type { HairId, HairStyle } from './catalog';
 import { propProfiles } from './propCatalog';
 import type { ContourCurve, Point, PropId, PropProfile, Rectangle } from './propCatalog';
 import { avatarOptions } from './protocol';
@@ -6,7 +7,8 @@ import type { AvatarConfig } from './protocol';
 import { cleanSprite, context2d, loadImage, newCanvas } from './sprites';
 
 const stageSize = 512;
-const bodyImages = ['blank3d', 'hair', 'bob', 'buns'] as const;
+const hairImages = [...new Set(Object.values(hairStyles).map(hair => hair.image))];
+const bodyImages = ['blank3d', ...hairImages] as const;
 const propImages = [...new Set(Object.values(propProfiles).map(profile => profile.image))];
 
 interface PropLayers {
@@ -14,6 +16,33 @@ interface PropLayers {
   front: Path2D;
   rear: Path2D;
   rectangle: Rectangle;
+}
+
+interface HairLayers {
+  front: Path2D;
+  rear: Path2D;
+}
+
+function makeHairLayers(hair: HairStyle): HairLayers | undefined {
+  const outline = hair.depth?.frontOutline;
+  if (!outline) return;
+
+  const front = new Path2D();
+  front.moveTo(...outline.start);
+  for (const segment of outline.segments) {
+    if (segment.control) {
+      front.quadraticCurveTo(...segment.control, ...segment.to);
+    } else {
+      front.lineTo(...segment.to);
+    }
+  }
+  front.closePath();
+
+  // Keep the deeper locks behind the head, with an exact complementary mask.
+  const rear = new Path2D();
+  rear.rect(0, 0, 1, 1);
+  rear.addPath(front);
+  return { front, rear };
 }
 
 function coordinates(profile: PropProfile, along: number, across: number): Point {
@@ -140,7 +169,11 @@ async function loadArtwork() {
     return [id, makePropLayers(profile, cleanSprite(image, rectangle, true, 28))];
   })) as Record<PropId, PropLayers>;
 
-  return { sprites, features, props, tintedSprites: new Map<string, HTMLCanvasElement>() };
+  const hairLayers = Object.fromEntries(
+    Object.entries(hairStyles).map(([id, hair]) => [id, makeHairLayers(hair)]),
+  ) as Record<HairId, HairLayers | undefined>;
+
+  return { sprites, features, props, hairLayers, tintedSprites: new Map<string, HTMLCanvasElement>() };
 }
 
 type Artwork = Awaited<ReturnType<typeof loadArtwork>>;
@@ -161,10 +194,16 @@ function recolor<Kind extends 'skin' | 'hairColor'>(
   return colored;
 }
 
-function drawHair(context: CanvasRenderingContext2D, artwork: Artwork, avatar: AvatarConfig, prop?: PropProfile) {
+function drawHair(
+  context: CanvasRenderingContext2D, artwork: Artwork, avatar: AvatarConfig,
+  side: 'front' | 'rear', prop?: PropProfile,
+) {
   if (avatar.hair === 'none') return;
 
   const hair = hairStyles[avatar.hair];
+  const layers = artwork.hairLayers[avatar.hair];
+  if (!layers && side === 'rear') return;
+
   context.save();
   if (prop?.tuckHair) {
     const [, top, , height] = prop.rectangle;
@@ -176,7 +215,15 @@ function drawHair(context: CanvasRenderingContext2D, artwork: Artwork, avatar: A
   }
 
   const sprite = recolor(artwork, hair.image, 'hairColor', avatar.hairColor);
-  context.drawImage(sprite, ...hair.rectangle);
+  if (layers) {
+    const [x, y, width, height] = hair.rectangle;
+    context.translate(x, y);
+    context.scale(width, height);
+    context.clip(layers[side], 'evenodd');
+    context.drawImage(sprite, 0, 0, 1, 1);
+  } else {
+    context.drawImage(sprite, ...hair.rectangle);
+  }
   context.restore();
 }
 
@@ -192,16 +239,18 @@ export function loadAvatarArtwork() {
 export function drawAvatar(portrait: HTMLCanvasElement, artwork: Artwork, avatar: AvatarConfig) {
   const context = context2d(portrait);
   const prop = avatar.prop === 'none' ? undefined : artwork.props[avatar.prop];
+  const propProfile = avatar.prop === 'none' ? undefined : propProfiles[avatar.prop];
   const eyes = avatarOptions.eyes.indexOf(avatar.eyes);
   const expression = avatarOptions.expression.indexOf(avatar.expression);
 
   context.clearRect(0, 0, portrait.width, portrait.height);
   context.save();
   context.scale(portrait.width / stageSize, portrait.height / stageSize);
+  drawHair(context, artwork, avatar, 'rear', propProfile);
   if (prop) drawProp(context, prop, 'rear');
   context.drawImage(recolor(artwork, 'blank3d', 'skin', avatar.skin), 136, 110, 240, 336);
   context.drawImage(artwork.features[expression][eyes], 138, 137, 236, 190);
-  drawHair(context, artwork, avatar, avatar.prop === 'none' ? undefined : propProfiles[avatar.prop]);
+  drawHair(context, artwork, avatar, 'front', propProfile);
   if (prop) drawProp(context, prop, 'front');
   context.restore();
 }
